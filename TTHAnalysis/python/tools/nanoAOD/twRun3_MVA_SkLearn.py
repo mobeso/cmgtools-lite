@@ -150,24 +150,24 @@ class tW_MVA(Module):
                     # -- 1j1b -- #
                     if getattr(event, 'nJetSel30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0 and getattr(event, 'nBJetSelMedium30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0: # we require 1j1b, the bjet requirement helps to improve the process time
                         # We pass the value of the input variables (nominal and varied) as a numpy array 
-                        inputVars1j1b = np.array([getattr(event, var.format(v = sys if "unclustEn" not in sys else "")) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
+                        inputVars1j1b = np.array([getattr(event, var.format(v = sys)) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
                         allret["mvaRF_1j1b" + sys] = self.model_1j1b.run(None, {self.input_name_1j1b: inputVars1j1b})[1][0][1] # Run returns: (prediction, [class probabilities]) so we take class probabilities and from there the signal probability
                     # -- 2j1b -- #
                     if getattr(event, 'nJetSel30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 1 and getattr(event, 'nBJetSelMedium30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0: # we require 2j1b
-                        inputVars2j1b = np.array([getattr(event, var.format(v = sys if "unclustEn" not in sys else "")) for var in self.vars2j1b_jecs], dtype = np.float32).reshape(1, -1)
+                        inputVars2j1b = np.array([getattr(event, var.format(v = sys)) for var in self.vars2j1b_jecs], dtype = np.float32).reshape(1, -1)
                         allret["mvaRF_2j1b" + sys] = self.model_2j1b.run(None, {self.input_name_2j1b: inputVars2j1b})[1][0][1]
                 
                 if event.channel == ch.Muon:
                     # -- 1j1b mm -- #
                     if getattr(event, 'nJetSel30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0 and getattr(event, 'nBJetSelMedium30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0: # we require 1j1b, the bjet requirement helps to improve the process time
                         # We pass the value of the input variables (nominal and varied) as a numpy array 
-                        inputVars1j1b = np.array([getattr(event, var.format(v = sys if "unclustEn" not in sys else "")) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
+                        inputVars1j1b = np.array([getattr(event, var.format(v = sys)) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
                         allret["mvaRF_1j1b_mm" + sys] = self.model_1j1b_mm.run(None, {self.input_name_1j1b_mm: inputVars1j1b})[1][0][1] # Run returns: (prediction, [class probabilities]) so we take class probabilities and from there the signal probability
                 if event.channel == ch.Elec:
                     # -- 1j1b ee -- #
                     if getattr(event, 'nJetSel30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0 and getattr(event, 'nBJetSelMedium30{v}_Recl'.format(v = sys if "unclustEn" not in sys else "")) > 0: # we require 1j1b, the bjet requirement helps to improve the process time
                         # We pass the value of the input variables (nominal and varied) as a numpy array 
-                        inputVars1j1b = np.array([getattr(event, var.format(v = sys if "unclustEn" not in sys else "")) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
+                        inputVars1j1b = np.array([getattr(event, var.format(v = sys)) for var in self.vars1j1b_jecs], dtype = np.float32).reshape(1, -1) # we need to reshape the array to have the correct shape
                         allret["mvaRF_1j1b_ee" + sys] = self.model_1j1b_ee.run(None, {self.input_name_1j1b_ee: inputVars1j1b})[1][0][1] # Run returns: (prediction, [class probabilities]) so we take class probabilities and from there the signal probability
 
         # Lepton energy scale variations

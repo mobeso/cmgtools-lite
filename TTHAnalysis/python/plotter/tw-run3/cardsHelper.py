@@ -13,11 +13,11 @@ friendspath  = "/beegfs/data/nanoAODv11/tw-run3/productions"
 logpath      = friendspath + "/{p}/{y}/logs/cards_inclusive"
 
 lumidict     = {"2022"       : 7.78,
-                "2022PostEE" : 20.04}
+                "2022PostEE" : 20.67}
 
 friendsscaff = "--FMCs {P}/0_jecs --Fs {P}/1_lepsuncsAndParticle --Fs {P}/2_cleaning --Fs {P}/3_varstrigger --FMCs {P}/4_scalefactors --Fs {P}/6_mvas_new_multiClass_withSameFlav" # --Fs {P}/5_mvas
 
-commandscaff = '''python3 makeShapeCards_TopRun2.py --tree NanoAOD {mcafile} {cutsfile} "{variable}" "{bins}" {samplespaths} {friends} --od {outpath} -l {lumi} {nth} -f -L tw-run3/functions_tw.cc --neg --threshold 0.01 -W "MuonIDSF * ElecIDSF * TrigSF" --year {year} {asimovornot} {uncs} {extra} --AP --storeAll'''
+commandscaff = '''python3 makeShapeCards_TopRun2.py --tree NanoAOD {mcafile} {cutsfile} "{variable}" "{bins}" {samplespaths} {friends} --od {outpath} -l {lumi} {nth} -f -L tw-run3/functions_tw.cc --neg --threshold 0.01 -W "MuonIDSF * ElecIDSF * TrigSF * bTagWeight" --year {year} {asimovornot} {pseudodataorNot} {uncs} {extra} --AP --storeAll'''
 
 slurmscaff   = "sbatch -c {nth} -p {queue} -J {jobname} -e {logpath}/log.%j.%x.err -o {logpath}/log.%j.%x.out --wrap '{command}'"
 
@@ -27,7 +27,7 @@ listofforcedshape = "btagging_2016,btagging_2017,btagging_2018,btagging_corr,ele
 
 
 def GeneralExecutioner(task):
-    prod, year, variable, bines, asimov, nthreads, outpath, region, queue, extra, pretend, useFibre, noUnc = task
+    prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, queue, extra, pretend, useFibre, noUnc = task
 
     if not os.path.isdir(outpath + "/" + str(year)) and not pretend:
         os.system("mkdir -p " + outpath + "/" + str(year))
@@ -41,11 +41,11 @@ def GeneralExecutioner(task):
                                     queue   = queue,
                                     jobname = jobname_,
                                     logpath = logpath.format(y = year, p = prod),
-                                    command = CardsCommand(prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra))
+                                    command = CardsCommand(prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, noUnc, useFibre, extra))
         print("Command:", submitcomm)
         if not pretend: os.system(submitcomm)
     else:
-        execcomm = CardsCommand(prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra)
+        execcomm = CardsCommand(prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, noUnc, useFibre, extra)
         print("Command:", execcomm)
         if not pretend: os.system(execcomm)
 
@@ -71,7 +71,7 @@ def confirm(message = "Do you wish to continue?"):
 
 
 
-def CardsCommand(prod, year, var, bines, isAsimov, nthreads, outpath, region, noUnc, useFibre, extra):
+def CardsCommand(prod, year, var, bines, isAsimov, isPseudoData, nthreads, outpath, region, noUnc, useFibre, extra):
     mcafile_   = "tw-run3/mca-tw.txt"
     cutsfile_  = "tw-run3/cuts-tw-{reg}.txt".format(reg = region)
 
@@ -94,6 +94,7 @@ def CardsCommand(prod, year, var, bines, isAsimov, nthreads, outpath, region, no
                                nth       = nth_,
                                year      = year if year != "run3" else "2022,2022PostEE",
                                asimovornot = "--asimov s+b" if isAsimov else "",
+                               pseudodataorNot = "--pseudoData s+b" if isPseudoData else "",
                                mcafile   = mcafile_,
                                cutsfile  = cutsfile_,
                                #uncs      = "--unc tw-run2/uncs-tw_{r}mvaNEW.txt --amc".format(r = region) if not noUnc else "--amc",
@@ -104,13 +105,13 @@ def CardsCommand(prod, year, var, bines, isAsimov, nthreads, outpath, region, no
 
 
 def ExecuteOrSubmitTask(tsk):
-    prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra, pretend, queue = tsk
+    prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, noUnc, useFibre, extra, pretend, queue = tsk
 
     if not os.path.isdir(outpath + "/" + year + "/" + region):
         os.system("mkdir -p " + outpath + "/" + year + "/" + region)
 
     if queue == "":
-        thecomm = CardsCommand(prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra)
+        thecomm = CardsCommand(prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, noUnc, useFibre, extra)
         print("Command: " + thecomm)
 
         if not pretend:
@@ -124,7 +125,7 @@ def ExecuteOrSubmitTask(tsk):
                                     queue   = queue,
                                     jobname = "CMGTcards_" + year + "_" + (variable.replace("(", "").replace(")", "") if not "min" in variable else "Jet2_Pt") + "_" + region,
                                     logpath = logpath.format(p = prod, y = yr),
-                                    command = CardsCommand(prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra))
+                                    command = CardsCommand(prod, year, variable, bines, asimov, pseudoData, nthreads, outpath, region, noUnc, useFibre, extra))
 
         print("Command: " + thecomm)
 
@@ -145,8 +146,9 @@ if __name__ == "__main__":
     parser.add_argument('--region',    '-r', metavar = 'region',     dest = "region",   required = False, default = "1j1t")
     parser.add_argument('--nounc',     '-nu',action  = "store_true", dest = "nounc",    required = False, default = False)
     parser.add_argument('--variable',  '-v', metavar = 'variable',   dest = "variable", required = False, default = "getBDtW(tmvaBDT_1j1b)")
-    parser.add_argument('--bines',     '-b', metavar = 'bines',      dest = "bines",    required = False, default = "[0.5,1.5,2.5,3.5,4.5,5.5, 6.5, 7.5, 8.5, 9.5, 10.5]")
+    parser.add_argument('--bines',     '-b', metavar = 'bines',      dest = "bines",    required = False, default = "")
     parser.add_argument('--asimov',    '-a', action  = "store_true", dest = "asimov",   required = False, default = False)
+    parser.add_argument('--pseudoData','-pd', action = "store_true", dest = "pseudoData", required = False, default = False)
     parser.add_argument('--useFibre',  '-f', action  = "store_true", dest = "useFibre", required = False, default = False)
 
 
@@ -163,7 +165,13 @@ if __name__ == "__main__":
     variable = args.variable
     bines    = args.bines
     asimov   = args.asimov
+    pseudoData = args.pseudoData
     useFibre = args.useFibre
+
+    # Check that asimov and pseudoData are not both true
+    if asimov and pseudoData:
+        print("ERROR: asimov and pseudoData cannot be both true.")
+        sys.exit()
 
     #print CardsCommand(prod, year, variable, bines, asimov, nthreads, outpath, region, noUnc, useFibre, extra)
 
@@ -183,15 +191,15 @@ if __name__ == "__main__":
     #            "[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.]"]         
 
     ##### Attempt with SF channels also
-    theregs  = ["1j1t", "2j1t", "2j2t", "1j1t-mm", "1j1t-ee"]
-    thevars  = ["getRFtW(mvaRF_1j1b)", "getRFtWOther(mvaRF_2j1b)", "min(max(Jet2_Pt, 30.), 189.)", "getRFtW_mm(mvaRF_1j1b_mm)", "getRFtW_ee(mvaRF_1j1b_ee)"] #With RF
-    thebins  = ["[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]",
-                "[0.5,1.5,2.5,3.5,4.5,5.5,6.5]",
-                "[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.]",
-                "[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]",
-                "[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]"]              
-    theyears = ["2022", "2022PostEE"]
-    tasks    = []
+    ##theregs  = ["1j1t", "2j1t", "2j2t", "1j1t-mm", "1j1t-ee"]
+    ##thevars  = ["getRFtW(mvaRF_1j1b)", "getRFtWOther(mvaRF_2j1b)", "min(max(Jet2_Pt, 30.), 189.)", "getRFtW_mm(mvaRF_1j1b_mm)", "getRFtW_ee(mvaRF_1j1b_ee)"] #With RF
+    ##thebins  = ["[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]",
+    ##            "[0.5,1.5,2.5,3.5,4.5,5.5,6.5]",
+    ##            "[30.,40.,50.,60.,70.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,190.]",
+    ##            "[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]",
+    ##            "[0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5]"]              
+    ##theyears = ["2022", "2022PostEE"]
+    ##tasks    = []
  
     if variable.lower() != "all":
         if "," in variable:
@@ -211,14 +219,17 @@ if __name__ == "__main__":
         else:
             theyears = [ year ]
 
+    if bines != "":
+        thebins = [bines]
+    
     for yr in theyears:
         for i in range(len(theregs)):
             if "{year}" in thevars[i] and yr != "run3":
-                tasks.append( (prod, yr, thevars[i].format(year = yr), thebins[i], asimov, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
+                tasks.append( (prod, yr, thevars[i].format(year = yr), thebins[i], asimov, pseudoData, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
             elif "{year}" in thevars[i] and yr == "run3":
-                tasks.append( (prod, yr, thevars[i].format(year = ""), thebins[i], asimov, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
+                tasks.append( (prod, yr, thevars[i].format(year = ""), thebins[i], asimov, pseudoData, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
             else:
-                tasks.append( (prod, yr, thevars[i], thebins[i], asimov, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
+                tasks.append( (prod, yr, thevars[i], thebins[i], asimov, pseudoData, nthreads, outpath, theregs[i], noUnc, useFibre, extra, pretend, queue) )
 
     #print tasks
     calculate = True

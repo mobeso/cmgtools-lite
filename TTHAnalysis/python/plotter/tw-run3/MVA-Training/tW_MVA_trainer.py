@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 ################# Customization #################
 
 # -- Paths -- #
-inputPath = "/beegfs/data/nanoAODv11/tw-run3/productions/2023-04-10/2022PostEE/x_mvatrain/"
+inputPath = "/beegfs/data/nanoAODv11/tw-run3/productions/2023-06-02/2022PostEE/x_mvatrain/"
 outputPath = "/nfs/fanae/user/asoto/Proyectos/tW-Run3/CMSSW_12_4_12/src/CMGTools/TTHAnalysis/python/plotter/tw-run3/MVA-Training/models/"
 
 # -- Samples -- #

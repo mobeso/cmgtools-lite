@@ -13,7 +13,7 @@ class lepScaleFactors_TopRun3(Module):
         self.basepathlep  = self.basepath + "/lepton/"
         self.basepathtrig = self.basepath + "/trigger/"
         self.year         = year_
-        self.runTriggSFAlaTTbarRun3 = True  ##  Use the trigger SFs as in ttbar Run3 (computed from single lepton triggers efficiencies)
+        self.runTriggSFAlaTTbarRun3 = False  ##  Use the trigger SFs as in ttbar Run3 (computed from single lepton triggers efficiencies)
 
         self.leptonSF = {}; self.leptonSFuncs = {}; self.triggerSF = {}
         self.leptonSF["m"] = {}; self.leptonSF["e"] = {}
@@ -40,75 +40,75 @@ class lepScaleFactors_TopRun3(Module):
         ##################### WAAAAAARNINNNNNGGGG
         
         ## Muon ID
-        self.leptonSF["m"]["2016apv"]["idtight"], self.leptonSFuncs["m"]["2016"]["idtight_stat"], self.leptonSFuncs["m"]["2016"]["idtight_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
-            "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2016"]["idtight"], self.leptonSFuncs["m"]["2016"]["idtight_stat"], self.leptonSFuncs["m"]["2016"]["idtight_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
-            "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2017"]["idtight"], self.leptonSFuncs["m"]["2017"]["idtight_stat"], self.leptonSFuncs["m"]["2017"]["idtight_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
-            "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2018"]["idtight"], self.leptonSFuncs["m"]["2018"]["idtight_stat"], self.leptonSFuncs["m"]["2018"]["idtight_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
-            "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-            ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2016apv"]["idtight"], self.leptonSFuncs["m"]["2016"]["idtight_stat"], self.leptonSFuncs["m"]["2016"]["idtight_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ID.root",
+        ##    "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2016"]["idtight"], self.leptonSFuncs["m"]["2016"]["idtight_stat"], self.leptonSFuncs["m"]["2016"]["idtight_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_ID.root",
+        ##    "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2017"]["idtight"], self.leptonSFuncs["m"]["2017"]["idtight_stat"], self.leptonSFuncs["m"]["2017"]["idtight_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2017_UL_ID.root",
+        ##    "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2018"]["idtight"], self.leptonSFuncs["m"]["2018"]["idtight_stat"], self.leptonSFuncs["m"]["2018"]["idtight_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
+        ##    "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+        ##    ["_stat", "_syst"])
         self.leptonSF["m"]["2022"]["idtight"]    = self.loadHisto(self.basepathlep + "muonSF_run3_v2.root",    "EGamma_SF2D")
 
         # Muon iso
-        self.leptonSF["m"]["2016apv"]["iso"], self.leptonSFuncs["m"]["2016"]["iso_stat"], self.leptonSFuncs["m"]["2016"]["iso_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
-            "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2016"]["iso"], self.leptonSFuncs["m"]["2016"]["iso_stat"], self.leptonSFuncs["m"]["2016"]["iso_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
-            "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2017"]["iso"], self.leptonSFuncs["m"]["2017"]["iso_stat"], self.leptonSFuncs["m"]["2017"]["iso_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
-            "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-            ["_stat", "_syst"])
-        self.leptonSF["m"]["2018"]["iso"], self.leptonSFuncs["m"]["2018"]["iso_stat"], self.leptonSFuncs["m"]["2018"]["iso_syst"] = self.loadHistoWithUncs(
-            self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
-            "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-            ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2016apv"]["iso"], self.leptonSFuncs["m"]["2016"]["iso_stat"], self.leptonSFuncs["m"]["2016"]["iso_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_HIPM_ISO.root",
+        ##    "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2016"]["iso"], self.leptonSFuncs["m"]["2016"]["iso_stat"], self.leptonSFuncs["m"]["2016"]["iso_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2016_UL_ISO.root",
+        ##    "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2017"]["iso"], self.leptonSFuncs["m"]["2017"]["iso_stat"], self.leptonSFuncs["m"]["2017"]["iso_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2017_UL_ISO.root",
+        ##    "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+        ##    ["_stat", "_syst"])
+        ##self.leptonSF["m"]["2018"]["iso"], self.leptonSFuncs["m"]["2018"]["iso_stat"], self.leptonSFuncs["m"]["2018"]["iso_syst"] = self.loadHistoWithUncs(
+        ##    self.basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+        ##    "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+        ##    ["_stat", "_syst"])
 
         # Elec ID
-        self.leptonSF["e"]["2016apv"]["idtight"] = self.loadHisto(self.basepathlep + "Electron_2016apvUL_IDTight.root", "EGamma_SF2D")
-        self.leptonSF["e"]["2016"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2016UL_IDTight.root",    "EGamma_SF2D")
-        self.leptonSF["e"]["2017"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2017UL_IDTight.root",    "EGamma_SF2D")
-        self.leptonSF["e"]["2018"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2018UL_IDTight.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2016apv"]["idtight"] = self.loadHisto(self.basepathlep + "Electron_2016apvUL_IDTight.root", "EGamma_SF2D")
+        ##self.leptonSF["e"]["2016"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2016UL_IDTight.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2017"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2017UL_IDTight.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2018"]["idtight"]    = self.loadHisto(self.basepathlep + "Electron_2018UL_IDTight.root",    "EGamma_SF2D")
         self.leptonSF["e"]["2022"]["idtight"]    = self.loadHisto(self.basepathlep + "egammaEffi_run3_v2.root",    "EGamma_SF2D")
 
         # Elec reco
-        self.leptonSF["e"]["2016apv"]["recotight"] = self.loadHisto(self.basepathlep + "Electron_2016apvUL_RECO.root", "EGamma_SF2D")
-        self.leptonSF["e"]["2016"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2016UL_RECO.root",    "EGamma_SF2D")
-        self.leptonSF["e"]["2017"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2017UL_RECO.root",    "EGamma_SF2D")
-        self.leptonSF["e"]["2018"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2018UL_RECO.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2016apv"]["recotight"] = self.loadHisto(self.basepathlep + "Electron_2016apvUL_RECO.root", "EGamma_SF2D")
+        ##self.leptonSF["e"]["2016"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2016UL_RECO.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2017"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2017UL_RECO.root",    "EGamma_SF2D")
+        ##self.leptonSF["e"]["2018"]["recotight"]    = self.loadHisto(self.basepathlep + "Electron_2018UL_RECO.root",    "EGamma_SF2D")
 
         # Trigger elmu
-        self.triggerSF[ch.ElMu]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_emu_lepABpt_FullError")
-        self.triggerSF[ch.ElMu]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_emu_lepABpt_FullError")
-        self.triggerSF[ch.ElMu]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_emu_lepABpt_FullError")
-        self.triggerSF[ch.ElMu]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_emu_lepABpt_FullError")
-        #self.triggerSF[ch.ElMu]["2022"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_emu_lepABpt_FullError")
+        ##self.triggerSF[ch.ElMu]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_emu_lepABpt_FullError")
+        ##self.triggerSF[ch.ElMu]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_emu_lepABpt_FullError")
+        ##self.triggerSF[ch.ElMu]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_emu_lepABpt_FullError")
+        ##self.triggerSF[ch.ElMu]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_emu_lepABpt_FullError")
+        self.triggerSF[ch.ElMu]["2022"]    = self.loadHisto(self.basepathtrig + "triggerSFs.root",        "h2D_SF_emu_lepABpt_FullError")
 
         # Trigger elel
-        self.triggerSF[ch.Elec]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_ee_lepABpt_FullError")
-        self.triggerSF[ch.Elec]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_ee_lepABpt_FullError")
-        self.triggerSF[ch.Elec]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_ee_lepABpt_FullError")
-        self.triggerSF[ch.Elec]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_ee_lepABpt_FullError")
-        #self.triggerSF[ch.Elec]["2022"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_ee_lepABpt_FullError")
+        ##self.triggerSF[ch.Elec]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_ee_lepABpt_FullError")
+        ##self.triggerSF[ch.Elec]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_ee_lepABpt_FullError")
+        ##self.triggerSF[ch.Elec]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_ee_lepABpt_FullError")
+        ##self.triggerSF[ch.Elec]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_ee_lepABpt_FullError")
+        self.triggerSF[ch.Elec]["2022"]    = self.loadHisto(self.basepathtrig + "triggerSFs.root",        "h2D_SF_ee_lepABpt_FullError")
 
         # Trigger mumu
-        self.triggerSF[ch.Muon]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_mumu_lepABpt_FullError")
-        self.triggerSF[ch.Muon]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_mumu_lepABpt_FullError")
-        self.triggerSF[ch.Muon]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_mumu_lepABpt_FullError")
-        self.triggerSF[ch.Muon]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_mumu_lepABpt_FullError")
-        #self.triggerSF[ch.Muon]["2022"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_mumu_lepABpt_FullError")
+        ##self.triggerSF[ch.Muon]["2016apv"] = self.loadHisto(self.basepathtrig + "TriggerSF_2016preVFP_ULv2.root",  "h2D_SF_mumu_lepABpt_FullError")
+        ##self.triggerSF[ch.Muon]["2016"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2016postVFP_ULv2.root", "h2D_SF_mumu_lepABpt_FullError")
+        ##self.triggerSF[ch.Muon]["2017"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2017_ULv2.root",        "h2D_SF_mumu_lepABpt_FullError")
+        ##self.triggerSF[ch.Muon]["2018"]    = self.loadHisto(self.basepathtrig + "TriggerSF_2018_ULv2.root",        "h2D_SF_mumu_lepABpt_FullError")
+        self.triggerSF[ch.Muon]["2022"]    = self.loadHisto(self.basepathtrig + "triggerSFs.root",        "h2D_SF_mumu_lepABpt_FullError")
 
         # Trigger mu eff
         self.triggerSF["m"]["2022"]["effData"]    = self.loadHisto(self.basepathtrig + "triggersf_effs_Run3.root",        "mu_eff_data")
@@ -191,6 +191,9 @@ class lepScaleFactors_TopRun3(Module):
                 if abs(leps[0].pdgId) == 11: # electron
                     elecidsf   *= self.getLepSF(leps[0].pt_corrAll, leps[0].eta + leps[0].deltaEtaSC, var, "e", year, event, "id")
                     #elecrecosf *= self.getLepSF(leps[0].pt_corrAll, leps[0].eta + leps[0].deltaEtaSC, var, "e", year, event, "reco")
+                    # Debug this, print electron pt, eta+deltaEtaSC, SF
+                    #print(var)
+                    #print("Electron pt: ", leps[0].pt_corrAll, " eta+deltaEtaSC: ", leps[0].eta + leps[0].deltaEtaSC, " SF: ", self.getLepSF(leps[0].pt_corrAll, leps[0].eta + leps[0].deltaEtaSC, var, "e", year, event, "id"))
 
                 if event.nLepGood > 1:
                     if abs(leps[1].pdgId) == 11: # electron

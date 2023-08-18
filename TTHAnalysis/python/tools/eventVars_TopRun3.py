@@ -259,6 +259,8 @@ class EventVars_TopRun2UL(Module):
                 allret["datatag"] = tags.doublemuon
             elif "muon" in thesample.lower():
                 allret["datatag"] = tags.muon
+            elif "jetmet" in thesample.lower():
+                allret["datatag"] = tags.jetmet
         elif "ttto2l2nu" in thesample.lower():
             allret["datatag"] = tags.mc
             allret["isTop"]   = 1

@@ -9,6 +9,7 @@ parser = OptionParser(usage="%prog [options] mc.txt cuts.txt var bins")
 addMCAnalysisOptions(parser)
 parser.add_option("--od", "--outdir",       dest="outdir", type="string", default=None, help="output directory name")
 parser.add_option("--asimov",               dest="asimov", type="string", default=None, help="Use an Asimov dataset of the specified kind: including signal ('signal','s','sig','s+b') or background-only ('background','bkg','b','b-only')")
+parser.add_option("--pseudoData",           dest="pseudoData", type="string", default=None, help="Use an pseudoData dataset of the specified kind: including signal ('signal','s','sig','s+b') or background-only ('background','bkg','b','b-only')")
 parser.add_option("--bbb",                  dest="bbb", type="string", default=None, help="Options for bin-by-bin statistical uncertainties with the specified nuisance name")
 parser.add_option("--amc", "--autoMCStats", dest="autoMCStats", action="store_true", default=False, help="use autoMCStats")
 parser.add_option("--autoMCStatsThreshold", dest="autoMCStatsValue", type="int", default=10, help="threshold to put on autoMCStats")
@@ -77,6 +78,22 @@ if options.asimov:
             if tomerge is None: 
                 tomerge = report[p].raw().Clone("x_data_obs"); tomerge.SetDirectory(0)
             else: tomerge.Add(report[p].raw())
+    report['data_obs'] = HistoWithNuisances(tomerge)
+elif options.pseudoData:
+    if options.pseudoData in ("s","sig","signal","s+b"):
+        asimovprocesses = mca.listSignals() + mca.listBackgrounds()
+    elif options.pseudoData in ("b","bkg","background", "b-only"):
+        asimovprocesses = mca.listBackgrounds()
+    else: raise RuntimeError("the --pseudoData option requires to specify signal/sig/s/s+b or background/bkg/b/b-only")
+    tomerge = None
+    for p in asimovprocesses:
+        if p in report: 
+            if tomerge is None: 
+                tomerge = report[p].raw().Clone("x_data_obs"); tomerge.SetDirectory(0)
+            else: tomerge.Add(report[p].raw())
+    # We have to generate a Poisson fluctuation of the total background
+    for b in range(1, tomerge.GetNbinsX()+1):
+        tomerge.SetBinContent(b, ROOT.gRandom.Poisson(tomerge.GetBinContent(b)))
     report['data_obs'] = HistoWithNuisances(tomerge)
 else:
     report['data_obs'] = report['data'].Clone("x_data_obs") 

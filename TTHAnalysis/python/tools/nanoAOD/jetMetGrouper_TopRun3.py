@@ -8,7 +8,7 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 import math
 
-class jetmetGrouper_TopRun2UL(Module):
+class jetmetGrouper_TopRun3(Module):
     def __init__(self, groups, jetbranch, metbranch, dumpMore = []):
         self.groups    = groups
         self.jetbranch = jetbranch
@@ -87,45 +87,33 @@ moreVars = [
     {'name' : 'Jet_pt_nom'           ,      'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_pt_jerUp'         ,      'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_pt_jerDown'       ,      'rootBranchType' : 'F','lenVar': 'nJet'},
-    {'name' : 'Jet_pt_jesHEMIssueUp',       'rootBranchType' : 'F','lenVar': 'nJet'},
-    {'name' : 'Jet_pt_jesHEMIssueDown',     'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_pt_jesTotalUp',          'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_pt_jesTotalDown',        'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_mass_nom'         ,      'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_mass_jerUp'       ,      'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_mass_jerDown'     ,      'rootBranchType' : 'F','lenVar': 'nJet'},
-    {'name' : 'Jet_mass_jesHEMIssueUp',     'rootBranchType' : 'F','lenVar': 'nJet'},
-    {'name' : 'Jet_mass_jesHEMIssueDown',   'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_mass_jesTotalUp',        'rootBranchType' : 'F','lenVar': 'nJet'},
     {'name' : 'Jet_mass_jesTotalDown',      'rootBranchType' : 'F','lenVar': 'nJet'},
-    {'name' : 'MET_T1_pt'               ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jerUp'         ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jerDown'       ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jesHEMIssueUp',    'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jesHEMIssueDown',  'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jesTotalUp',       'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_jesTotalDown',     'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_unclustEnUp'   ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_pt_unclustEnDown' ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi'              ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jerUp'        ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jerDown'      ,   'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jesHEMIssueUp'  , 'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jesHEMIssueDown', 'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jesTotalUp',      'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_jesTotalDown',    'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_unclustEnUp',     'rootBranchType' : 'F'},
-    {'name' : 'MET_T1_phi_unclustEnDown',   'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_pt'               ,   'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_pt_jesTotalUp',       'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_pt_jesTotalDown',     'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_pt_unclustEnUp'   ,   'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_pt_unclustEnDown' ,   'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_phi'              ,   'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_phi_jesTotalUp',      'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_phi_jesTotalDown',    'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_phi_unclustEnUp',     'rootBranchType' : 'F'},
+    {'name' : 'PuppiMET_T1_phi_unclustEnDown',   'rootBranchType' : 'F'},
 ]
 
-for jer in list(range(6)):
-    for var in ['Up','Down']:
-        moreVars.extend( [
-            {'name' : 'Jet_pt_jer%s%s'%(jer,var) ,   'rootBranchType' : 'F','lenVar': 'nJet'},
-            {'name' : 'Jet_mass_jer%s%s'%(jer,var) , 'rootBranchType' : 'F','lenVar': 'nJet'},
-            {'name' : 'MET_T1_pt_jer%s%s'%(jer,var) ,'rootBranchType' : 'F'},
-            {'name' : 'MET_T1_phi_jer%s%s'%(jer,var),'rootBranchType' : 'F'},
-        ])
+###for jer in list(range(6)):
+###    for var in ['Up','Down']:
+###        moreVars.extend( [
+###            {'name' : 'Jet_pt_jer%s%s'%(jer,var) ,   'rootBranchType' : 'F','lenVar': 'nJet'},
+###            {'name' : 'Jet_mass_jer%s%s'%(jer,var) , 'rootBranchType' : 'F','lenVar': 'nJet'},
+###            {'name' : 'MET_T1_pt_jer%s%s'%(jer,var) ,'rootBranchType' : 'F'},
+###            {'name' : 'MET_T1_phi_jer%s%s'%(jer,var),'rootBranchType' : 'F'},
+###        ])
 
 ### Aqui hay cosas que se pueden quitar, no son necesarias, pero bueno las dejo por no tocar mucho el asunto.
 groups = {'HF'                 : ['PileUpPtHF', 'RelativeJERHF', 'RelativePtHF'],
@@ -142,4 +130,4 @@ groups = {'HF'                 : ['PileUpPtHF', 'RelativeJERHF', 'RelativePtHF']
                                   'PileUpPtRef', 'RelativeFSR', 'SinglePionECAL', 'SinglePionHCAL'],
 }
 
-jetMetCorrelate_TopRun2 = lambda  : jetmetGrouper_TopRun2UL(groups, "Jet", "MET_T1", dumpMore = moreVars)
+jetMetCorrelate2022 = lambda  : jetmetGrouper_TopRun3(groups, "Jet", "PuppiMET_T1", dumpMore = moreVars)

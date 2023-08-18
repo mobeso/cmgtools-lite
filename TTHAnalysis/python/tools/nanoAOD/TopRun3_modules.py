@@ -23,84 +23,31 @@ class tags(enum.IntEnum):
     muon       = 4
     egamma     = 5
     muoneg     = 6
+    jetmet     = 7
 
 emass = 0.0005109989461
 
 # =========================================================================================================================
 # ============================================================================================ TRIGGER
 # =========================================================================================================================
-#def _fires(ev, path):
-#    if "/hasfiredtriggers_cc.so" not in r.gSystem.GetLibraries():
-#        r.gROOT.ProcessLine(".L %s/src/CMGTools/Production/src/hasfiredtriggers.cc+" % os.environ['CMSSW_BASE'])
-#    if not hasattr(ev, path): return False
-
-#    if ev.run == 1:  # is MC
-#        return getattr(ev, path)
-#    else :
-#        return getattr(r, 'fires_%s_%d'%(path, ev.year))( ev.run, getattr(ev, path) )
-
-
 def _fires(ev, path):
     return getattr(ev, path)
 
-
 triggerGroups = dict(
     Trigger_1e = {
-        2016 : lambda ev : _fires(ev, 'HLT_Ele27_WPTight_Gsf'),
-        2017 : lambda ev : _fires(ev, 'HLT_Ele35_WPTight_Gsf'),
-        2018 : lambda ev : _fires(ev, 'HLT_Ele32_WPTight_Gsf'),
         2022 : lambda ev : _fires(ev, 'HLT_Ele32_WPTight_Gsf'),
     },
     Trigger_1m = {
-        2016 : lambda ev : (   _fires(ev, 'HLT_IsoMu24')
-                            or _fires(ev, 'HLT_IsoTkMu24')),
-        2017 : lambda ev :     _fires(ev, 'HLT_IsoMu27'),
-        2018 : lambda ev :     _fires(ev, 'HLT_IsoMu24'),
         2022 : lambda ev :     _fires(ev, 'HLT_IsoMu24'),
     },
     Trigger_2e = {
-        2016 : lambda ev : ((   _fires(ev, 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ')
-                             or _fires(ev, 'HLT_DoubleEle33_CaloIdL_MW')
-                             or _fires(ev, 'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL'))
-                             if (ev.datatag == tags.mc or ev.run <= 280385) else
-                            (   _fires(ev, 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ')
-                             or _fires(ev, 'HLT_DoubleEle33_CaloIdL_MW'))),
-        2017 : lambda ev : (   _fires(ev, 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL')
-                            or _fires(ev, 'HLT_DoubleEle33_CaloIdL_MW')),
-        2018 : lambda ev : (   _fires(ev, 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL')
-                            or _fires(ev, 'HLT_DoubleEle25_CaloIdL_MW')),
         2022 : lambda ev : (   _fires(ev, 'HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL')
                             or _fires(ev, 'HLT_DoubleEle25_CaloIdL_MW')),
     },
     Trigger_2m = {
-        2016 : lambda ev : ((   _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL')
-                             or _fires(ev, 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL'))
-                            if (ev.datatag == tags.mc or ev.run <= 280385) else
-                            (  _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ')
-                            or _fires(ev, 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ'))),
-        2017 : lambda ev : ((   _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ')
-                             or _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8')
-                             or _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8'))
-                            if (ev.datatag == tags.mc) else
-                            (  _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ'))
-                            if (ev.run < 299368) else
-                            (  _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8')
-                            or _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8'))),
-        2018 : lambda ev :     _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8'),
         2022 : lambda ev :     _fires(ev, 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8'),
     },
     Trigger_em = {
-        2016 : lambda ev : ((  _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL')
-                            or _fires(ev, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL"))
-                            if (ev.datatag == tags.mc or ev.run <= 280385) else
-                            (  _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ')
-                            or _fires(ev, "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"))),
-        2017 : lambda ev : ((   _fires(ev, 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL')
-                             or _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ'))
-                             if (ev.datatag == tags.mc or ev.run > 299329) else
-                             (  _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ'))),
-        2018 : lambda ev : (   _fires(ev, 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL')
-                            or _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ')),
         2022 : lambda ev : (   _fires(ev, 'HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL')
                             or _fires(ev, 'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ')),
     },
@@ -180,7 +127,7 @@ triggerSeq = [Trigger_1e, Trigger_1m, Trigger_2e, Trigger_2m, Trigger_em, remove
 # ============================================================================================ ANALYSIS MODULES & SETTINGS
 # =========================================================================================================================
 
-# %%%%%%%%%%%%%%%%%%%%%%%%%% tW full Run 2 inclusive & differential
+# %%%%%%%%%%%%%%%%%%%%%%%%%% tW full Run 3 inclusive & differential
 #### LEPTON TREATMENTS ###
 IDDict = {}
 IDDict["muons"] = {
@@ -194,6 +141,7 @@ IDDict["elecs"] = {
     "eta0" : 1.4442,
     "eta1" : 1.566,
     "eta2" : 2.4,
+    "etaLeak" : 1.56, ###### WARNING, HABRIA QUE VETAR ESTO EN GENERACION?
     "dxy_b" : 0.05,
     "dz_b"  : 0.10,
     "dxy_e" : 0.10,
@@ -210,9 +158,7 @@ IDDict["jets"] = {
     "etafwd"  : 5.0,
     "etafwdnoise0" : 2.7,
     "etafwdnoise1" : 3.0,
-    "jetid_2016" : 1,  # > X
-    "jetid_2017" : 1,  # > X
-    "jetid_2018" : 1,  # > X
+    "jetid_2022" : 1,  # > X placeholder, it is hardcoded in the recleaner
 }
 
 
@@ -228,134 +174,78 @@ dressfwdloosejetID = lambda j : ( abs(j.eta) >= 2.4 and abs(j.eta) < 5.0 and (ab
 
 
 #### JET TREATMENTS ###
-jecGroups = {'HF'                   : ['PileUpPtHF', 'RelativeJERHF', 'RelativePtHF'],
-             'BBEC1_{year}'         : ['RelativeJEREC1', 'RelativePtEC1', 'RelativeStatEC'],
-             'FlavorQCD'            : ['FlavorQCD'],
-             'RelativeSample_{year}': ['RelativeSample'],
-             'EC2'                  : ['PileUpPtEC2'],
-             'HF_{year}'            : ['RelativeStatHF'],
-             'RelativeBal'          : ['RelativeBal'],
-             'Absolute_{year}'      : ['AbsoluteStat', 'RelativeStatFSR', 'TimePtEta'],
-             'BBEC1'                : ['PileUpPtBB', 'PileUpPtEC1', 'RelativePtBB'],
-             'EC2_{year}'           : ['RelativeJEREC2', 'RelativePtEC2'],
-             'Absolute'             : ['AbsoluteMPFBias', 'AbsoluteScale', 'Fragmentation', 'PileUpDataMC',
-                                       'PileUpPtRef', 'RelativeFSR', 'SinglePionECAL', 'SinglePionHCAL'],
-}
+#jecGroups = {'HF'                   : ['PileUpPtHF', 'RelativeJERHF', 'RelativePtHF'],
+#             'BBEC1_{year}'         : ['RelativeJEREC1', 'RelativePtEC1', 'RelativeStatEC'],
+#             'FlavorQCD'            : ['FlavorQCD'],
+#             'RelativeSample_{year}': ['RelativeSample'],
+#             'EC2'                  : ['PileUpPtEC2'],
+#             'HF_{year}'            : ['RelativeStatHF'],
+#             'RelativeBal'          : ['RelativeBal'],
+#             'Absolute_{year}'      : ['AbsoluteStat', 'RelativeStatFSR', 'TimePtEta'],
+#             'BBEC1'                : ['PileUpPtBB', 'PileUpPtEC1', 'RelativePtBB'],
+#             'EC2_{year}'           : ['RelativeJEREC2', 'RelativePtEC2'],
+#             'Absolute'             : ['AbsoluteMPFBias', 'AbsoluteScale', 'Fragmentation', 'PileUpDataMC',
+#                                       'PileUpPtRef', 'RelativeFSR', 'SinglePionECAL', 'SinglePionHCAL'],
+#}
 
-jecGroupsFull = []
-for v in jecGroups:
-    jecGroupsFull = jecGroupsFull + jecGroups[v]
+#jecGroupsFull = []
+#for v in jecGroups:
+#    jecGroupsFull = jecGroupsFull + jecGroups[v]
 
-from PhysicsTools.NanoAODTools.postprocessing.modules.jme.jetmetHelperRun2 import createJMECorrector
+from CMGTools.TTHAnalysis.tools.nanoAOD.calculateJECS import JetEnergyCorrector
+from CMGTools.TTHAnalysis.tools.nanoAOD.jetMetGrouper_TopRun3 import jetMetCorrelate2022, groups
 
-addJECs_2016apv = createJMECorrector(dataYear      = "UL2016_preVFP",
-                                     jesUncert     = "Merged",
-                                     metBranchName = "MET",
-                                     splitJER      = True,
-                                     applyHEMfix   = True,)
-addJECs_2016    = createJMECorrector(dataYear      = "UL2016",
-                                     jesUncert     = "Merged",
-                                     metBranchName = "MET",
-                                     splitJER      = True,
-                                     applyHEMfix   = True,)
-addJECs_2017    = createJMECorrector(dataYear      = "UL2017",
-                                     jesUncert     = "Merged",
-                                     metBranchName = "MET",
-                                     splitJER      = True,
-                                     applyHEMfix   = True,)
-addJECs_2018    = createJMECorrector(dataYear      = "UL2018",
-                                     jesUncert     = "Merged",
-                                     metBranchName = "MET",
-                                     splitJER      = True,
-                                     applyHEMfix   = True,)
+addJECs_2022_mc = lambda : JetEnergyCorrector(
+    year = 2022, era = "CD", jec = "Winter22Run3", isMC = True,
+    algo = "AK4PFPuppi", metbranchname = "PuppiMET", rhoBranchName = "Rho_fixedGridRhoFastjetAll",
+    hjetvetomap = "jetvetomap",
+    unc = "Total", saveMETUncs = ["T1", "T1Smear"], 
+    splitJers = False, applyVetoMaps = True
+)
 
-addJECs_mc_2022    = createJMECorrector(dataYear      = "2022",
-                                     jetType       = "AK4PFPuppi",
-                                     jesUncert     = "All",
-                                     metBranchName = "PuppiMET",
-                                     splitJER      = True,
-                                     applyHEMfix   = False,)
-addJECs_mc_2022PostEE    = createJMECorrector(dataYear      = "2022",
-                                     jetType       = "AK4PFPuppi",
-                                     jesUncert     = "All",
-                                     metBranchName = "PuppiMET",
-                                     splitJER      = True,
-                                     applyHEMfix   = False,)
+# + In reality this only runs the jet vetos
+addJECs_2022_data = lambda : JetEnergyCorrector(
+    year = 2022, era = "CD", jec = "Winter22Run3", isMC = False,
+    algo = "AK4PFPuppi", metbranchname = "PuppiMET", rhoBranchName = "Rho_fixedGridRhoFastjetAll",
+    hjetvetomap = "jetvetomap",
+    unc = "Total", saveMETUncs = ["T1", "T1Smear"], 
+    splitJers = False, applyVetoMaps = True
+)
 
-addJECs_data_2022 = createJMECorrector(isMC          = False,
-                                       dataYear      = "2022",
-                                       runPeriod     = "C",
-                                       jetType       = "AK4PFPuppi",
-                                       jesUncert     = "All",
-                                       metBranchName = "PuppiMET",
-                                       splitJER      = True,
-                                       applyHEMfix   = False)
-addJECs_data_2022PostEE = createJMECorrector(isMC          = False,
-                                       dataYear      = "2022",
-                                       runPeriod     = "C",
-                                       jetType       = "AK4PFPuppi",
-                                       jesUncert     = "All",
-                                       metBranchName = "PuppiMET",
-                                       splitJER      = True,
-                                       applyHEMfix   = False)
+addJECs_2022EE_mc = lambda : JetEnergyCorrector(
+    year = 2022, era = "E", jec = "Winter22Run3", isMC = True,
+    algo = "AK4PFPuppi", metbranchname = "PuppiMET", rhoBranchName = "Rho_fixedGridRhoFastjetAll",
+    hjetvetomap = "jetvetomap",
+    unc = "Total", saveMETUncs = ["T1", "T1Smear"], 
+    splitJers = False, applyVetoMaps = True
+)
 
-jecs_2016apv = addJECs_2016apv
-jecs_2016    = addJECs_2016
-jecs_2017    = addJECs_2017
-jecs_2018    = addJECs_2018
+# + In reality this only runs the jet vetos
+addJECs_2022EE_data = lambda : JetEnergyCorrector(
+    year = 2022, era = "E", jec = "Winter22Run3", isMC = False,
+    algo = "AK4PFPuppi", metbranchname = "PuppiMET", rhoBranchName = "Rho_fixedGridRhoFastjetAll",
+    hjetvetomap = "jetvetomap",
+    unc = "Total", saveMETUncs = ["T1", "T1Smear"],
+    splitJers = False, applyVetoMaps = True
+)
 
-jecs_mc_2022    = addJECs_mc_2022
-jecs_mc_2022PostEE    = addJECs_mc_2022PostEE
-jecs_data_2022 = addJECs_data_2022
-jecs_data_2022PostEE = addJECs_data_2022PostEE
+
+# --- 2022: Add JECs (+ correlate in case of MC) --- #
+jecs_mc_2022   = [addJECs_2022_mc, jetMetCorrelate2022]
+jecs_data_2022 = [addJECs_2022_data]
+
+# --- 2022EE: Add JECs (+ correlate in case of MC) --- #
+jecs_mc_2022PostEE   = [addJECs_2022EE_mc, jetMetCorrelate2022]
+jecs_data_2022PostEE = [addJECs_2022EE_data]
+
 
 # Cleaning
 from CMGTools.TTHAnalysis.tools.nanoAOD.pythonCleaningTopRun3 import pythonCleaningTopRun2UL
-cleaning_mc_2016apv = lambda : pythonCleaningTopRun2UL(label  = "Recl",
-                                             jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                             jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2016) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                             lepenvars = ["mu"],
-                                             isMC      = True,
-                                             #debug     = True,
-                                             year_     = "2016apv",
-#                                             algo      = "DeepCSV",
-)
-cleaning_mc_2016 = lambda : pythonCleaningTopRun2UL(label  = "Recl",
-                                             jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                             jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2016) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                             lepenvars = ["mu"],
-                                             isMC      = True,
-                                             #debug     = True,
-                                             year_     = "2016",
-#                                             algo      = "DeepCSV",
-)
-cleaning_mc_2017 = lambda : pythonCleaningTopRun2UL(label  = "Recl",
-                                             jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                             jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2017) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                             lepenvars = ["mu"],
-                                             isMC      = True,
-                                             #debug     = True,
-                                             year_     = "2017",
-#                                             algo      = "DeepCSV",
-)
-cleaning_mc_2018 = lambda : pythonCleaningTopRun2UL(label  = "Recl",
-                                             jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                             jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2018) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                             lepenvars = ["mu"],
-                                             isMC      = True,
-                                             year_     = "2018",
-                                             #debug     = True,
-#                                             algo      = "DeepCSV",
-)
 
 cleaning_mc_2022 = lambda : pythonCleaningTopRun2UL(label  = "Recl",
                                              jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
                                              jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)],
+                                             jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in groups],
                                              lepenvars = ["mu"],
                                              isMC      = True,
                                              year_     = "2022",
@@ -365,7 +255,7 @@ cleaning_mc_2022 = lambda : pythonCleaningTopRun2UL(label  = "Recl",
 cleaning_mc_2022PostEE = lambda : pythonCleaningTopRun2UL(label  = "Recl",
                                              jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
                                              jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                             jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)],
+                                             jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in groups],
                                              lepenvars = ["mu"],
                                              isMC      = True,
                                              year_     = "2022",
@@ -373,34 +263,6 @@ cleaning_mc_2022PostEE = lambda : pythonCleaningTopRun2UL(label  = "Recl",
                                              #algo      = "DeepCSV",
 )
 
-cleaning_data_2016apv = lambda : pythonCleaningTopRun2UL(label = "Recl",
-                                               jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                               jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                               jecvars   = [], lepenvars = [], isMC = False,
-                                               year_     = "2016apv",
-#                                               algo      = "DeepCSV",
-)
-cleaning_data_2016 = lambda : pythonCleaningTopRun2UL(label = "Recl",
-                                               jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                               jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                               jecvars   = [], lepenvars = [], isMC = False,
-                                               year_     = "2016",
-#                                               algo      = "DeepCSV",
-)
-cleaning_data_2017 = lambda : pythonCleaningTopRun2UL(label = "Recl",
-                                               jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                               jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                               jecvars   = [], lepenvars = [], isMC = False,
-                                               year_     = "2017",
-#                                               algo      = "DeepCSV",
-)
-cleaning_data_2018 = lambda : pythonCleaningTopRun2UL(label = "Recl",
-                                               jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
-                                               jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
-                                               jecvars   = [], lepenvars = [], isMC = False,
-                                               year_     = "2018",
-#                                               algo      = "DeepCSV",
-)
 cleaning_data_2022 = lambda : pythonCleaningTopRun2UL(label = "Recl",
                                                jetPts = [IDDict["jets"]["pt"], IDDict["jets"]["pt2"]],
                                                jetPtNoisyFwd = IDDict["jets"]["ptfwdnoise"],
@@ -435,17 +297,8 @@ lepsuncsAndParticle_data = [addLepUncsVars_data]
 
 #### EVENT VARIABLES ### FTREE 3
 from CMGTools.TTHAnalysis.tools.eventVars_TopRun3 import EventVars_TopRun2UL
-eventVars_mc_2016   = lambda : EventVars_TopRun2UL('', 'Recl',
-                                              jecvars = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2016) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["unclustEn", "jesHEMIssue"],
-                                              lepvars = ['mu', "elsigma"])
-eventVars_mc_2017   = lambda : EventVars_TopRun2UL('', 'Recl',
-                                              jecvars = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2017) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["unclustEn", "jesHEMIssue"],
-                                              lepvars = ['mu', "elsigma"])
-eventVars_mc_2018   = lambda : EventVars_TopRun2UL('', 'Recl',
-                                              jecvars = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2018) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["unclustEn", "jesHEMIssue"],
-                                              lepvars = ['mu', "elsigma"])
 eventVars_mc_2022   = lambda : EventVars_TopRun2UL('', 'Recl',
-                                              jecvars = ['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)] + ["unclustEn"],
+                                              jecvars = ['jesTotal', 'jer'] + ['jes' + v for v in groups] + ["unclustEn"],
                                               lepvars = ['mu'], metBranchName='PuppiMET')
 eventVars_data = lambda : EventVars_TopRun2UL('', 'Recl', isMC = False,
                                               jecvars = [],
@@ -454,13 +307,9 @@ eventVars_data = lambda : EventVars_TopRun2UL('', 'Recl', isMC = False,
 from CMGTools.TTHAnalysis.tools.particleAndPartonVars_TopRun3 import particleAndPartonVars_TopRun2UL
 theDressAndPartVars = lambda : particleAndPartonVars_TopRun2UL()
 
-varstrigger_mc_2016apv = [eventVars_mc_2016, theDressAndPartVars] + triggerSeq
-varstrigger_mc_2016    = [eventVars_mc_2016, theDressAndPartVars] + triggerSeq
-varstrigger_mc_2017    = [eventVars_mc_2017, theDressAndPartVars] + triggerSeq
-varstrigger_mc_2018    = [eventVars_mc_2018, theDressAndPartVars] + triggerSeq
-varstrigger_mc_2022    = [eventVars_mc_2022, theDressAndPartVars] + triggerSeq
-varstrigger_mc_2022PostEE    = [eventVars_mc_2022, theDressAndPartVars] + triggerSeq
-varstrigger_data       = [eventVars_data] + triggerSeq
+varstrigger_mc_2022         = [eventVars_mc_2022, theDressAndPartVars] + triggerSeq
+varstrigger_mc_2022PostEE   = [eventVars_mc_2022, theDressAndPartVars] + triggerSeq
+varstrigger_data            = [eventVars_data] + triggerSeq
 
 
 ### FTREE 4
@@ -468,72 +317,23 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.TopPtWeight import TopPtWeight
 addTopPtWeight = lambda : TopPtWeight()
 
 
-#from CMGTools.TTHAnalysis.tools.nanoAOD.jetPUid_weighter import jetPUid_weighter
-#jetpuidpath = os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/TopRun2/jetPUid"
-#addjetPUidMod = lambda : jetPUid_weighter(jetpuidpath + "/" + "scalefactorsPUID_81Xtraining.root",
-#                                          jetpuidpath + "/" + "effcyPUID_81Xtraining.root",
-#                                          wp = "T",
-#                                          jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v for v in jecGroups] + ["jer%i"%i for i in range(6)],
-#                                          #year = 2016, debug = True)
-#                                          year = 2016)
-
-
 from CMGTools.TTHAnalysis.tools.nanoAOD.btag_weighterRun3 import btag_weighterRun3
 ## b-tagging
 btagpath = os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/TopRun2UL/btagging"
-btagWeights_2016apv = lambda : btag_weighterRun3(btagpath + "/" + "wp_deepJet_106XUL16preVFP_v2_mod.csv",
-                                               btagpath + "/" + "btagEffs_TopEFT_2022_05_16.root",
-                                               'deepjet',
-                                               jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2016) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                               lepenvars = ["mu", "elsigma"],
-                                               splitCorrelations = True,
-                                               year = "2016apv")
-btagWeights_2016 = lambda : btag_weighterRun3(btagpath + "/" + "wp_deepJet_106XUL16postVFP_v3_mod.csv",
-#btagWeights_2016 = lambda : btag_weighterUL(os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/TopRun2/btagging/DeepJet_2016LegacySF_V1_YearCorrelation-V1.csv",
-                                            btagpath + "/" + "btagEffs_TopEFT_2022_05_16.root",
-                                            'deepjet',
-                                            jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2016) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                            lepenvars = ["mu", "elsigma"],
-                                            splitCorrelations = True,
-                                            year = "2016")
-btagWeights_2017 = lambda : btag_weighterRun3(btagpath + "/" + "wp_deepJet_106XUL17_v3_mod.csv",
-                                            btagpath + "/" + "btagEffs_TopEFT_2022_05_16.root",
-                                            'deepjet',
-                                            jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2017) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                            lepenvars = ["mu", "elsigma"],
-                                            splitCorrelations = True,
-                                            year = "2017")
-btagWeights_2018 = lambda : btag_weighterRun3(btagpath + "/" + "wp_deepJet_106XUL18_v2_mod.csv",
-                                            btagpath + "/" + "btagEffs_TopEFT_2022_05_16.root",
-                                            'deepjet',
-                                            jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v.format(year = 2018) for v in jecGroups] + ["jer%i"%i for i in range(6)] + ["jesHEMIssue"],
-                                            lepenvars = ["mu", "elsigma"],
-                                            splitCorrelations = True,
-                                            year = "2018")
-btagWeights_2022 = lambda : btag_weighterRun3(btagpath + "/" + "wp_deepCSV_106XUL18_v2_mod.csv",
-                                            btagpath + "/" + "btagEffs_2022_11_30.root",
-                                            'deepcsv',
-                                            jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)],
+btagWeights_2022 = lambda : btag_weighterRun3(btagpath + "/" + "btagging.json.gz",
+                                            btagpath + "/" + "btagEffs_2023_06_06.root",
+                                            'deepJet',
+                                            jecvars   = ['jesTotal', 'jer'] + ['jes' + v for v in groups],
                                             lepenvars = ["mu"],
                                             splitCorrelations = True,
                                             year = "2022")
 
 # Lepton & trigger SF
 from CMGTools.TTHAnalysis.tools.nanoAOD.lepScaleFactors_TopRun3 import lepScaleFactors_TopRun3
-leptrigSFs_2016apv = lambda : lepScaleFactors_TopRun3(year_ = "2016apv", lepenvars = ["mu", "elsigma"])
-leptrigSFs_2016    = lambda : lepScaleFactors_TopRun3(year_ = "2016",    lepenvars = ["mu", "elsigma"])
-leptrigSFs_2017    = lambda : lepScaleFactors_TopRun3(year_ = "2017",    lepenvars = ["mu", "elsigma"])
-leptrigSFs_2018    = lambda : lepScaleFactors_TopRun3(year_ = "2018",    lepenvars = ["mu", "elsigma"])
 leptrigSFs_2022    = lambda : lepScaleFactors_TopRun3(year_ = "2018",    lepenvars = ["mu"])
 leptrigSFs_2022_ttbarRun3    = lambda : lepScaleFactors_TopRun3(year_ = "2022",    lepenvars = ["mu"])
 
-
-#sfSeq_2016 = [leptrigSFs, btagWeights_2016, addTopPtWeight, addjetPUidMod]   ### COSINA
-sfSeq_2016apv   = [leptrigSFs_2016apv, btagWeights_2016apv, addTopPtWeight]
-sfSeq_2016      = [leptrigSFs_2016,    btagWeights_2016,    addTopPtWeight]
-sfSeq_2017      = [leptrigSFs_2017,    btagWeights_2017,    addTopPtWeight]
-sfSeq_2018      = [leptrigSFs_2018,    btagWeights_2018,    addTopPtWeight]
-sfSeq_2022      = [leptrigSFs_2022_ttbarRun3]#,    btagWeights_2022]
+sfSeq_2022      = [leptrigSFs_2022_ttbarRun3, btagWeights_2022]
 sfSeq_2022PostEE      = sfSeq_2022
 
 
@@ -544,54 +344,21 @@ mvas_mc = [lambda : getattr(importlib.import_module("CMGTools.TTHAnalysis.tools.
 
 tmpstr = """mvas_mc.append(lambda : getattr(importlib.import_module("CMGTools.TTHAnalysis.tools.nanoAOD.MVA_tWRun3"), "MVA_tWRun3_{v}{sv}")() )"""
 
-for v in (['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)] + ["mu"] + ["unclustEn"]):
+for v in (['jesTotal', 'jer'] + ['jes' + v for v in groups] + ["mu"] + ["unclustEn"]):
     for sv in ["Up", "Down"]:
         eval(tmpstr.format(v = v, sv = sv))
         
 mvas_data = lambda : getattr(importlib.import_module("CMGTools.TTHAnalysis.tools.nanoAOD.MVA_tWRun3"), "MVA_tWRun3_")()
 
 
-# Con jet PU ID
-#from CMGTools.TTHAnalysis.tools.nanoAOD.jetPUid_weighterUL import jetPUid_weighterUL
-#jetpuidpath = os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/TopRun2UL/jetPUid"
-#addjetPUidMod = lambda : jetPUid_weighterUL(jetpuidpath + "/" + "scalefactorsPUID_81Xtraining.root",
-                                            #jetpuidpath + "/" + "effcyPUID_81Xtraining.root",
-                                            #wp = "M",
-                                            #jecvars   = ['jesTotal', 'jer'] + ['jes%s'%v for v in jecGroups] + ["jer%i"%i for i in range(6)],
-                                            ##year = 2016, debug = True)
-                                            #year = 2016)
-
-
-#sfSeq_2016apv   = [leptrigSFs_2016apv, btagWeights_2016apv, addTopPtWeight, addjetPUidMod]
-#sfSeq_2016      = [leptrigSFs_2016,    btagWeights_2016,    addTopPtWeight, addjetPUidMod]
-#sfSeq_2017      = [leptrigSFs_2017,    btagWeights_2017,    addTopPtWeight, addjetPUidMod]
-#sfSeq_2018      = [leptrigSFs_2018,    btagWeights_2018,    addTopPtWeight, addjetPUidMod]
-
-
-
-###### b-tagging efficiencies
-from CMGTools.TTHAnalysis.tools.btageffVars_tWRun3 import btageffVars_tWRun2
-#btagEffFtree_2016 = lambda : btageffVars_tWRun2(wp_   = 1,
-                                                #algo_ = ['deepjet',
-                                                         #"deepcsv"],
-                                                #csv_  = [btagpath + "/DeepJet_2016LegacySF_V1_YearCorrelation-V1.csv",
-                                                         #btagpath + "/DeepCSV_2016LegacySF_V1_YearCorrelation-V1.csv"],
-                                                #year_ = 2016)
-
-#btagEffFtree_2017 = lambda : btageffVars_tWRun2(wp_   = 1,
-                                                #algo_ = ['deepjet',
-                                                         #"deepcsv"],
-                                                #csv_  = [btagpath + "/DeepJet_DeepFlavour2017_mujets_YearCorrelation-V1.csv",
-                                                         #btagpath + "/DeepCSV_94XSF_V4_B_F_YearCorrelation-V1.csv"],
-                                                #year_ = 2017)
-
-btagEffFtree_2022 = lambda : btageffVars_tWRun2(wp_   = 1,
-                                                algo_ = ['deepjet',
-                                                         "deepcsv"],
-                                                csv_  = [btagpath + "/wp_deepJet_106XUL18_v2_mod.csv",
-                                                         btagpath + "/wp_deepCSV_106XUL18_v2_mod.csv"],
+###### b-tagging efficiencies (Summary of JSON content: python3 -m correctionlib.cli summary btagging.json.gz)
+from CMGTools.TTHAnalysis.tools.btageffVars_tWRun3 import btageffVars_tWRun3
+btagEffFtree_2022 = lambda : btageffVars_tWRun3(wp_   = "M",
+                                                algo_ = ['deepJet',
+                                                         "deepCSV"],
+                                                json_  = btagpath + "/btagging.json.gz",
                                                 year_ = 2022)
-
+btagEffFtree_2022PostEE = btagEffFtree_2022
 
 
 
@@ -602,13 +369,13 @@ path_1j1b_mm_newMVA = "/nfs/fanae/user/asoto/Proyectos/tW-Run3/CMSSW_12_4_12/src
 path_1j1b_ee_newMVA = "/nfs/fanae/user/asoto/Proyectos/tW-Run3/CMSSW_12_4_12/src/CMGTools/TTHAnalysis/python/plotter/tw-run3/MVA-Training/onnxConverter/rf1j1b_ee.onnx"
 path_2j1b_newMVA = "/nfs/fanae/user/asoto/Proyectos/tW-Run3/CMSSW_12_4_12/src/CMGTools/TTHAnalysis/python/plotter/tw-run3/MVA-Training/onnxConverter/rf2j1b.onnx"
 mvaNew_mc   = [lambda : tW_MVA('', path_1j1b_newMVA, path_2j1b_newMVA, path_1j1b_mm_newMVA, path_1j1b_ee_newMVA,
-                                              jecvars = ['jesTotal', 'jer'] + ['jes' + v for v in jecGroupsFull] + ["jer%i"%i for i in range(6)] + ["unclustEn"],
+                                              jecvars = ['jesTotal', 'jer'] + ['jes' + v for v in groups] + ["unclustEn"],
                                               lepvars = ['mu'])]
 mvaNew_data = [lambda : tW_MVA('', path_1j1b_newMVA, path_2j1b_newMVA, path_1j1b_mm_newMVA, path_1j1b_ee_newMVA, isMC = False,
                                               jecvars = [],
                                               lepvars = [""])]
 
-
+###### Minitrees for training
 from CMGTools.TTHAnalysis.tools.nanoAOD.createTrainingMiniTree_TopRun3 import createTrainingMiniTree_TopRun3
 
 createMVAMiniTree = lambda : createTrainingMiniTree_TopRun3()

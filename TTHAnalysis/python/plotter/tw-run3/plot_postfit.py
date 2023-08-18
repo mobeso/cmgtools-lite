@@ -52,20 +52,20 @@ dictRegions = {
 }
 
 dictRegionsXaxisLabels = {
-    "ch1"      : "BDT discriminant",
-    "ch2"      : "BDT discriminant",
+    "ch1"      : "RF discriminant",
+    "ch2"      : "RF discriminant",
     "ch3"      : "Subleading jet #it{p}_{T} (GeV)",
 }
 
 dictRegionsYaxisLabels = {
     "ch1"      : "Events",
     "ch2"      : "Events",
-    "ch3"      : "Events / 10 GeV",
+    "ch3"      : "Events / 20 GeV",
 }
 
 dictBinEdgesRegions = {
-    "ch1"      : [0.5,20.5],
-    "ch2"      : [0.5,12.5],
+    "ch1"      : [0.5,10.5],
+    "ch2"      : [0.5,6.5],
     "ch3"      : [30,190],
     #"ch1"      : [0.5,2.5],
     #"ch2"      : [0.5,2.5],
@@ -73,9 +73,9 @@ dictBinEdgesRegions = {
 }
 
 dictBinsCenterRegions = {
-    "ch1"      : [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
-    "ch2"      : [1,2,3,4,5,6,7,8,9,10,11,12],
-    "ch3"      : [35,45,55,65,75,85,95,105,115,125,135,145,155,165,175,185],
+    "ch1"      : [1,2,3,4,5,6,7,8,9,10],
+    "ch2"      : [1,2,3,4,5,6],
+    "ch3"      : [35, 45, 55, 65, 75, 85, 95, 105, 115, 125, 135, 145, 155, 165, 175, 185],
     #"ch1"      : [1,2],
     #"ch2"      : [1,2],
     #"ch3"      : [70,150],
@@ -94,10 +94,8 @@ legendHeigh = {
     },
 }
 
-lumidict     = {"2016" : 36.33,
-                "2017" : 41.53,
-                "2018" : 59.74,
-                "run2" : 138}
+lumidict     = {"2022"       : 7.78,
+                "2022PostEE" : 20.67}
 
 
 

@@ -8,9 +8,9 @@ r.PyConfig.IgnoreCommandLineOptions = True
 r.gROOT.SetBatch(True)
 
 #### Settings
-prodname = "2023-04-10"
+prodname = "2023-06-02"
 
-datasamples  = ["SingleMuon", "SingleElec", "DoubleMuon", "DoubleEG", "MuonEG", "LowEGJet", "HighEGJet", "EGamma","Muon"]
+datasamples  = ["SingleMuon", "SingleElec", "DoubleMuon", "DoubleEG", "MuonEG", "LowEGJet", "HighEGJet", "EGamma","Muon", "JetMET"]
 
 
 mcpath       = "/beegfs/data/nanoAODv11/tw-run3/productions/" + prodname
@@ -37,7 +37,7 @@ friendfolders = {0 : "0_jecs",
                  4 : "4_scalefactors",
                  5 : "5_mvas",
                  6 : "6_mvas_new_multiClass_withSameFlav",
-                 "btageffvars" : "x_btageff_pasf",
+                 "btageffvars" : "x_btageff",
                  "mvatrain" : "x_mvatrain",
 }
 
@@ -62,12 +62,12 @@ class errs(enum.IntEnum):
 
 
 minitnamedict = {
-    "ttbar"         : ["TTTo2L2Nu"],
-    "ttbarsemilep"  : ["TTToSemiLeptonic"],
-    "tw"            : ["tW"],
-    "tbarw"         : ["tbarW"],
-    "dy_10to50"     : ["DYJetsToLL_M_10to50_NLO"],
-    "dy_50"         : ["DYJetsToLL_M_50_NLO"],
+    "ttbar"         : ["TTTo2L2Nu_train"],
+    "ttbarsemilep"  : ["TTToSemiLeptonic_train"],
+    "tw"            : ["tW_train"],
+    "tbarw"         : ["tbarW_train"],
+    "dy_10to50"     : ["DYJetsToLL_M_10to50_NLO_train"],
+    "dy_50"         : ["DYJetsToLL_M_50_NLO_train"],
 }
 
 
@@ -202,8 +202,10 @@ sampledict["2022PostEE"] = {
     ###### Nominales
     ##### ttbar
     # Powheg+Pythia8
-    "TTTo2L2Nu"        : "TTto2L2Nu_TuneCP5_13p6TeV_powheg_pythia8",
-    "TTToSemiLeptonic" : "TTTo2J1L1Nu_CP5_13p6TeV_powheg_pythia8",
+    "TTTo2L2Nu"        : "TTto2L2Nu_TuneCP5_13p6TeV_powheg_pythia8_analysis",
+    "TTToSemiLeptonic" : "TTTo2J1L1Nu_CP5_13p6TeV_powheg_pythia8_analysis",
+    "TTTo2L2Nu_train"        : "TTto2L2Nu_TuneCP5_13p6TeV_powheg_pythia8_train",
+    "TTToSemiLeptonic_train" : "TTTo2J1L1Nu_CP5_13p6TeV_powheg_pythia8_train",
 
     # Powheg+Herwig7
 
@@ -220,8 +222,10 @@ sampledict["2022PostEE"] = {
 
 
     ### No fully hadronic
-    "tW"       : "TWminus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8",
-    "tbarW"    : "TbarWplus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8",
+    "tW"       : "TWminus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8_analysis",
+    "tbarW"    : "TbarWplus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8_analysis",
+    "tW_train"       : "TWminus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8_train",
+    "tbarW_train"    : "TbarWplus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg_pythia8_train",
 
     ## No fully hadronic DS
 
@@ -244,8 +248,10 @@ sampledict["2022PostEE"] = {
 
 
     ### NLO
-    "DYJetsToLL_M_10to50_NLO" : "DYto2L_2Jets_MLL_10to50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8",
-    "DYJetsToLL_M_50_NLO"     : "DYto2L_2Jets_MLL_50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8", 
+    "DYJetsToLL_M_10to50_NLO" : "DYto2L_2Jets_MLL_10to50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8_analysis",
+    "DYJetsToLL_M_50_NLO"     : "DYto2L_2Jets_MLL_50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8_analysis", 
+    "DYJetsToLL_M_10to50_NLO_train" : "DYto2L_2Jets_MLL_10to50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8_train",
+    "DYJetsToLL_M_50_NLO_train"     : "DYto2L_2Jets_MLL_50_TuneCP5_13p6TeV_amcatnloFXFX_pythia8_train", 
 
     ###### WW
     ## LO
@@ -315,6 +321,7 @@ sampledict["2022PostEE"] = {
     "MuonEG"         : "MuonEG_Run2022",
     "EGamma"         : "EGamma_Run2022",
     "Muon"           : "Muon_Run2022",
+    "JetMET"         : "JetMET_Run2022",
 
 }
 
@@ -341,15 +348,15 @@ trainsampledict["2022"] = {
 
 trainsampledict["2022PostEE"] = {
     ### ttbar
-    "TTTo2L2Nu" : sampledict["2022PostEE"]["TTTo2L2Nu"],
-    "TTToSemiLeptonic" : sampledict["2022PostEE"]["TTToSemiLeptonic"],
+    "TTTo2L2Nu_train" : sampledict["2022PostEE"]["TTTo2L2Nu_train"],
+    "TTToSemiLeptonic_train" : sampledict["2022PostEE"]["TTToSemiLeptonic_train"],
 
     ### tW
-    "tW"     : sampledict["2022PostEE"]["tW"],
-    "tbarW"  : sampledict["2022PostEE"]["tbarW"],
+    "tW_train"     : sampledict["2022PostEE"]["tW_train"],
+    "tbarW_train"  : sampledict["2022PostEE"]["tbarW_train"],
     
-    "DYJetsToLL_M_10to50_NLO" : sampledict["2022PostEE"]["DYJetsToLL_M_10to50_NLO"],
-    "DYJetsToLL_M_50_NLO"     : sampledict["2022PostEE"]["DYJetsToLL_M_50_NLO"],
+    "DYJetsToLL_M_10to50_NLO_train" : sampledict["2022PostEE"]["DYJetsToLL_M_10to50_NLO_train"],
+    "DYJetsToLL_M_50_NLO_train"     : sampledict["2022PostEE"]["DYJetsToLL_M_50_NLO_train"],
 #    "DYJetsToLL_M_50"         : sampledict[2017]["DYJetsToLL_M_50"],
     #"DYJetsToLL_M_50_MLM"     : sampledict[2017]["DYJetsToLL_M_50_MLM"],
 #    "DYJetsToLLdiv2_M_10to50_MLM" : sampledict[2017]["DYJetsToLLdiv2_M_10to50_MLM"],
@@ -433,7 +440,7 @@ def SendDatasetJobs(task):
         friends_ += " " + friendpref + getFriendsFolder(dataset, friendsbasepath, 2) + friendsuff
         friends_ += " " + friendpref + getFriendsFolder(dataset, friendsbasepath, 3) + friendsuff
 
-    elif step == "btageffvars":
+    elif step == "btageffvars" and not isData:
         module_ = "btagEffFtree_{y}".format(y  = year)
         friends_ += " " + friendpref + getFriendsFolder(dataset, friendsbasepath, 0) + friendsuff
         friends_ += " " + friendpref + getFriendsFolder(dataset, friendsbasepath, 1) + friendsuff

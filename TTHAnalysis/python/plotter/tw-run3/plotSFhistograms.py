@@ -49,7 +49,7 @@ def loadHistoWithUncs(fil, hist, uncs = []):
 sfpath       = os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/TopRun3/"
 basepathlep  = sfpath + "/lepton/"
 basepathtrig = sfpath + "/trigger/"
-basepathbtag = sfpath + "/btagging/"
+basepathbtag = sfpath.replace("TopRun3", "TopRun2UL") + "/btagging/"
 SFdict = {}
 SFdict["lepton"] = {}; SFdict["lepton"] = {}; SFdict["trigger"] = {}
 SFdict["lepton"]["m"] = {}; SFdict["lepton"]["e"] = {}
@@ -64,72 +64,73 @@ for y in [2018, 2022]:
 #SFdict["lepton"]["m"][2016]["idtight,BCDEF"], SFdict["lepton"]["m"][2016]["idtight_stat,BCDEF"], SFdict["lepton"]["m"][2016]["idtight_syst,BCDEF"] = loadHistoWithUncs(basepathlep + "Muon_Run2016BCDEF_SF_ID.root", "NUM_TightID_DEN_genTracks_eta_pt"  , ["_stat", "_syst"])
 #SFdict["lepton"]["m"][2016]["idtight,GH"], SFdict["lepton"]["m"][2016]["idtight_stat,GH"], SFdict["lepton"]["m"][2016]["idtight_syst,GH"] = loadHistoWithUncs(basepathlep + "Muon_Run2016GH_SF_ID.root",    "NUM_TightID_DEN_genTracks_eta_pt"          , ["_stat", "_syst"])
 #SFdict["lepton"]["m"][2017]["idtight"], SFdict["lepton"]["m"][2017]["idtight_stat"], SFdict["lepton"]["m"][2017]["idtight_syst"] = loadHistoWithUncs(basepathlep + "Muon_Run2017BCDEF_SF_ID.root", "NUM_TightID_DEN_genTracks_pt_abseta"       , ["_stat", "_syst"])
-SFdict["lepton"]["m"][2018]["idtight"], SFdict["lepton"]["m"][2018]["idtight_stat"], SFdict["lepton"]["m"][2018]["idtight_syst"] = loadHistoWithUncs(basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",  "NUM_TightID_DEN_TrackerMuons_abseta_pt"    , ["_stat", "_syst"])
+#SFdict["lepton"]["m"][2018]["idtight"], SFdict["lepton"]["m"][2018]["idtight_stat"], SFdict["lepton"]["m"][2018]["idtight_syst"] = loadHistoWithUncs(basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",  "NUM_TightID_DEN_TrackerMuons_abseta_pt"    , ["_stat", "_syst"])
 SFdict["lepton"]["m"][2022]["idtight"]    = loadHisto(basepathlep + "muonSF_run3_v2.root",    "EGamma_SF2D")
 
 # Muon iso
 #SFdict["lepton"]["m"][2016]["iso,BCDEF"], SFdict["lepton"]["m"][2016]["iso_stat,BCDEF"], SFdict["lepton"]["m"][2016]["iso_syst,BCDEF"] = loadHistoWithUncs(basepathlep + "Muon_Run2016BCDEF_SF_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt"   , ["_stat", "_syst"])
 #SFdict["lepton"]["m"][2016]["iso,GH"], SFdict["lepton"]["m"][2016]["iso_stat,GH"], SFdict["lepton"]["m"][2016]["iso_syst,GH"] = loadHistoWithUncs(basepathlep + "Muon_Run2016GH_SF_ISO.root",    "NUM_TightRelIso_DEN_TightIDandIPCut_eta_pt"   , ["_stat", "_syst"])
 #SFdict["lepton"]["m"][2017]["iso"], SFdict["lepton"]["m"][2017]["iso_stat"], SFdict["lepton"]["m"][2017]["iso_syst"] = loadHistoWithUncs(basepathlep + "Muon_Run2017BCDEF_SF_ISO.root", "NUM_TightRelIso_DEN_TightIDandIPCut_pt_abseta", ["_stat", "_syst"])
-SFdict["lepton"]["m"][2018]["iso"], SFdict["lepton"]["m"][2018]["iso_stat"], SFdict["lepton"]["m"][2018]["iso_syst"] = loadHistoWithUncs(basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",  "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", ["_stat", "_syst"])
+#SFdict["lepton"]["m"][2018]["iso"], SFdict["lepton"]["m"][2018]["iso_stat"], SFdict["lepton"]["m"][2018]["iso_syst"] = loadHistoWithUncs(basepathlep + "Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",  "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt", ["_stat", "_syst"])
 
 # Elec ID
 #SFdict["lepton"]["e"][2016]["idtight"] = loadHisto(basepathlep + "Electron_2016_IDTight.root", "EGamma_SF2D")
 #SFdict["lepton"]["e"][2017]["idtight"] = loadHisto(basepathlep + "Electron_2017_IDTight.root", "EGamma_SF2D")
-SFdict["lepton"]["e"][2018]["idtight"] = loadHisto(basepathlep + "Electron_2018UL_IDTight.root", "EGamma_SF2D")
+#SFdict["lepton"]["e"][2018]["idtight"] = loadHisto(basepathlep + "Electron_2018UL_IDTight.root", "EGamma_SF2D")
 SFdict["lepton"]["e"][2022]["idtight"]    = loadHisto(basepathlep + "egammaEffi_run3_v2.root",    "EGamma_SF2D")
 
 # Elec reco
 #SFdict["lepton"]["e"][2016]["recotight"] = loadHisto(basepathlep + "Electron_2016_RECO.root", "EGamma_SF2D")
 #SFdict["lepton"]["e"][2017]["recotight"] = loadHisto(basepathlep + "Electron_2017_RECO.root", "EGamma_SF2D")
-SFdict["lepton"]["e"][2018]["recotight"] = loadHisto(basepathlep + "Electron_2018UL_RECO.root", "EGamma_SF2D")
+#SFdict["lepton"]["e"][2018]["recotight"] = loadHisto(basepathlep + "Electron_2018UL_RECO.root", "EGamma_SF2D")
 
 # Trigger elmu
 #SFdict["trigger"][ch.ElMu][2016] = loadHisto(basepathtrig + "TriggerSFfromReza_2016.root", "h2D_SF_emu_lepABpt_FullError")
 #SFdict["trigger"][ch.ElMu][2017] = loadHisto(basepathtrig + "TriggerSFfromReza_2017.root", "h2D_SF_emu_lepABpt_FullError")
-SFdict["trigger"][ch.ElMu][2018] = loadHisto(basepathtrig + "TriggerSF_2018_ULv2.root", "h2D_SF_emu_lepABpt_FullError")
+SFdict["trigger"][ch.ElMu][2022] = loadHisto(basepathtrig + "triggerSFs.root", "h2D_SF_emu_lepABpt_FullError")
 
 # Trigger elel
 #SFdict["trigger"][ch.Elec][2016] = loadHisto(basepathtrig + "TriggerSFfromReza_2016.root", "h2D_SF_ee_lepABpt_FullError")
 #SFdict["trigger"][ch.Elec][2017] = loadHisto(basepathtrig + "TriggerSFfromReza_2017.root", "h2D_SF_ee_lepABpt_FullError")
-SFdict["trigger"][ch.Elec][2018] = loadHisto(basepathtrig + "TriggerSF_2018_ULv2.root", "h2D_SF_ee_lepABpt_FullError")
+SFdict["trigger"][ch.Elec][2022] = loadHisto(basepathtrig + "triggerSFs.root", "h2D_SF_ee_lepABpt_FullError")
 
 # Trigger mumu
 #SFdict["trigger"][ch.Muon][2016] = loadHisto(basepathtrig + "TriggerSFfromReza_2016.root", "h2D_SF_mumu_lepABpt_FullError")
 #SFdict["trigger"][ch.Muon][2017] = loadHisto(basepathtrig + "TriggerSFfromReza_2017.root", "h2D_SF_mumu_lepABpt_FullError")
-SFdict["trigger"][ch.Muon][2018] = loadHisto(basepathtrig + "TriggerSF_2018_ULv2.root", "h2D_SF_mumu_lepABpt_FullError")
+SFdict["trigger"][ch.Muon][2022] = loadHisto(basepathtrig + "triggerSFs.root", "h2D_SF_mumu_lepABpt_FullError")
 
 SFdict["btagging_deepjet"] = {}
 SFdict["btagging_deepcsv"] = {}
 SFdict["btaggingSF_deepjet"] = {}
 SFdict["btaggingSF_deepcsv"] = {}
-"""f_eff   = r.TFile.Open(basepathbtag + "/BtagMCSF.root", "read")
+'''
+f_eff   = r.TFile.Open(basepathbtag + "/btagEffs_2023_06_06.root", "read")
 for el in ["B", "C", "L"]:
     SFdict["btagging"][el] = {}
-    for year in [2016, 2017, 2018]:
+    for year in ["2022PostEE"]:
         SFdict["btagging"][el][year] = deepcopy(f_eff.Get("BtagSF{t}_{alg}{wp}_{y}".format(t   = el,
                                                                                            alg = "DFlav",
                                                                                            wp  = "M",
                                                                                            y   =  year)).Clone())
-f_eff.Close()"""
+f_eff.Close()
+'''
 
-
-f_eff   = r.TFile.Open("temp_Run3_plots/2022_11_30_btagEff/output.root", "read")
+f_eff   = r.TFile.Open("temp_Run3_plots/2023_06_06_btaggingEff/2022PostEE/eff/output.root", "read")
 for el in ["B", "C", "L"]:
     SFdict["btagging_deepjet"][el] = {}
     SFdict["btagging_deepcsv"][el] = {}
     SFdict["btaggingSF_deepjet"][el] = {}
     SFdict["btaggingSF_deepcsv"][el] = {}
-    for year in [2018, 2022]:
-        #SFdict["btagging_deepjet"][el][year]   = deepcopy(f_eff.Get("btageff_deepjet_{t}_btag_{t}_tw".format(t = el)).Clone())
+    for year in [2022]:
+        SFdict["btagging_deepjet"][el][year]   = deepcopy(f_eff.Get("btageff_deepjet_{t}_btag_{t}_tw".format(t = el)).Clone())
         SFdict["btagging_deepcsv"][el][year]   = deepcopy(f_eff.Get("btageff_deepcsv_{t}_btag_{t}_tw".format(t = el)).Clone())
-        #SFdict["btaggingSF_deepjet"][el][year] = {}
+        SFdict["btaggingSF_deepjet"][el][year] = {}
         SFdict["btaggingSF_deepcsv"][el][year] = {}
-        #SFdict["btaggingSF_deepjet"][el][year][""]   = deepcopy(f_eff.Get("btagsf_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
+        SFdict["btaggingSF_deepjet"][el][year][""]   = deepcopy(f_eff.Get("btagsf_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
         SFdict["btaggingSF_deepcsv"][el][year][""]   = deepcopy(f_eff.Get("btagsf_deepcsv_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
-        #SFdict["btaggingSF_deepjet"][el][year]["up"] = deepcopy(f_eff.Get("btagsfup_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
+        SFdict["btaggingSF_deepjet"][el][year]["up"] = deepcopy(f_eff.Get("btagsfup_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
         SFdict["btaggingSF_deepcsv"][el][year]["up"] = deepcopy(f_eff.Get("btagsfup_deepcsv_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
-        #SFdict["btaggingSF_deepjet"][el][year]["dn"] = deepcopy(f_eff.Get("btagsfdn_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
+        SFdict["btaggingSF_deepjet"][el][year]["dn"] = deepcopy(f_eff.Get("btagsfdn_deepjet_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
         SFdict["btaggingSF_deepcsv"][el][year]["dn"] = deepcopy(f_eff.Get("btagsfdn_deepcsv_{t}_btag_pt_{t}_tw" .format(t = el)).Clone())
 f_eff.Close()
 
@@ -223,7 +224,7 @@ def plotBtagSFhisto(tsk):
     c = r.TCanvas('c', "", 600, 600)
     plot = c.GetPad(0);
     plot.SetTopMargin(0.0475); plot.SetRightMargin(0.15); plot.SetLeftMargin(0.12); plot.SetBottomMargin(0.1)
-    thehisto.GetYaxis().SetRangeUser(0.8, 1.3)
+    thehisto.GetYaxis().SetRangeUser(0.8, 1.5)
 #    thehisto.Draw("A,P0")
     thehisto.Draw("P0")
     horlin.Draw("E2,same")
@@ -316,7 +317,7 @@ def getTasks(outdir):
                                    axisdict["lepton"][ty]["y"]) )
 
         # Trigger
-        for iC in [ch.ElMu]:
+        for iC in [ch.ElMu, ch.Muon, ch.Elec]:
             alltasks.append( (SFdict["trigger"][iC][y],
                               outdir + "/" + str(y),
                               "triggerSF_" + str(iC).replace("ch.", "") + "_" + str(y),
@@ -363,13 +364,13 @@ if __name__=="__main__":
             plotSFhisto(tsk)
     
     btagsftasks = []
-    for iY in [2018]:
-#        btagsftasks.append( (SFdict["btaggingSF_deepjet"],
-#                             outfolder + "/" + str(iY),
-#                             "btaggingSF_deepjet_" + str(iY),
-#                             axisdict["btagging"]["x"],
-#                             axisdict["btagging"]["ysf"],
-#                             iY) )
+    for iY in [2022]:
+        btagsftasks.append( (SFdict["btaggingSF_deepjet"],
+                             outfolder + "/" + str(iY),
+                             "btaggingSF_deepjet_" + str(iY),
+                             axisdict["btagging"]["x"],
+                             axisdict["btagging"]["ysf"],
+                             iY) )
         btagsftasks.append( (SFdict["btaggingSF_deepcsv"],
                              outfolder + "/" + str(iY),
                              "btaggingSF_deepcsv_" + str(iY),

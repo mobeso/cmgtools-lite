@@ -71,7 +71,7 @@ if options.asimov:
     for p in asimovprocesses:
         if p in report: 
             if tomerge is None: 
-                tomerge = report[p].raw().Clone("x_data_obs"); tomerge.SetDirectory(None)
+                tomerge = report[p].raw().Clone("x_data_obs"); tomerge.SetDirectory(0)
             else: tomerge.Add(report[p].raw())
     report['data_obs'] = HistoWithNuisances(tomerge)
 else:

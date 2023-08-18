@@ -56,3 +56,5 @@ Here we will list the important twikis for the analysis:
  * NanoAODv11 [twiki](https://cms-nanoaod-integration.web.cern.ch/autoDoc/NanoAODv11/2022postEE/doc_WZ_TuneCP5_13p6TeV_pythia8_Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1.html).
  * Json integration POGs: [gitlab](https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG).
  * Lumi Recommendation: [twiki](https://twiki.cern.ch/twiki/bin/view/CMS/LumiRecommendationsRun3).
+ * EGamma SFs: [twiki](https://twiki.cern.ch/twiki/bin/view/CMS/EgammSFandSSRun3).
+ * BTV POG: [web](https://btv-wiki.docs.cern.ch/ScaleFactors/).

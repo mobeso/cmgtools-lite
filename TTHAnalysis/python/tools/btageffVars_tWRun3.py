@@ -3,6 +3,7 @@ from copy import deepcopy
 import struct as st
 import warnings as wr
 import ROOT as r
+import correctionlib._core as core
 
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection as NanoAODCollection 
@@ -13,13 +14,10 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.friendVariableProducerTools import decla
 from CMGTools.TTHAnalysis.tools.nanoAOD.TopRun3_modules import ch, tags, emass
 
 
-class btageffVars_tWRun2(Module):
-    def __init__(self, year_ = 2016, lepCollection = "LepGood", algo_ = 'deepjet', wp_ = 1, csv_ = None, SFmeasReg = "mujets", isFastSim = False):
+class btageffVars_tWRun3(Module):
+    def __init__(self, year_ = 2022, lepCollection = "LepGood", algo_ = 'deepJet', wp_ = "M", json_ = None, SFmeasReg = "mujets"):
         self.selecsdict = {}
-        self.selecsdict[2016] = lambda jet: jet.jetId > 0 and jet.eta < 2.4
-        self.selecsdict[2017] = lambda jet: jet.jetId > 1 and jet.eta < 2.4
-        self.selecsdict[2018] = lambda jet: jet.jetId > 1 and jet.eta < 2.4
-        self.selecsdict[2022] = lambda jet: jet.jetId > 1 and jet.eta < 2.4
+        self.selecsdict[2022] = lambda jet: jet.jetId > 1 and abs(jet.eta) < 2.4 and (jet.idx_veto == -1)
         self.lc        = lepCollection
         self.isSet     = False
         self.year      = year_
@@ -27,55 +25,32 @@ class btageffVars_tWRun2(Module):
         self.deltaRcut = 0.4
         self.nominaljecscaff = "_nom"
         self.debug = False
+        self.SFmeasReg = SFmeasReg
         
         if isinstance(algo_, list):
             self.algo = algo_
         else:
             self.algo = [algo_]
             
-        self.algodict   = {"deepjet" : "btagDeepFlavB",
-                           "deepcsv" : "btagDeepB",}
+        self.algodict   = {"deepJet" : "btagDeepFlavB",
+                           "deepCSV" : "btagDeepB",}
         
         self.branchbtag = [self.algodict[alg] for alg in self.algo]
-        self.wp         = {0 : "L", 1 : "M", 2 : "T"}[wp_]
+        self.wp         = wp_
         
         self.cutdict = {}
-        self.cutdict["csvv2"] = {}; self.cutdict["deepcsv"] = {}; self.cutdict["deepjet"] = {}
-        self.cutdict["csvv2"][2016]   = {"L" : 0.5803, "M" : 0.8838, "T": 0.9693}
-        self.cutdict["deepcsv"][2016] = {"L" : 0.2217, "M" : 0.6321, "T": 0.8953}
-        self.cutdict["deepcsv"][2017] = {"L" : 0.1522, "M" : 0.4941, "T": 0.8001}
-        self.cutdict["deepcsv"][2018] = {"L" : 0.1241, "M" : 0.4184, "T": 0.7527}
-        self.cutdict["deepcsv"][2022] = {"L" : 0.1208, "M" : 0.4168, "T": 0.7665}
-        self.cutdict["deepjet"][2016] = {"L" : 0.0614, "M" : 0.3093, "T": 0.7221}
-        self.cutdict["deepjet"][2017] = {"L" : 0.0521, "M" : 0.3033, "T": 0.7489}
-        self.cutdict["deepjet"][2018] = {"L" : 0.0494, "M" : 0.2770, "T": 0.7264}
-        self.cutdict["deepjet"][2022] = {"L" : 0.0490, "M" : 0.2783, "T": 0.7100}
+        self.cutdict["deepCSV"] = {}; self.cutdict["deepJet"] = {}
+        self.cutdict["deepCSV"][2022] = {"L" : 0.1208, "M" : 0.4168, "T": 0.7665}
+        self.cutdict["deepJet"][2022] = {"L" : 0.0490, "M" : 0.2783, "T": 0.7100}
         
         self.flavdict = {5 : "B",
                          4 : "C",
                          0 : "L"}
+                
+        if json_ == None: raise RuntimeError("FATAL: no json given.")
         
-        self.calib    = []
-        self.reader_b = []
-        self.reader_c = []
-        self.reader_l = []
-        vector = r.vector('string')()
-        vector.push_back("up")
-        vector.push_back("down")
+        self.btvjson = core.CorrectionSet.from_file(json_)
         
-        if csv_ == None: raise RuntimeError("FATAL: no csv given.")
-        
-        for iA in range(len(self.algo)):
-            self.calib.append(r.BTagCalibration(self.algo[iA], csv_[iA]))
-
-            self.reader_b.append(r.BTagCalibrationReader(wp_, "central", vector))
-            self.reader_b[-1].load(self.calib[-1], 0, SFmeasReg if not isFastSim else "fastsim")
-
-            self.reader_c.append(r.BTagCalibrationReader(wp_, "central", vector))
-            self.reader_c[-1].load(self.calib[-1], 1, SFmeasReg if not isFastSim else "fastsim")
-
-            self.reader_l.append(r.BTagCalibrationReader(wp_, "central", vector))
-            self.reader_l[-1].load(self.calib[-1], 2, "incl" if not isFastSim else "fastsim")
         return
 
 
@@ -130,30 +105,25 @@ class btageffVars_tWRun2(Module):
         self.leps    = [l for l in NanoAODCollection(event, self.lc)]
         writeOutput(self, self.run(event, NanoAODCollection))
         return True
-
-
-    def pogFlavor(self, hadronFlavor):
-        match = {5:0, # b
-                 4:1, # c
-                 0:2, # l
-                 1:2, # l
-                 2:2, # l
-                 3:2, # l
-        }
-        if hadronFlavor in list(match.keys()): return match[hadronFlavor]
-        return 2
+   
     
-    
-    def getSF(self, pt, eta, mcFlavour, iR):
-        flavour    = self.pogFlavor(mcFlavour)
-        pt_cutoff  = max(20. , min(999., pt))
-        eta_cutoff = min(2.39 if flavour == 2 else 2.49, abs(eta))
+    def getSF(self, pt, eta, flavour, algorithm):
+        #pt_cutoff  = max(20. , min(999., pt))
+        #eta_cutoff = min(2.39 if flavour == 2 else 2.49, abs(eta))
 
-        theReader  = [self.reader_b[iR], self.reader_c[iR], self.reader_l[iR]][flavour]
+        eta = abs(eta)
 
-        SF   = theReader.eval_auto_bounds("central", flavour, eta_cutoff, pt_cutoff)
-        SFup = theReader.eval_auto_bounds("up",      flavour, eta_cutoff, pt_cutoff)
-        SFdn = theReader.eval_auto_bounds("down",    flavour, eta_cutoff, pt_cutoff)
+        if flavour != 0:
+            measurementRegion = self.SFmeasReg
+        else:
+            measurementRegion = "incl"
+
+        theReader  = self.btvjson[algorithm + "_" + measurementRegion]
+
+        SF = theReader.evaluate("central", self.wp, flavour, eta, pt)
+        SFup = theReader.evaluate("up", self.wp, flavour, eta, pt)
+        SFdn = theReader.evaluate("down", self.wp, flavour, eta, pt)
+
         return [SF, SFup, SFdn]
 
 
@@ -188,7 +158,7 @@ class btageffVars_tWRun2(Module):
                 allret["EffSFJet{f}_Eta".format(f = self.flavdict[thefl])].append(self.jets[iJ].eta)
                 
                 for iA in range(len(self.algo)):
-                    SF = self.getSF(thept, self.jets[iJ].eta, thefl, iA)
+                    SF = self.getSF(thept, self.jets[iJ].eta, thefl, self.algo[iA])
                     allret["EffSFJet{f}_{a}Istag".format(f = self.flavdict[thefl], a = self.algo[iA])].append(int(getattr(self.jets[iJ], self.branchbtag[iA]) > self.cutdict[self.algo[iA]][self.year][self.wp]))
                     allret["EffSFJet{f}_{a}SF".format(   f = self.flavdict[thefl], a = self.algo[iA])].append(SF[0])
                     allret["EffSFJet{f}_{a}SFup".format( f = self.flavdict[thefl], a = self.algo[iA])].append(SF[1])

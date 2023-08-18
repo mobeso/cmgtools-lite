@@ -1,0 +1,3 @@
+tw+ : TbarWplus_DR_AtLeastOneLepton_CP5_13p6TeV_powheg_pythia8*    : xsec ; FillColor=798
+tw+ : TWminus_DR_AtLeastOneLepton_CP5_13p6TeV_powheg_pythia8_*     : xsec ; FillColor=798
+

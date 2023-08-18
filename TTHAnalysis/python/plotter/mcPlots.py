@@ -286,6 +286,21 @@ def doScaleBkgNormData(pspec,pmap,mca,list = []):
         if p in bkgs: h.Scale(sf)
     return sf
 
+def doScaleBkgAndSigNormData(pspec,pmap,mca,list = []):
+    if "data"       not in pmap: return -1.0
+    if "background" not in pmap: return -1.0
+    if any([l not in pmap for l in list]): return -1.0
+    data = pmap["data"]
+    bkg  = pmap["background"]
+    sig  = pmap["signal"]
+    integral = sum([pmap[l].Integral() for l in list])
+    rm = bkg.Integral() + sig.Integral() - integral
+    sf = (data.Integral() - rm) / integral if integral else 0
+    bkgs = ["background"] + list
+    for p,h in pmap.items():
+        if p in bkgs: h.Scale(sf)
+    return sf
+
 
 def doNormFit(pspec,pmap,mca,saveScales=False):
     global _global_workspaces
@@ -766,6 +781,8 @@ class PlotMaker:
                     self._sf = doScaleSigNormData(pspec,pmap,mca)
                 elif self._options.scaleBackgroundToData != []: 
                     self._sf = doScaleBkgNormData(pspec,pmap,mca,self._options.scaleBackgroundToData)
+                elif self._options.scaleBackgroundAndSignalToData != []:
+                    self._sf = doScaleBkgAndSigNormData(pspec,pmap,mca,self._options.scaleBackgroundAndSignalToData)
                 elif self._options.fitData: 
                     doNormFit(pspec,pmap,mca)
                 elif self._options.preFitData and pspec.name == self._options.preFitData:
@@ -1272,6 +1289,7 @@ def addPlotMakerOptions(parser, addAlsoMCAnalysis=True):
     parser.add_option("--fitRatio", dest="fitRatio", type="int", default=None, help="Fit the ratio with a polynomial of the specified order")
     parser.add_option("--scaleSigToData", dest="scaleSignalToData", action="store_true", default=False, help="Scale all signal processes so that the overall event yield matches the observed one")
     parser.add_option("--scaleBkgToData", dest="scaleBackgroundToData", action="append", default=[], help="Scale all background processes so that the overall event yield matches the observed one")
+    parser.add_option("--scaleBkgSigToData", dest="scaleBackgroundAndSignalToData", action="append", default=[], help="Scale all background processes so that the overall event yield matches the observed one")
     parser.add_option("--showSF", dest="showSF", action="store_true", default=False, help="Show scale factor extracted from either --scaleSigToData or --scaleBkgToData on the plot")
     parser.add_option("--fitData", dest="fitData", action="store_true", default=False, help="Perform a fit to the data")
     parser.add_option("--preFitData", dest="preFitData", type="string", default=None, help="Perform a pre-fit to the data using the specified distribution, then plot the rest")

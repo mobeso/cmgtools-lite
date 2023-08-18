@@ -245,6 +245,7 @@ class JetEnergyCorrector( Module ):
 
         # ---------------------------  Jets ---------------------------- #
         self.jets = Collection(event, "Jet")
+        self.jets_vetoed = []
 
         # ---------------------------  Muons --------------------------- #
         self.muons = Collection(event, "Muon")
@@ -278,7 +279,7 @@ class JetEnergyCorrector( Module ):
         return
     
     def veto_jets(self, event):
-        passjets = []
+        vetojets = []
         for ijet, jet in enumerate(self.jets): 
             jet_eta  = jet.eta
             jet_phi  = jet.phi
@@ -287,10 +288,10 @@ class JetEnergyCorrector( Module ):
             etabin = max(1, min(self.vmap.GetNbinsX(), self.vmap.GetXaxis().FindBin(jet_eta)))
             phibin = max(1, min(self.vmap.GetNbinsY(), self.vmap.GetYaxis().FindBin(jet_phi)))
             vetoed = self.vmap.GetBinContent(etabin, phibin) # This can be either 100 or 0. 100 means that it should be vetoed.
-            if not vetoed: passjets.append(jet)
+            if vetoed: vetojets.append(ijet)
 
-        # Update the list of jets to be used in the loop
-        self.jets = passjets
+        # Update the list of vetoed
+        self.jets_vetoed = vetojets
         return
     
     def loop_jets(self, ret, event):
@@ -384,13 +385,18 @@ class JetEnergyCorrector( Module ):
             ret["Jet_mass_nom"].append(jet_mass_nom) 
             ret["Jet_corr_JEC"].append(jet_pt_nom/jet_pt_raw) 
             ret["Jet_corr_JER"].append(jet_pt_jerNomVal)
+            # Save jets that are vetoed
+            if ijet in self.jets_vetoed:
+                ret["Jet_idx_veto"].append(ijet)
+            else:
+                ret["Jet_idx_veto"].append(-1) 
             
             # Add JER branches to the return dictionary
             if self.isMC:
-                ret["Jet_pt_jerUp"].append(jet_pt_nom*jet_pt_jerUpVal)
-                ret["Jet_mass_jerUp"].append(jet_mass_nom*jet_pt_jerUpVal)
-                ret["Jet_pt_jerDown"].append(jet_pt_nom*jet_pt_jerDownVal)
-                ret["Jet_mass_jerDown"].append(jet_mass_nom*jet_pt_jerDownVal)
+                ret["Jet_pt_jerUp"].append(jet_pt_nom*jet_pt_jerUpVal/jet_pt_jerNomVal)
+                ret["Jet_mass_jerUp"].append(jet_mass_nom*jet_pt_jerUpVal/jet_pt_jerNomVal)
+                ret["Jet_pt_jerDown"].append(jet_pt_nom*jet_pt_jerDownVal/jet_pt_jerNomVal)
+                ret["Jet_mass_jerDown"].append(jet_mass_nom*jet_pt_jerDownVal/jet_pt_jerNomVal)
 
             # ----------------------------------------------- #
             #      Compute JET sources of uncertainty         #
@@ -697,7 +703,8 @@ class JetEnergyCorrector( Module ):
             ("Jet_mass_raw", "F", 20, "nJet"),
             ("Jet_mass_nom", "F", 20, "nJet"),
             ("Jet_corr_JEC", "F", 20, "nJet"),
-            ("Jet_corr_JER", "F", 20, "nJet")
+            ("Jet_corr_JER", "F", 20, "nJet"),
+            ("Jet_idx_veto", "I", 20, "nJet"),
         ]
         
         branches.append(("%s_T1_pt"%(self.metbranchname), "F"))
@@ -768,6 +775,7 @@ class JetEnergyCorrector( Module ):
             "Jet_mass_nom"     : [],
             "Jet_corr_JEC"     : [],
             "Jet_corr_JER"     : [],
+            "Jet_idx_veto" : [], # indices of the jets that should not be removed
         }
         
         if self.isMC:

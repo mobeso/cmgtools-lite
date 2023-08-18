@@ -7,7 +7,7 @@ lep12jet12_dr      : Lep12Jet12_DR       : 20,0,5     ; LegendCutoff=0, MoreY=1.
 #2j1b BDT
 #tmvaBDT_2j1b        : tmvaBDT_2j1b          : 12,-1,1   ; LegendCutoff=0, IncludeUnderflow=False, XTitle="BDT discriminant", MoreY=1.5
 #tmvaBDT_2j1b_smallb : tmvaBDT_2j1b          : 1000,-1,1 ; LegendCutoff=0, IncludeUnderflow=False, XTitle="BDT discriminant"
-tmvaBDT_2j1b_rebin  : getBDtWOther(tmvaBDT_2j1b) : [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5] ; LegendCutoff=0, IncludeUnderflow=False, XTitle="BDT discriminant", MoreY=1.5
+#tmvaBDT_2j1b_rebin  : getBDtWOther(tmvaBDT_2j1b) : [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5] ; LegendCutoff=0, IncludeUnderflow=False, XTitle="BDT discriminant", MoreY=1.5
 
 #For the Nbins study:
 #tmvaBDT_2j1b_12bins  : getBDtWOther12bins(tmvaBDT_2j1b) : [0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5] ; LegendCutoff=0, IncludeUnderflow=False, XTitle="BDT discriminant", MoreY=1.8

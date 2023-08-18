@@ -24,12 +24,12 @@ class pythonCleaningTopRun2UL(Module):
             self.selecsdict[2016] = lambda jet: (jet.jetId > 1)
             self.selecsdict[2017] = lambda jet: (jet.jetId > 1)
             self.selecsdict[2018] = lambda jet: (jet.jetId > 1)
-            self.selecsdict[2022] = lambda jet: (jet.jetId > 1)
+            self.selecsdict[2022] = lambda jet: (jet.jetId > 1) and (jet.idx_veto == -1)
         else:
             self.selecsdict[2016] = lambda jet: (jet.jetId > 1)
             self.selecsdict[2017] = lambda jet: (jet.jetId > 1)
             self.selecsdict[2018] = lambda jet: (jet.jetId > 1)
-            self.selecsdict[2022] = lambda jet: (jet.jetId > 1)
+            self.selecsdict[2022] = lambda jet: (jet.jetId > 1) and (jet.idx_veto == -1)
 
         # Estandar
         #self.selecsdict[2016] = lambda jet: jet.jetId > 1
@@ -102,6 +102,7 @@ class pythonCleaningTopRun2UL(Module):
                           "DeepCSV_2022_T"    : 0.7665,
                          }
         self.btagWPcut = 0.
+        self.btagWPcutLoose = 0.
         self.deltaRcut = deltaRcut
         self.debug     = debug
         return
@@ -122,7 +123,7 @@ class pythonCleaningTopRun2UL(Module):
 
 
         # Configuring output branches
-        self._outjetvars    = [x%self.jc for x in ['nB%sSelMedium%%d','n%sSel%%d']]
+        self._outjetvars    = [x%self.jc for x in ['nB%sSelMedium%%d','n%sSel%%d', 'nB%sSelLoose%%d']]
         self._outfwdjetvars = [x%self.jc for x in ['nFwd%sSel%%d']]
         self.outjetvars  = []
         for jetPt in self.jetPts:
@@ -188,6 +189,8 @@ class pythonCleaningTopRun2UL(Module):
         finalJetDict = {}
         finalnBtagsDict0 = {}
         finalnBtagsDict1 = {}
+        finalnLooseBtagsDict0 = {}
+        finalnLooseBtagsDict1 = {}
 
         for key in self.colls:
             finalJetDict[key] = []
@@ -196,10 +199,15 @@ class pythonCleaningTopRun2UL(Module):
         for delta,jvar in self.systsJEC.items():
             finalnBtagsDict0[jvar] = 0
             finalnBtagsDict1[jvar] = 0
+            finalnLooseBtagsDict0[jvar] = 0
+            finalnLooseBtagsDict1[jvar] = 0
+
 
         for delta,lvar in self.systsLepEn.items():
             finalnBtagsDict0[lvar] = 0
             finalnBtagsDict1[lvar] = 0
+            finalnLooseBtagsDict0[lvar] = 0
+            finalnLooseBtagsDict1[lvar] = 0
             leps = [l for l in Collection(event, self.lc + lvar[1:])]
             cleanedandgoodjets[lvar] = self.areMyJetsCleanAndGood(jets, leps)
 
@@ -209,13 +217,16 @@ class pythonCleaningTopRun2UL(Module):
                 abseta = abs(jets[iJ].eta)
                 if   abseta < 2.4:
                     tmpisbtag = getattr(jets[iJ], self.jetBTag) > self.btagWPcut
+                    tmpisloosebtag = getattr(jets[iJ], self.jetBTag) > self.btagWPcutLoose
                     for delta,jvar in self.systsJEC.items():
                         if   getattr(jets[iJ], "pt" + (self.nomjecscaff if jvar == "" else jvar)) > self.jetPts[0]:
                             finalJetDict["jetsSup"    + jvar].append(iJ)
                             if tmpisbtag: finalnBtagsDict0[jvar] += 1
+                            if tmpisloosebtag: finalnLooseBtagsDict0[jvar] += 1
                         elif getattr(jets[iJ], "pt" + (self.nomjecscaff if jvar == "" else jvar)) > self.jetPts[1]:
                             finalJetDict["jetsInf"    + jvar].append(iJ)
                             if tmpisbtag: finalnBtagsDict1[jvar] += 1
+                            if tmpisloosebtag: finalnLooseBtagsDict1[jvar] += 1
 
                 elif abseta < 2.7:
                     for delta,jvar in self.systsJEC.items():
@@ -241,12 +252,15 @@ class pythonCleaningTopRun2UL(Module):
                     abseta = abs(jets[iJ].eta)
                     if   abseta < 2.4:
                         tmpisbtag = getattr(jets[iJ], self.jetBTag) > self.btagWPcut
+                        tmpisloosebtag = getattr(jets[iJ], self.jetBTag) > self.btagWPcutLoose
                         if   getattr(jets[iJ], "pt" + self.nomjecscaff) > self.jetPts[0]:
                             finalJetDict["jetsSup"    + lvar].append(iJ)
                             if tmpisbtag: finalnBtagsDict0[lvar] += 1
+                            if tmpisloosebtag: finalnLooseBtagsDict0[lvar] += 1
                         elif getattr(jets[iJ], "pt" + self.nomjecscaff) > self.jetPts[1]:
                             finalJetDict["jetsInf"    + lvar].append(iJ)
                             if tmpisbtag: finalnBtagsDict1[lvar] += 1
+                            if tmpisloosebtag: finalnLooseBtagsDict1[lvar] += 1
 
                     elif abseta < 2.7:
                         if   getattr(jets[iJ], "pt" + self.nomjecscaff) > self.jetPts[0]:
@@ -282,6 +296,9 @@ class pythonCleaningTopRun2UL(Module):
             self.wrappedOutputTree.fillBranch('nBJetSelMedium' + str(self.jetPts[0]) + sys + self.label, finalnBtagsDict0[sys])
             self.wrappedOutputTree.fillBranch('nBJetSelMedium' + str(self.jetPts[1]) + sys + self.label, finalnBtagsDict1[sys])
 
+            self.wrappedOutputTree.fillBranch('nBJetSelLoose' + str(self.jetPts[0]) + sys + self.label, finalnLooseBtagsDict0[sys])
+            self.wrappedOutputTree.fillBranch('nBJetSelLoose' + str(self.jetPts[1]) + sys + self.label, finalnLooseBtagsDict1[sys])
+
             self.colls["jetsSup"    + sys].finishEventOpt()
             self.colls["jetsInf"    + sys].finishEventOpt()
             self.colls["fwdjetsSup" + sys].finishEventOpt()
@@ -295,6 +312,9 @@ class pythonCleaningTopRun2UL(Module):
             # Afterwards, those variables not in CS or their counts
             self.wrappedOutputTree.fillBranch('nBJetSelMedium' + str(self.jetPts[0]) + sys + self.label, finalnBtagsDict0[sys])
             self.wrappedOutputTree.fillBranch('nBJetSelMedium' + str(self.jetPts[1]) + sys + self.label, finalnBtagsDict1[sys])
+
+            self.wrappedOutputTree.fillBranch('nBJetSelLoose' + str(self.jetPts[0]) + sys + self.label, finalnLooseBtagsDict0[sys])
+            self.wrappedOutputTree.fillBranch('nBJetSelLoose' + str(self.jetPts[1]) + sys + self.label, finalnLooseBtagsDict1[sys])
 
             self.colls["jetsSup"    + sys].finishEventOpt()
             self.colls["jetsInf"    + sys].finishEventOpt()
@@ -312,6 +332,7 @@ class pythonCleaningTopRun2UL(Module):
         if self.year != None:
             self.selection = self.selecsdict[int(self.year) if not "apv" in self.year else 2016]
             self.btagWPcut = self.btagWPs[self.algoscaff.format(y = self.year, wp = self.btagWP)]
+            self.btagWPcutLoose = self.btagWPs[self.algoscaff.format(y = self.year, wp = "L")]
         else:
             wr.warn("WARNING: as you did not choose year, we will use deepcsv as algorithm with random values for the working points.")
             self.btagWPcut = self.btagWPs["DeepCSVM"]

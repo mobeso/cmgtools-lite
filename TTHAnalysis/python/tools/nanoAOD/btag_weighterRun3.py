@@ -3,13 +3,14 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel   import Colle
 from CMGTools.TTHAnalysis.tools.nanoAOD.friendVariableProducerTools import writeOutput
 import ROOT as r
 from copy import deepcopy
+import correctionlib._core as core
 
 # Mainly based on https://github.com/cericeci/cmgtools-lite/blob/RunII_SUSY_EWK_fromWZ/TTHAnalysis/python/tools/bTagWeightAnalyzer.py
 
 
 class btag_weighterRun3(Module):
-    def __init__(self, csv, eff, algo = 'deepjet', wp = 1, branchJet = "JetSel30", labelJet = "_Recl", branchbtag = 'btagDeepFlavB', branchflavour = 'hadronFlavour',
-                 label = "", isFastSim = False, year = "2017", SFmeasReg = "mujets",
+    def __init__(self, json, eff, algo = 'deepJet', wp = "M", branchJet = "JetSel30", labelJet = "_Recl", branchbtag = 'btagDeepFlavB', branchflavour = 'hadronFlavour',
+                 label = "", year = "2022", SFmeasReg = "mujets",
                  minptlow = 20, minpthigh = 30, maxeta = 2.4,
                  jecvars = ["jesTotal", "jer"], lepenvars = ["mu"],
                  splitCorrelations = False, debug = False):
@@ -18,7 +19,6 @@ class btag_weighterRun3(Module):
         self.wp        = wp
         self.branchJet = branchJet
         self.labelJet  = labelJet
-        self.isFastSim = isFastSim
         self.label     = label
         self.year      = year
         self.minptlow  = minptlow
@@ -28,6 +28,7 @@ class btag_weighterRun3(Module):
         self.splitCorr     = splitCorrelations
         self.branchbtag    = branchbtag
         self.debug         = debug
+        self.SFmeasReg    = SFmeasReg
 
         self.systsJEC   = {0: ""}
         self.systsLepEn = {}
@@ -55,116 +56,26 @@ class btag_weighterRun3(Module):
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL16postVFP
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL17
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL18
-        self.btagWPs   = {"DeepCSV_2016apv_L" : 0.2027,
-                          "DeepCSV_2016apv_M" : 0.6001,
-                          "DeepCSV_2016apv_T" : 0.8819,
-                          "DeepCSV_2016_L"    : 0.1918,
-                          "DeepCSV_2016_M"    : 0.5847,
-                          "DeepCSV_2016_T"    : 0.8767,
-                          "DeepCSV_2017_L"    : 0.1355,
-                          "DeepCSV_2017_M"    : 0.4506,
-                          "DeepCSV_2017_T"    : 0.7738,
-                          "DeepCSV_2018_L"    : 0.1208,
-                          "DeepCSV_2018_M"    : 0.4168,
-                          "DeepCSV_2018_T"    : 0.7665,
-                          "DeepFlav_2016apv_L": 0.0508,
-                          "DeepFlav_2016apv_M": 0.2598,
-                          "DeepFlav_2016apv_T": 0.6502,
-                          "DeepFlav_2016_L"   : 0.0480,
-                          "DeepFlav_2016_M"   : 0.2489,
-                          "DeepFlav_2016_T"   : 0.6377,
-                          "DeepFlav_2017_L"   : 0.0532,
-                          "DeepFlav_2017_M"   : 0.3040,
-                          "DeepFlav_2017_T"   : 0.7476,
-                          "DeepFlav_2018_L"   : 0.0490,
-                          "DeepFlav_2018_M"   : 0.2783,
-                          "DeepFlav_2018_T"   : 0.7100,
-                          "DeepFlav_2022_L"   : 0.0490, #copied from 2018
+        self.btagWPs   = {"DeepFlav_2022_L"   : 0.0490, #copied from 2018
                           "DeepFlav_2022_M"   : 0.2783,
                           "DeepFlav_2022_T"   : 0.7100,
                           "DeepCSV_2022_L"    : 0.1208,
                           "DeepCSV_2022_M"    : 0.4168,
                           "DeepCSV_2022_T"    : 0.7665,
                          }
-        self.xuandict = {"deepcsv" : "DeepCSV",
-                         "deepjet" : "DeepFlav"}
+        self.xuandict = {"deepCSV" : "DeepCSV",
+                         "deepJet" : "DeepFlav"}
 
-        self.cutVal = self.btagWPs[ self.xuandict[self.algo] + "_" + self.year + "_" + ["L", "M", "T"][self.wp] ]
+        self.cutVal = self.btagWPs[ self.xuandict[self.algo] + "_" + self.year + "_" + self.wp ]
         self.ret = {}
 
-        vectorbc = r.vector('string')()
-        vectorbc.push_back("up")
-        vectorbc.push_back("down")
-
-        if self.splitCorr:
-            vectorbc.push_back("up_correlated")
-            vectorbc.push_back("down_correlated")
-            vectorbc.push_back("up_uncorrelated")
-            vectorbc.push_back("down_uncorrelated")
-            #if   SFmeasReg == "mujets":
-            
-            vectorbc.push_back("up_jes")
-            vectorbc.push_back("down_jes")
-            vectorbc.push_back("up_pileup")
-            vectorbc.push_back("down_pileup")
-            vectorbc.push_back("up_type3")
-            vectorbc.push_back("down_type3")
-            vectorbc.push_back("up_statistic")
-            vectorbc.push_back("down_statistic")
-
-            #### Aqui me emocione. No implemente el resto pa comb tmb porque es una lata (en vez de extender, mereceria la pena reescribir y automatizar, pero no me apetece)
-            #elif SFmeasReg == "comb":
-                #vectorbc.push_back("up_jes")
-                #vectorbc.push_back("down_jes")
-                #vectorbc.push_back("up_jer")
-                #vectorbc.push_back("down_jer")
-                #vectorbc.push_back("up_isr")
-                #vectorbc.push_back("down_isr")
-                #vectorbc.push_back("up_fsr")
-                #vectorbc.push_back("down_fsr")
-                #vectorbc.push_back("up_hdamp")
-                #vectorbc.push_back("down_hdamp")
-                #vectorbc.push_back("up_qcdscale")
-                #vectorbc.push_back("down_qcdscale")
-                #vectorbc.push_back("up_pileup")
-                #vectorbc.push_back("down_pileup")
-                #vectorbc.push_back("up_topmass")
-                #vectorbc.push_back("down_topmass")
-                #vectorbc.push_back("up_type3")
-                #vectorbc.push_back("down_type3")
-                #vectorbc.push_back("up_statistic")
-                #vectorbc.push_back("down_statistic")
-
-
-        vectorl = r.vector('string')()
-        vectorl.push_back("up")
-        vectorl.push_back("down")
-
-        if self.splitCorr:
-            vectorl.push_back("up_correlated")
-            vectorl.push_back("down_correlated")
-            vectorl.push_back("up_uncorrelated")
-            vectorl.push_back("down_uncorrelated")
-
-        ## load POG stuff
-        ## in reader instance: 1 = medium wp
-        ## in loading: 0,1,2 = b-jets, c-jets, light-jets
-        self.calib    = r.BTagCalibration(self.algo, csv)
-
-        self.reader_b = r.BTagCalibrationReader(self.wp, "central", vectorbc)
-        self.reader_b.load(self.calib, 0, SFmeasReg if not isFastSim else "fastsim")
-
-        self.reader_c = r.BTagCalibrationReader(self.wp, "central", vectorbc)
-        self.reader_c.load(self.calib, 1, SFmeasReg if not isFastSim else "fastsim")
-
-        self.reader_l = r.BTagCalibrationReader(self.wp, "central", vectorl)
-        self.reader_l.load(self.calib, 2, "incl" if not isFastSim else "fastsim")
+        self.btvjson = core.CorrectionSet.from_file(json)
 
         #### Eficiencias ### FORZADAS A DEEPFLAVOUR
         f_eff        = r.TFile.Open(eff, "read")
-        self.h_eff_b = deepcopy(f_eff.Get("BtagSFB_{}{}_{}".format(self.xuandict[self.algo], ["L", "M", "T"][self.wp], self.year)).Clone())
-        self.h_eff_c = deepcopy(f_eff.Get("BtagSFC_{}{}_{}".format(self.xuandict[self.algo], ["L", "M", "T"][self.wp], self.year)).Clone())
-        self.h_eff_l = deepcopy(f_eff.Get("BtagSFL_{}{}_{}".format(self.xuandict[self.algo], ["L", "M", "T"][self.wp], self.year)).Clone())
+        self.h_eff_b = deepcopy(f_eff.Get("BtagSFB_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
+        self.h_eff_c = deepcopy(f_eff.Get("BtagSFC_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
+        self.h_eff_l = deepcopy(f_eff.Get("BtagSFL_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
         f_eff.Close()
 
         return
@@ -459,33 +370,37 @@ class btag_weighterRun3(Module):
         return histo.GetBinContent(xbin, ybin)
 
 
-    def getSF(self, pt, eta, mcFlavour):
-        flavour    = self.pogFlavor(mcFlavour)
+    def getSF(self, pt, eta, flavour):
         pt_cutoff  = max(20. , min(999., pt))
         eta_cutoff = min(2.49, abs(eta))
 
-        theReader  = [self.reader_b, self.reader_c, self.reader_l][flavour]
+        if flavour != 0:
+            measurementRegion = self.SFmeasReg
+        else:
+            measurementRegion = "incl"
 
-        SF   = theReader.eval_auto_bounds("central", flavour, eta_cutoff, pt_cutoff)
-        SFup = theReader.eval_auto_bounds("up",      flavour, eta_cutoff, pt_cutoff)
-        SFdn = theReader.eval_auto_bounds("down",    flavour, eta_cutoff, pt_cutoff)
+        theReader  = self.btvjson[self.algo + "_" + measurementRegion]
+
+        SF = theReader.evaluate("central", self.wp, flavour, eta_cutoff, pt_cutoff)
+        SFup = theReader.evaluate("up", self.wp, flavour, eta_cutoff, pt_cutoff)
+        SFdn = theReader.evaluate("down", self.wp, flavour, eta_cutoff, pt_cutoff)
 
         if not self.splitCorr:
             return [SF, SFup, SFdn]
         else:
-            SFupCorr   = theReader.eval_auto_bounds("up_correlated",     flavour, eta_cutoff, pt_cutoff)
-            SFdnCorr   = theReader.eval_auto_bounds("down_correlated",   flavour, eta_cutoff, pt_cutoff)
-            SFupUncorr = theReader.eval_auto_bounds("up_uncorrelated",   flavour, eta_cutoff, pt_cutoff)
-            SFdnUncorr = theReader.eval_auto_bounds("down_uncorrelated", flavour, eta_cutoff, pt_cutoff)
+            SFupCorr   = theReader.evaluate("up_correlated",self.wp,     flavour, eta_cutoff, pt_cutoff)
+            SFdnCorr   = theReader.evaluate("down_correlated",self.wp,   flavour, eta_cutoff, pt_cutoff)
+            SFupUncorr = theReader.evaluate("up_uncorrelated",self.wp,   flavour, eta_cutoff, pt_cutoff)
+            SFdnUncorr = theReader.evaluate("down_uncorrelated",self.wp, flavour, eta_cutoff, pt_cutoff)
             if flavour in [4, 5]:
-                SFupjes    = theReader.eval_auto_bounds("up_jes",            flavour, eta_cutoff, pt_cutoff)
-                SFdnjes    = theReader.eval_auto_bounds("down_jes",          flavour, eta_cutoff, pt_cutoff)
-                SFuppileup = theReader.eval_auto_bounds("up_pileup",         flavour, eta_cutoff, pt_cutoff)
-                SFdnpileup = theReader.eval_auto_bounds("down_pileup",       flavour, eta_cutoff, pt_cutoff)
-                SFuptype3  = theReader.eval_auto_bounds("up_type3",          flavour, eta_cutoff, pt_cutoff)
-                SFdntype3  = theReader.eval_auto_bounds("down_type3",        flavour, eta_cutoff, pt_cutoff)
-                SFupstat   = theReader.eval_auto_bounds("up_statistic",      flavour, eta_cutoff, pt_cutoff)
-                SFdnstat   = theReader.eval_auto_bounds("down_statistic",    flavour, eta_cutoff, pt_cutoff)
+                SFupjes    = theReader.evaluate("up_jes", self.wp,           flavour, eta_cutoff, pt_cutoff)
+                SFdnjes    = theReader.evaluate("down_jes", self.wp,         flavour, eta_cutoff, pt_cutoff)
+                SFuppileup = theReader.evaluate("up_pileup", self.wp,        flavour, eta_cutoff, pt_cutoff)
+                SFdnpileup = theReader.evaluate("down_pileup", self.wp,      flavour, eta_cutoff, pt_cutoff)
+                SFuptype3  = theReader.evaluate("up_type3", self.wp,         flavour, eta_cutoff, pt_cutoff)
+                SFdntype3  = theReader.evaluate("down_type3", self.wp,       flavour, eta_cutoff, pt_cutoff)
+                SFupstat   = theReader.evaluate("up_statistic", self.wp,     flavour, eta_cutoff, pt_cutoff)
+                SFdnstat   = theReader.evaluate("down_statistic", self.wp,   flavour, eta_cutoff, pt_cutoff)
             else:
                 SFupjes    = 1.
                 SFdnjes    = 1.
