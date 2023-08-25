@@ -7,23 +7,34 @@ import os
 
 # -- Define where to extrac the SFs from
 files = {
+  # ----- MVATTH 2022
   "muon"     : {
-    "IDTight"  : {"file" : "Efficiencies_muon_generalTracks_Z_Run{year}_UL_ID",
-                  "hist" : "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-                  "unc"  : ["stat", "syst"]},
-    "ISOTight" : {"file" : "Efficiencies_muon_generalTracks_Z_Run{year}_UL_ISO",
-                  "hist" : "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-                  "unc"  : ["stat", "syst"]}
-    },
+    "IDTight"  : {"file" : "Muon_SFS_balvarez_{year}",
+                  "hist" : "EGamma_SF2D",
+                  "unc"  : ["unc"]}},
   "electron" : {
-    "IDTight"  : {"file" : "Electron_{year}UL_IDTight", 
+    "IDTight"  : {"file" : "Electron_SFS_balvarez_{year}", 
                   "hist" : "EGamma_SF2D",
-                  "unc"  : ["unc"]},
-    "RECOTight": {"file" : "Electron_{year}UL_RECO", 
-                  "hist" : "EGamma_SF2D",
-                  "unc"  : ["unc"]}
+                  "unc"  : ["unc"]}},
   }
-}  
+  # ----- Cutbased 2018
+  #"muon"     : {
+  #  "IDTight"  : {"file" : "Efficiencies_muon_generalTracks_Z_Run{year}_UL_ID",
+  #                "hist" : "NUM_TightID_DEN_TrackerMuons_abseta_pt",
+  #                "unc"  : ["stat", "syst"]},
+  #  "ISOTight" : {"file" : "Efficiencies_muon_generalTracks_Z_Run{year}_UL_ISO",
+  #                "hist" : "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+  #                "unc"  : ["stat", "syst"]}
+  #  },
+  #"electron" : {
+  #  "IDTight"  : {"file" : "Electron_{year}UL_IDTight", 
+  #                "hist" : "EGamma_SF2D",
+  #                "unc"  : ["unc"]},
+  #  "RECOTight": {"file" : "Electron_{year}UL_RECO", 
+  #                "hist" : "EGamma_SF2D",
+  #                "unc"  : ["unc"]}
+  #}
+  
     
 class lepScaleFactors_wzrun3(Module):   
   # ============ MAIN METHODS =============== #
@@ -45,7 +56,7 @@ class lepScaleFactors_wzrun3(Module):
     # Now load required histograms
     self.load_histograms()
     
-    print("[lepScaleFactors_wzRun3::constructor] - Finished loading histograms")
+    #print("[lepScaleFactors_wzRun3::constructor] - Finished loading histograms")
     if summary: self.printSummary() 
     return 
   
@@ -81,7 +92,7 @@ class lepScaleFactors_wzrun3(Module):
     nleps = len(leps)
     
     self.event = event
-    print((" ---- Event: %d"%event.event))
+ #   print((" ---- Event: %d"%event.event))
     self.nmuons = 0
     self.nelectrons = 0
     for ilep, lep in enumerate(leps):
@@ -110,8 +121,8 @@ class lepScaleFactors_wzrun3(Module):
     #print("nelectrons: %d"%self.nelectrons)
     #print("nmuons: %d"%self.nmuons)
     for sfname, sf in self.sfs.items():
-      if sfname == "muonSF" or sfname == "electronSF":
-        print(("\t>> Writing %s SF which has a value of %s (Up: %s, Dn: %s)"%(sfname, sf, self.sfs[sfname+"_Up"], self.sfs[sfname+"_Down"] )))
+ #     if sfname == "muonSF" or sfname == "electronSF":
+ #       print(("\t>> Writing %s SF which has a value of %s (Up: %s, Dn: %s)"%(sfname, sf, self.sfs[sfname+"_Up"], self.sfs[sfname+"_Down"] )))
       self.out.fillBranch(sfname, sf)        
     return
   
@@ -164,7 +175,7 @@ class lepScaleFactors_wzrun3(Module):
     self.sfs[name]           *= tot_sf
     self.sfs[name + "_Up"]   *= tot_sf*(1 + math.sqrt(variation_totsf))
     self.sfs[name + "_Down"] *= tot_sf*(1 - math.sqrt(variation_totsf))
-    print(("%s total var: %s"%(flav, math.sqrt(variation_totsf))))
+   # print(("%s total var: %s"%(flav, math.sqrt(variation_totsf))))
    # self.sfs[name + "_Up"]   *= tot_sf+math.sqrt(variation_totsf)
    # self.sfs[name + "_Down"] *= tot_sf-math.sqrt(variation_totsf)         
     return
