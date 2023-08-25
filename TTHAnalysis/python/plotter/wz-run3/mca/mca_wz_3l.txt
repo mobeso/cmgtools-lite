@@ -1,10 +1,10 @@
 # vim: syntax=sh
 
 ## Data
-incl_data           : + ; IncludeMca="wz-run3/mca/includes/mca_data.txt"
+incl_data           : + ; IncludeMca="wz-run3/mca/includes/mca-data.txt"
 
 ## Signal and prompt backgrounds
-incl_signal         : + ; IncludeMca="wz-run3/mca/includes/mca_wz.txt"
+incl_signal         : + ; IncludeMca="wz-run3/mca/includes/mca-wz.txt"
 
 ## Fakes
-incl_fakes          : + ; IncludeMca="wz-run3/mca/includes/mca_mcfakes.txt"
+incl_fakes          : + ; IncludeMca="wz-run3/mca/includes/mca-mcfakes.txt"

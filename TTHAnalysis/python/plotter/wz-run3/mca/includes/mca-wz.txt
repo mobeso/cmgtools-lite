@@ -1,0 +1,6 @@
+# ----- WZ
+prompt_WZ+: WZ: xsec ;FillColor=ROOT.kOrange, Label="WZ", genSumWeightName="genEventSumw"
+
+# ----- ZZ
+prompt_ZZ: ZZ: xsec ;FillColor=ROOT.kGreen+1, Label="ZZ", genSumWeightName="genEventSumw"
+
