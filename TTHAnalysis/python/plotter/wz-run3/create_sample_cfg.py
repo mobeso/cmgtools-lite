@@ -8,24 +8,24 @@ import os, re, sys
 from datetime import date
 import numpy 
 from optparse import OptionParser
-from cfgs.samplepaths import samplepaths as paths
-
+from cfgs.datasets_cfg import datasets as alldatasets
+from functions import color_msg
 
 """ Some hardcoded configurations """
 # These are the configurations need to run the postprocessor
 kreators = {
- "data" : lambda args : "{name} = kreator.makeDataComponentFromLocal('{dname}', '', '{path}', '', '.*root', '{year}', [], json = json)".format(**args),
- "mc"   : lambda args : "{name} = kreator.makeMCComponentFromLocal('{dname}', '', '{path}', '.*root', {xsec})".format(**args)
+ "data" : lambda args : '{name} = kreator.makeDataComponentFromLocal("{dname}", "", "{path}", "", ".*root", "{year}", [], json = json)'.format(**args),
+ "mc"   : lambda args : '{name} = kreator.makeMCComponentFromLocal("{dname}", "", "{path}", ".*root", {xsec})'.format(**args)
 }
 
 # Name for the output file
-prefix = "samples_13p6TeV_%s%s_nanoAODv%d_fromLocal.py"
+prefix = "samples_13p6TeV_%s%s_nanoAODv11_fromLocal.py"
 
 # Goldenjson to be used for data postprocessing.
 goldenjson = "Cert_Collisions2022_355100_362760_Golden.json"
 
 def add_parsing_opts():
-  ''' Function with base parsing arguments used by any script '''
+  """ Function with base parsing arguments used by any script """
   parser = OptionParser(usage = "python wz-run.py [options]", 
                                  description = "Main options for running WZ analysis") 
   # -- Input and outputs
@@ -35,142 +35,94 @@ def add_parsing_opts():
               help = "NanoAOD version")
   parser.add_option("--year", dest = "year", default = "2022", 
               help = "Campaign year")
-  parser.add_option("--verbose", dest = "verbose", default = 0, type = int, 
+  parser.add_option("-v", "--verbose", dest = "verbose", default = 0, type = int, 
               help = "Level of verbosity")
+  parser.add_option("-w", "--write-cfg", dest = "write_cfg", action = "store_true", default = False,
+              help = "Write the files. Otherwise just print a summary.")
   return parser.parse_args()
 
-class sample_group:
-  def __init__(self):
-    self.name    = ""
-    self.mainpath = ""
-    self.type_ = ""
-    self.metadata = [] 
-    return 
-  
-def match_samples(path, type_):
-  ''' This function walks over folders until it finds a rootfile'''
-  # -- First find the folders with rootfiles only
-  folders = []
-  for root, dirs, files in os.walk( path ):
-    if "test" in root: continue
-    are_there_rfiles = any([".root" in f for f in files])
-    if not are_there_rfiles: continue
-    folder = root.replace(path, "")
-    folders.append(folder)
-  samples = []
-  for sampname, entries in datasets.items():
-    samp = sample_group()
 
-    samp.name     = sampname
-    samp.type_    = type_
-    samp.mainpath = path
-
-    xsec = None
-    for metadata in entries:
-      try:
-        dname, regex, xsec = metadata
-      except ValueError:
-        dname, regex = metadata
-      # -- Match from the list of samples
-      match = re.compile(regex)
-      matches = list(filter(match.match, folders))
-      
-      samp.metadata.append( (dname, matches, xsec ) )    
-    samples.append(samp)
-  return samples 
-
-def print_summary(samples):
+def print_summary(samples, verbosity):
   # -- Now write stuff with this 
-  print(" >> Summary")
-  for s in samples:
-    print(("    - Sample: %s"%s.name))
-    for subsample in s.metadata:
-      print(("      * Private name: %s"%subsample[0]))
-      print(("      * files: %s"%subsample[1]))
-      if s.type_ != "data": # This metada is only available for MC
-        print(("      * xsec:   %s"%subsample[2]))
-      print("      ---------------------------------- ")
-    print("    ==================================== ") 
+  for samplename, subsamples in samples.items():
+    color_msg(" >> Sample: %s"%samplename, "green")
+    for subsample in subsamples:
+      color_msg("      * Private name: %s"%subsample.name, "blue")
+      if not subsample.isData: # This metada is only available for MC
+        print(("        + xsec:   %s"%subsample.xsec))
+      if verbosity > 1:
+        folder, _= subsample.get_local_folders()
+        print(("        + files: %s"%folder[0]))
   return
 
 if __name__ == "__main__":
   
   (opts, args) = add_parsing_opts()
+  
+  
   version = int(opts.version)
   type_ = "data" if opts.isData else "mc"
   year = opts.year
-
-  inpath = paths["nanoaod"][type_]
-
-  if year == "2022" and type_ == "data": 
-    from cfgs.Run3datasets_data_v11_preEE import datasets  
-  elif year == "2022EE" and type_ == "data": 
-    from cfgs.Run3datasets_data_v11_postEE import datasets  
-
-  if year == "2022" and type_ == "mc": # V11 
-    from cfgs.Run3datasets_mc_v11_preEE import datasets  
-  elif year == "2022EE" and type_ == "mc": # V11 (postEE)
-    from cfgs.Run3datasets_mc_v11_postEE import datasets 
-    
+  verbosity = opts.verbose 
+  write = opts.write_cfg
   
-  samples = match_samples(inpath, type_)  
-  if opts.verbose == 1:
-    print_summary(samples) 
+  datasets = alldatasets[type_]
+  print_summary(datasets, verbosity)
+  if write:
+    # -- Now create the CFG
+    outname = os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/RootTools/python/samples/%s"%(prefix%(type_, year)) ) 
+    if os.path.isfile(outname):
+      os.system("cp %s %s"%(outname, outname + "."))
 
-  # -- Now create the CFG
-  outname = os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/RootTools/python/samples/%s"%(prefix%(type_, year, version)) ) 
-  if os.path.isfile(outname):
-    os.system("cp %s %s"%(outname, outname + "."))
+    print(("Creating file %s"%outname))
+    f = open(outname, "w")
+    f.write("#!/bin/env python3\n")
+    f.write("# Config file for Run3 sample postprocessing\n")
+    f.write("# File automatically generated by create_cfg.py script on %s [yyyy-mm-dd] -- EDIT AT YOUR OWN RISK\n"%(date.today()))
 
-  print(("Creating file %s"%outname))
-  f = open(outname, "w")
-  f.write("#!/bin/env python3\n")
-  f.write("# Config file for Run3 sample postprocessing\n")
-  f.write("# File automatically generated by create_cfg.py script on %s [yyyy-mm-dd] -- EDIT AT YOUR OWN RISK\n"%(date.today()))
-  f.write("# Files read from: %s\n"%(inpath))
+    f.write("from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator\n")
+    f.write("import os\n")
+    f.write("kreator = ComponentCreator()\n")
 
-  f.write("from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator\n")
-  f.write("import os\n")
-  f.write("kreator = ComponentCreator()\n")
-
-  if type_ == "data": 
-    f.write("json = os.environ['CMSSW_BASE']+'/src/CMGTools/TTHAnalysis/cfg/%s'\n"%goldenjson)
+    if type_ == "data": 
+      f.write('json = os.environ["CMSSW_BASE"]+"/src/CMGTools/TTHAnalysis/cfg/%s"\n'%goldenjson)
 
 
-  wholelist = []
-  
-  for s in samples:
-    kreator = kreators[type_]
-    dname = s.name
-    f.write("# ------ %s dataset\n"%dname)
+    wholelist = []
     
-    tolist = []
-    for subsample in s.metadata:
-      args = None
+    for samplename, sample in datasets.items():
+      kreator = kreators[type_]
+      dname = samplename
+      f.write("# ------ %s dataset\n"%dname)
       
-      for ifold, fold in enumerate(subsample[1]): 
-        name = subsample[0].replace("-", "") +"_%d"%ifold  
-        if type_ == "mc":
-          args  = dict(name = name,
-                        dname = subsample[0],
-                        path = "%s/%s"%( paths["v{}".format(version)][type_], fold ),
-                        xsec = subsample[2])
-        else:
-          args = dict(name = name,
-                      dname = subsample[0],
-                      path = "%s/%s"%( paths["v{}".format(version)][type_], fold ),
-                      year = year)
-        comp = kreator(args)                
-        f.write(comp+"\n")
-        tolist.append(name)                 
+      tolist = []
+      for subsample in sample:
+        args = None
+        folders, dataset_path = subsample.get_local_folders()
+        for ifold, fold in enumerate(folders): 
+          name = subsample.name.replace("-", "") +"_%d"%ifold  
+          if type_ == "mc":
+            args  = dict(name = name,
+                        dname = subsample.name,
+                        path = os.path.join(dataset_path, fold ),
+                        xsec = subsample.xsec)
+          else:
+            args = dict(name = name,
+                        dname = subsample.name,
+                        path = os.path.join(dataset_path, fold ),
+                        year = subsample.year)
+          comp = kreator(args)                
+          f.write(comp+"\n")
+          tolist.append(name)                 
 
-    wholelist.append( dname )
-    f.write("%s = [%s]\n\n"%(dname, ", ".join(tolist)))               
+      wholelist.append( dname )
+      f.write("%s = [%s]\n\n"%(dname, ", ".join(tolist)))               
 
-  f.write("\n\n\n%sSamples_list = %s\n"%(type_, " + ".join(wholelist)))
-  f.write("%sSamples_toImport = %sSamples_list"%(type_, type_))
-  f.close() 
-       
-  print("Files written")
-    
+    f.write("\n\n\n%sSamples_list = %s\n"%(type_, " + ".join(wholelist)))
+    f.write("%sSamples_toImport = %sSamples_list"%(type_, type_))
+    f.close() 
+        
+    print("Files written")
+      
+      
     
