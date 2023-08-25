@@ -1,34 +1,33 @@
 # WZ Run3 analysis folder
+## Disclaimer
+Every script must be run from the root folder, i.e., `wz-run3`. Otherwise there will be import problems.
 
 ## Logistics
 ### Important paths
- * nanoAODv10 of Run3 MC and data is stored in: `/pool/phedex/nanoAODv10/27sep2022/`
-    * Postprocess trees are stored in `/beegfs/data/nanoAODv10/wz/trees/`
  * nanoAODv11 of Run3 MC and data is stored in: `/beegfs/data/nanoAODv11/30march2023/`
    * Postprocess trees are stored in `/beegfs/data/nanoAODv11/wz/trees/`
 
 ## Generate config files to run postprocessing over MC or data
-For that you can write a CFG file and store it under the `cfgs` folder. Then you can use the `create_sample_cfg.py` script to automatically write the CFG as follows:
+Use the `create_sample_cfg.py` script to automatically write the CFG as follows:
 ```
 # For nanoAODv11
 # MC 2022
-python3 create_sample_cfg.py 
-
-# MC 2022EE
-python3 create_sample_cfg.py --year 2022EE 
-
+python3 create_sample_cfg.py -w
+python3 create_sample_cfg.py --year 2022EE -w
 # Data 2022
-python3 create_sample_cfg.py --isData 
-
-# Data 2022EE
-python3 create_sample_cfg.py --isData --year 2022EE 
+python3 create_sample_cfg.py --isData -w
+python3 create_sample_cfg.py --isData --year 2022EE -w
 ```
+This reads `cfgs/datasets_cfg.py` and uses the metadata in there to generate postprocessing config files.
+If the option `-w` is not given, then a printout summarizing all the samples that are used will appear in
+the prompt.
 
 ## How to run the postprocessing 
 This step basically runs over raw nanoAOD and performs:
  1. An skimming that keeps only 2 same-sign lepton events.
  2. When running over data, it removes trigger overlap between datasets.
  3. Adds a few branches for dataset metadata (cross sections, a tag that identifies data or mc, etc...)
+ 4. Run3 Lepton MVA evaluation.
 
 **For MC**
 ```
@@ -42,7 +41,8 @@ cd $CMSSW_BASE/src/CMGTools/cfg
 python3 ../python/plotter/wz-run3/wz-run.py postproc --isData
 ```
 
-**Merge chunks**
+**Merge chunks (not recommended)**
+**Note**: the scripts work, but for some cases there are inconsistencies in the merging of some samples, so the use of this is not recommended.
 ```
 cd $CMSSW_BASE/src/CMGTools/TTHAnalysis/python/plotter/wz-run3/scripts/
 python3 doChunkStuff.py --mode postproc --inpath $PATH_TO_POSTPROC_OUTPUT 
