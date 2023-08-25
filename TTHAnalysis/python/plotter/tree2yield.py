@@ -706,7 +706,7 @@ class TreeToYield:
             self._tree.Draw("%s>>%s" % (expr,"dummyk"), cut, "goff", maxEntries, firstEntry)
             self.negativeCheck(histo)
             histo = histo.Clone(name)
-            histo.SetDirectory(None)
+            histo.SetDirectory(ROOT.nullptr)
             if closeTreeAfter: self._close()
             return histo
         #elif not self._isdata and self.getOption("KeysPdf",False):
@@ -757,7 +757,7 @@ class TreeToYield:
         elist = ROOT.gDirectory.Get('elist')
         if self._tree.GetEntries()==0 and elist==None: elist = ROOT.TEntryList("elist",cut) # empty list if tree is empty, elist would be a ROOT.nullptr TObject otherwise
         elist = ROOT.TEntryList(elist)    
-        elist.SetDirectory(None)
+        elist.SetDirectory(ROOT.nullptr)
         if _wasclosed: self._close()
         return elist
     def clearCut(self):
