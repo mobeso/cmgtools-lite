@@ -61,6 +61,16 @@ elif year == "2022EE":
   from CMGTools.RootTools.samples.samples_13p6TeV_mc2022EE_nanoAODv11_fromLocal   import mcSamples_toImport   as mcSamples_
   from CMGTools.RootTools.samples.samples_13p6TeV_data2022EE_nanoAODv11_fromLocal import dataSamples_toImport as allData
 
+# -- From 2018 UL: to do preliminary studies before having all the MC ready
+elif year == "2018":
+  from CMGTools.RootTools.samples.samples_13p6TeV_mc2018_nanoAODv11_fromLocal   import mcSamples_toImport   as mcSamples_
+  from CMGTools.RootTools.samples.samples_13p6TeV_data2022EE_nanoAODv11_fromLocal import dataSamples_toImport as allData
+  if doData:
+    print(" ERROR: Cannot use 2018 data for Run3 processing!!!! Only MC")
+    sys.exit()
+  yearstr = "2022EE"
+  year = 2022 # Effectively this is used for 2022
+
 autoAAA(mcSamples_ + allData, 
         quiet         = quiet, 
         redirectorAAA = "xrootd-cms.infn.it",
@@ -104,7 +114,14 @@ DatasetsAndTriggers["Muon"] = deepcopy(DatasetsAndTriggers["DoubleMuon"])
 DatasetsAndTriggers["Muon"].extend(deepcopy(DatasetsAndTriggers["SingleMuon"]))
 
 ### MET
-DatasetsAndTriggers["MET" ] = []
+DatasetsAndTriggers["JetMET"] = triggerGroups_dict["triggers_met"][year]
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_htmet"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_metNoMu100_mhtNoMu100"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht1050"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht800_mass50"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet500"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet400_mass30"])
 
 
 ### TRIGGER OVERLAP REMOVAL: inherited from tt-run3 analysis
@@ -127,8 +144,9 @@ DatasetsAndVetos["SingleMuon"] = deepcopy(DatasetsAndTriggers["MuonEG"])
 DatasetsAndVetos["SingleMuon"].extend(deepcopy(DatasetsAndTriggers["DoubleMuon"]))
 DatasetsAndVetos["SingleMuon"].extend(deepcopy(DatasetsAndTriggers["EGamma"]))
 
-# -- We do not use MET samples
-DatasetsAndVetos["MET"]        = []
+# -- Do not veto MET triggers with lepton triggers. That way we can use JetMET samples
+#    to measure trigger efficiencies. 
+DatasetsAndVetos["JetMET"] = []
 
 selectedComponents = []
 
@@ -148,37 +166,23 @@ if doData:
 else:
   mcSamples = byCompName(mcSamples_, ["%s(|_PS)$"%dset for dset in [
       # ----------------- Single boson
-      #"WJetsToLNu_LO_ext",
-      "WJets_inc",
-      "DYJetsToLL_M-50",
-      "DYJetsToLL_M10to50",
-      # ----------------- ttbar + single top + tW
+      "WtoLnu_2jets",
+      # ----------------- Drell Yan
+      "DYJetstoLL_M-50",
+      "DYJetstoLL_M10to50",
+      # ----------------- ttbar
       "TTTo2L2Nu",
       "TTTo2J1L1Nu",
+      # ----------------- single top + tW
       "TbarBQ_t",
       "TBbarQ_t",
       "TbarWplus",
       "TWminus",
-      #"tW_noFullHad",
-      #'TT_pow',
-      #'TTHad_pow',
-      #'TTSemi_pow',
-      #'TTLep_pow',
-      #"TTJets_SingleLeptonFromT", 
-      #"TTJets_SingleLeptonFromTbar", 
-      #"TTJets_DiLepton",
-      #"T_sch_lep", 
-      #"T_tch", 
-      #"TBar_tch", 
-      #"T_tWch_noFullyHad", 
-      #"TBar_tWch_noFullyHad", 
-      #"T_tch_pow", 
-      #"TBar_tch_pow" 
       # ----------------- conversions
       #"TTGJets",
       #"TTGJets_ext", 
       #"TGJets_lep",
-      # "WGToLNuG_01J",
+      #"WGToLNuG_01J",
       #"WGToLNuG", 
       #"ZGTo2LG",
       # ----------------- ttV
@@ -199,25 +203,26 @@ else:
       # "TTWW","TTWW_LO",
       #'TTTT_P8M2T4','TTTT',
       #'tZq_ll_1','tZq_ll_2',
-      # Diboson + DPS + WWss
-      # "WZTo3LNu_pow", 
-      "WZ",
-      #"WZTo3LNu", 
-      "ZZ",
-      #"ZZTo4L", 
+      # ----------------- Diboson
+      "WZto3LNu",
+      "ZZto4L",
+      "ZZto2L2Nu",
+      "ZZto2L2Q",
       "WW",
       #"WWTo2L2Nu"
       #"WW_DPS", 
       #"WpWpJJ",
       #"WWTo2L2Nu_DPS",
       # ----------------- TRIBOSON  
-      #"WWW","WWZ","WZZ", "ZZZ",
-      #"WZG",
-      # "WWW_ll",  
+      "WWW",
+      "WWZ",
+      "WZZ", 
+      "ZZZ",
+      "WZG",
       # ----------------- Other Higgs processes
+      "ggHtoZZto4L",
       #"qqHZZ4L", 
       #"VHToNonbb", 
-      #"GGHZZ4L", 
       #"VHToNonbb_ll", 
       #"ZHTobb_ll", 
       #"ZHToTauTau", 
