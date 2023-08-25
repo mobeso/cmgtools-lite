@@ -240,7 +240,7 @@ class LeptonJetRecleanerWZSM(Module):
     doVetoLM,
     sortby,
     ht=-1,
-    pad_zeros_up_to=20,
+    pad_zeros_up_to=0,
     extraTag ="" 
     ):
     ''' 
