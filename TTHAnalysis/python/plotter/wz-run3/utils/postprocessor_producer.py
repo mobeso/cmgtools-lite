@@ -19,6 +19,10 @@ class postprocessor_producer(producer):
     self.doData = "DATA" if self.isData else "MC"
     outname   = "/".join([self.outname])
     
+    if self.local_test:
+      outname = "prueba"
+      self.extra = self.extra + "--option justSummary=True"
+      
     year     = self.year
     extra    = self.extra
     doData   = self.doData

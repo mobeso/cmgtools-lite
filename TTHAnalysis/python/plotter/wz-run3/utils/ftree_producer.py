@@ -44,12 +44,20 @@ class ftree_producer(producer):
           
       
       return " ".join(friends)
-  
+        
   def run(self):
     self.inpath  = os.path.join(self.inpath, self.doData, self.year)
     module_name = self.modules[self.year][self.step][self.doData]
     outfriend_folder = self.modules[self.year][self.step]["outname"]
+    
+    if self.local_test:
+      self.outname = "prueba"
+      self.chunksize = 1000
+      self.run_local = True
+      self.extra = "--dm WZ"
+       
     self.outname = os.path.join(self.outname, self.doData.lower(), self.year, outfriend_folder)
+
     self.commandConfs = ["%s"%self.inpath,
         "%s"%self.outname,
         "--name %s"%self.jobname,

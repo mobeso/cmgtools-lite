@@ -3,10 +3,30 @@ from utils.ftree_producer import ftree_producer
 from cfgs.lumi import lumis
 import os
 
+
 class plot_producer(producer):
   name = "plot_producer"
   basecommand = "python3 mcPlots.py"
   jobname = "CMGPlot"
+
+  # This is a list of plots that are interesting to make 
+  leptonVarsMVA = []
+  leptonVarsMVA.extend(["lepsel1_{}".format(v) for v in ["pt", "eta", "minireliso", "jetptratio", "relv2", "jetdf"]]),
+  leptonVarsMVA.extend(["lepsel2_{}".format(v) for v in ["pt", "eta", "minireliso", "jetptratio", "relv2", "jetdf"]]),
+  leptonVarsMVA.extend(["lepsel3_{}".format(v) for v in ["pt", "eta", "minireliso", "jetptratio", "relv2", "jetdf"]]),
+  
+  plots = [
+      "charge.*",
+      "flavor.*", 
+      "m3l",
+      "m3lmet_Meas",
+      "mll3l.*",
+      "nJet30.*",
+      "jet.*",
+      "lep.*",
+      "met",
+  ]
+  plots.extend(leptonVarsMVA)
 
   def add_more_options(self, parser):
     self.parser = parser
@@ -28,6 +48,8 @@ class plot_producer(producer):
                   help = ''' Blind data flag.''')
     parser.add_option("--region", dest = "region", default = "srwz",
                   help = ''' Region for cut application.''')
+    parser.add_option("--normtodata", dest = "normtodata", default = False, action = "store_true",
+                  help = ''' Normalize MC to data.''')
     
     # --- Override main producer option for output path
     parser.add_option("--outname", dest = "outname", type="string", default = "/beegfs/data/nanoAODv11/wz-run3/plots/",
@@ -52,6 +74,19 @@ class plot_producer(producer):
               friends.append( " --Fs {P}/%s "%(modulename))
       
       return " ".join(friends)
+  def norm_data(self):
+    texttonorm = ""
+    processes = {}
+
+    # Get the correct list of MCA processes
+    if self.year == "2022EE":
+          from cfgs.processes import processes_2022EE as processes
+    for name, procs in processes.items():
+       if name == "data": continue
+       for proc in procs:
+         procname = proc.procname.replace("+","")
+         texttonorm += "--scaleBkgSigToData %s "%procname if "--scaleBkgSigToData %s "%procname not in texttonorm else ""
+    return texttonorm 
  
   def run(self):
     # Yearly stuff 
@@ -79,6 +114,7 @@ class plot_producer(producer):
     plottingStuff += "--TotalUncRatioColor 922 922 "
     plottingStuff += "--TotalUncRatioStyle 3444 0 "
 
+    if self.normtodata: plottingStuff += self.norm_data()
     
 
     self.mcpath = os.path.join(self.inpath, "mc", self.year)
@@ -99,6 +135,7 @@ class plot_producer(producer):
                    "%s"%mincuts,
                    "--unc %s"%uncfile,
                    "--xp data" if blind else "",
+                   " --sP " + " --sP ".join(self.plots),
                    "%s"%extra]
     return
 
