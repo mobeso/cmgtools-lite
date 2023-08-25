@@ -57,7 +57,7 @@ if __name__ == "__main__":
                         plots[p].Add(h)
                 else:
                     hc = h.Clone()
-                    hc.SetDirectory(None)
+                    hc.SetDirectory(ROOT.nullptr)
                     plots[p] = hc
 #        print plots.keys()
         stack = ROOT.THStack()
