@@ -186,7 +186,7 @@ class JetEnergyCorrector( Module ):
         corrList = ["L1FastJet", "L2Relative", "L2L3Residual"]
         if self.isMC:
             # + For MC it's easy, we just have an entry in the json with the corrections.
-            mainJECname = "{}_V2_{}_{}_{}".format(self.jec, self.runOn, "L1L2L3Res", self.algo)
+            mainJECname = "{}_V1_{}_{}_{}".format(self.jec, self.runOn, "L1L2L3Res", self.algo)
             
             for key in list(self.jerc_corrs):
                 if self.runOn not in key: continue
@@ -209,8 +209,8 @@ class JetEnergyCorrector( Module ):
             # For corrections in data, we need to know at anytime which era we are considering. There's an entry
             # for each era in 2022: C or D so far (for EFG we also apply era D corrections...)
             # Solution: load all corrections into memory an select which one to use on the fly when looping over jets...
-            for era in ["C", "D"]:
-                mainJECname = "{}_{}_V2_{}_{}_{}".format(self.jec, "Run%s"%era, self.runOn, "L1L2L3Res", self.algo)
+            for era in ["F", "G"]:
+                mainJECname = "{}_{}_V1_{}_{}_{}".format(self.jec, "Run%s"%era, self.runOn, "L1L2L3Res", self.algo)
                 for key in list(self.jerc_corrs):
                     if self.runOn not in key: continue
                     sourcename = key.split("_")[-2]
@@ -231,6 +231,7 @@ class JetEnergyCorrector( Module ):
             # Open rootfile and load histogram
             rfilename = "{}_Run{}_v1.root".format(self.jec, self.era)
             print(" >> Applying %s for veto maps (era: %s)"%(rfilename, self.era))
+            rfilename = "Winter22Run3_RunE_v1.root" # FIXME: do this in a better way, for the summer corrections, the self.jec is summer and we dont have the veto maps
             rfile = ROOT.TFile.Open( os.path.join(self.jsonpath, rfilename) )
             self.vmap = deepcopy(rfile.Get("jetvetomap"))
             rfile.Close()
@@ -307,6 +308,10 @@ class JetEnergyCorrector( Module ):
                 era = "C"
             elif "Run%sD"%self.year in datasetname: 
                 era = "D"
+            elif "Run%sF"%self.year in datasetname: 
+                era = "F"
+            elif "Run%sG"%self.year in datasetname: 
+                era = "G"
             else:
                 era = "D" # use era D for EFG as well
             L1L2L3Res_corrector = self.jes_corrs["L1L2L3Res_era{}".format(era)]
@@ -630,9 +635,9 @@ class JetEnergyCorrector( Module ):
 
         # Get the scale factor
         corrector = self.jer_corrs["ScaleFactor"]
-        scalefactor = self.evaluate(corrector, [jet.Eta(), jet.Pt(), "nom"])
-        scalefactor_up = self.evaluate(corrector, [jet.Eta(), jet.Pt(), "up"])
-        scalefactor_dn = self.evaluate(corrector, [jet.Eta(), jet.Pt(), "down"])
+        scalefactor = self.evaluate(corrector, [jet.Eta(), "nom"])
+        scalefactor_up = self.evaluate(corrector, [jet.Eta(), "up"])
+        scalefactor_dn = self.evaluate(corrector, [jet.Eta(), "down"])
 
         smear_vals = {}
 
@@ -644,9 +649,9 @@ class JetEnergyCorrector( Module ):
         else:
             resolution = self.evaluate(self.jer_corrs["PtResolution"], [jet.Eta(), jet.Pt(), rho])
             rand = self.rnd.Gaus(0, resolution)
-            smear_vals[0] = 1 + rand*sqrt(scalefactor**2 - 1)
-            smear_vals[1] = 1 + rand*sqrt(scalefactor_up**2 - 1)
-            smear_vals[2] = 1 + rand*sqrt(scalefactor_dn**2 - 1)
+            smear_vals[0] = 1 + rand*sqrt(max(scalefactor**2 - 1, 0))
+            smear_vals[1] = 1 + rand*sqrt(max(scalefactor_up**2 - 1, 0))
+            smear_vals[2] = 1 + rand*sqrt(max(scalefactor_dn**2 - 1, 0))
 
         for index in [0, 1, 2]:
             # check that smeared jet energy remains positive,
