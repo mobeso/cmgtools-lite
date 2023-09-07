@@ -1,0 +1,5 @@
+# vim: syntax=sh
+
+# ---- JetMET ----
+data: JetMET_Run2022F; Label="data"
+data: JetMET_Run2022G; Label="data"

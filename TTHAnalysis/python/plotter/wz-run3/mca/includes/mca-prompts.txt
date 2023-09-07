@@ -1,0 +1,16 @@
+# vim: syntax=sh
+
+# ---- prompt_ZZ ----
+prompt_ZZ: ZZto4l_part3+ZZto4l_part1: 1.65 ;FillColor=ROOT.kGreen+1, Label="ZZ", genSumWeightName="genEventSumw"
+
+
+# ---- prompt_hZZ ----
+prompt_hZZ: ggHtoZZto4L: 0.012 ;FillColor=ROOT.kGreen-1, Label="hZZ", genSumWeightName="genEventSumw"
+
+
+# ---- prompt_VVV ----
+prompt_VVV: WWZ: 0.1851 ;FillColor=ROOT.kRed+1, Label="VVV", genSumWeightName="genEventSumw"
+prompt_VVV: WZZ: 0.06206 ;FillColor=ROOT.kRed+1, Label="VVV", genSumWeightName="genEventSumw"
+prompt_VVV: ZZZ: 0.01591 ;FillColor=ROOT.kRed+1, Label="VVV", genSumWeightName="genEventSumw"
+
+

@@ -1,90 +1,37 @@
 from .producer import producer
 from utils.ftree_producer import ftree_producer
+from utils.plot_producer import plot_producer
 from cfgs.lumi import lumis
+from cfgs.friends_cfg import friends as modules
 import os
 
-class card_producer(producer):
+class card_producer(plot_producer):
   name = "card_producer"
   basecommand = "python3 makeShapeCards_wzRun3.py"
   jobname = "CMGCard"
 
   def add_more_options(self, parser):
-    self.parser = parser
+    super().add_more_options(parser)
+
+    #self.parser = parser
     # -- CMGTools configuration files -- #
-    parser.add_option("--mca", 
-                  dest = "mca", 
-                  type="string", 
-                  default = "wz-run3/2022/mca_wz_3l.txt", 
-                  help = '''Input mcafile''')
-    parser.add_option("--cutfile", 
-                  dest = "cutfile", 
-                  type="string", 
-                  default = "wz-run3/common/cuts_wzsm.txt", 
-                  help = '''Event selection requirements file''')
-    parser.add_option("--mcc", 
-                  dest = "mcc", 
-                  type="string", 
-                  default = "wz-run3/common/mcc_triggerdefs.txt", 
-                  help = '''Event selection requirements file''')
-    parser.add_option("--var", 
-                  dest = "var", 
-                  type="string", 
-                  default = "(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2", 
-                  help = '''Variable to make card''')
-    parser.add_option("--binning", 
-                  dest = "binning", 
-                  type="string", 
-                  default = "4,-0.5,3.5", 
-                  help = '''Binning for variable''')
-    parser.add_option("--outfolder", 
-                  dest = "outfolder", 
-                  type="string", 
-                  default = "default_folder", 
-                  help = '''Output folder (will be add to the default output plot folder)''')
-    parser.add_option("--treename", 
-                      dest = "treename",
-                      default = "NanoAOD", 
-                      help = ''' Name of the tree file ''')
-    # --- More options for customization --- #
-    parser.add_option("--region",
-                      dest = "region",
-                      default = "srwz",
-                      help = ''' Region for cut application.''')
-    parser.add_option("--binname",
-                      dest = "binname",
-                      default = "wz-card",
-                      help = ''' Region for cut application.''')
     
-    # --- Override main producer option for output path
-    parser.add_option("--outname", dest = "outname", type="string", default = "cards/wzcards/",
-          help = "Output (folder) name")
+    self.parser.add_option("--var", dest = "var", type="string", default = "(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2", 
+                  help = '''Variable to make card''')
+    self.parser.add_option("--binning", dest = "binning", type="string", default = "4,-0.5,3.5", 
+                  help = '''Binning for variable''')
+    self.parser.add_option("--binname", dest = "binname", default = "wz_card",
+                      help = ''' Name of the bin within the fit.''')
  
     return
-  
-  def add_friends(self, maxstep = -1):
-      """ Method to add friends to command """
-      friends = []
-      # Iterate over modules available in this year
-      for step, module in self.modules[self.year].items():
-          # Only add friends to a certain point if step is given
-          if maxstep != -1 and step >= maxstep:
-              continue
-          modulename = module["outname"]
-          addmethod = module["addmethod"]
-          if addmethod == "mc": 
-              friends.append( " --FMCs {P}/%s "%(modulename))
-          if addmethod == "mc": 
-              friends.append( " --FDs {P}/%s "%(modulename))
-          if addmethod == "simple": 
-              friends.append( " --Fs {P}/%s "%(modulename))
-      
-      return " ".join(friends)
     
   def run(self):
     # Yearly stuff 
     year     = self.year
     binname  = self.binname
-    outname  = self.outname
+    outname  = self.outname.replace("plots", "cards")
+    outname  = os.path.join(outname, self.region)
+    self.outname = outname
     extra    = self.extra
     mincuts  = self.get_cut(self.region)
     uncfile  = self.uncfile
@@ -106,7 +53,7 @@ class card_producer(producer):
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
                    "%s"%mincuts,
-                   "--xp data --asimov signal",
+                   "--xp data --asimov signal", # Always blind the fit!!!
                    "--unc %s"%uncfile,
                    "--od %s/"%outname,
                    "--autoMCStats",

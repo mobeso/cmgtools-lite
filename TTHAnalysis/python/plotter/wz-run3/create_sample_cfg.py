@@ -42,17 +42,18 @@ def add_parsing_opts():
   return parser.parse_args()
 
 
-def print_summary(samples, verbosity):
-  # -- Now write stuff with this 
-  for samplename, subsamples in samples.items():
-    color_msg(" >> Sample: %s"%samplename, "green")
-    for subsample in subsamples:
-      color_msg("      * Private name: %s"%subsample.name, "blue")
-      if not subsample.isData: # This metada is only available for MC
-        print(("        + xsec:   %s"%subsample.xsec))
-      if verbosity > 1:
-        folder, _= subsample.get_local_folders()
-        print(("        + files: %s"%folder[0]))
+def print_summary(datasets, verbosity):
+  # -- Now write stuff with this
+  for samplegroup, samples in datasets.items():
+      for samplename, sample in samples.items():
+        color_msg(" >> Sample: %s"%samplename, "green")
+        for subsample in sample:
+          color_msg("      * Private name: %s"%subsample.name, "blue")
+          if not subsample.isData: # This metada is only available for MC
+            print(("        + xsec:   %s"%subsample.xsec))
+          if verbosity > 1:
+            folder, _= subsample.get_pure_nanoaod()
+            print(("        + files: %s"%folder[0]))
   return
 
 if __name__ == "__main__":
@@ -90,33 +91,34 @@ if __name__ == "__main__":
 
     wholelist = []
     
-    for samplename, sample in datasets.items():
-      kreator = kreators[type_]
-      dname = samplename
-      f.write("# ------ %s dataset\n"%dname)
-      
-      tolist = []
-      for subsample in sample:
-        args = None
-        folders, dataset_path = subsample.get_local_folders()
-        for ifold, fold in enumerate(folders): 
-          name = subsample.name.replace("-", "") +"_%d"%ifold  
-          if type_ == "mc":
-            args  = dict(name = name,
-                        dname = subsample.name,
-                        path = os.path.join(dataset_path, fold ),
-                        xsec = subsample.xsec)
-          else:
-            args = dict(name = name,
-                        dname = subsample.name,
-                        path = os.path.join(dataset_path, fold ),
-                        year = subsample.year)
-          comp = kreator(args)                
-          f.write(comp+"\n")
-          tolist.append(name)                 
+    for samplegroup, samples in datasets.items():
+        for samplename, sample in samples.items():
+            kreator = kreators[type_]
+            dname = samplename
+            f.write("# ------ %s dataset\n"%dname)
 
-      wholelist.append( dname )
-      f.write("%s = [%s]\n\n"%(dname, ", ".join(tolist)))               
+            tolist = []
+            for subsample in sample:
+                args = None
+                folders, dataset_path = subsample.get_pure_nanoaod()
+                for ifold, fold in enumerate(folders): 
+                  name = subsample.name.replace("-", "") +"_%d"%ifold  
+                  if type_ == "mc":
+                    args  = dict(name = name,
+                                dname = subsample.name,
+                                path = os.path.join(dataset_path, fold ),
+                                xsec = subsample.xsec)
+                  else:
+                    args = dict(name = name,
+                                dname = subsample.name,
+                                path = os.path.join(dataset_path, fold ),
+                                year = subsample.year)
+                  comp = kreator(args)                
+                  f.write(comp+"\n")
+                  tolist.append(name)                 
+
+            wholelist.append( dname )
+            f.write("%s = [%s]\n\n"%(dname, ", ".join(tolist)))               
 
     f.write("\n\n\n%sSamples_list = %s\n"%(type_, " + ".join(wholelist)))
     f.write("%sSamples_toImport = %sSamples_list"%(type_, type_))

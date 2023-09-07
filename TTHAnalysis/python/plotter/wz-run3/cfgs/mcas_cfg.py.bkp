@@ -1,0 +1,158 @@
+import os
+from cfgs.samplepaths import samplepaths as paths
+from cfgs.xsecs_cfg import xsecs
+
+class mca_proc:
+    """ Objects from this class inherit different useful metadata for a given sample """
+    def __init__(self, name, isData = False, 
+                       dbspath = None, 
+                       fC = "kBlack", 
+                       norm = -1, 
+                       label = "label", 
+                       procname = "", 
+                       year = "2022EE", 
+                       extra_info = None):
+
+        # Sample metadata
+        self.name = name
+        self.isData = isData
+        self.dbspath = dbspath
+        self.extra_info = extra_info
+
+        # Local metadata
+        self.files = self.get_local_files(year)
+        
+        # For mca_proc 
+        self.fC = fC
+        self.norm = norm
+        self.label = label
+        self.procname = self.name if procname == "" else procname
+        return
+    
+    def get_local_files(self, year):
+        type_ = "data" if self.isData else "mc"
+        inpath = os.path.join(paths["mca_proced"], type_, year)
+        
+        files = list(filter(lambda element: self.name in element, os.listdir(inpath)))
+        files = [file_.replace(".root", "") for file_ in files]
+        return files
+    
+
+# There will be one mca_proc file for each entry in this dictionary
+mcas = {
+    "2022EE" : {
+        # ================== DATA ================== #
+        "data" : [
+                mca_proc("EGamma_Run2022F", 
+                        dbspath = "/EGamma/Run2022F-PromptNanoAODv11_v1-v2/NANOAOD", 
+                        isData = True, 
+                        procname="data"),
+                mca_proc("Muon_Run2022F",
+                        dbspath = "/Muon/Run2022F-PromptNanoAODv11_v1-v2/NANOAOD",  
+                        isData = True, 
+                        procname = "data"),
+                mca_proc("MuonEG_Run2022F",
+                        dbspath = "/MuonEG/Run2022F-PromptNanoAODv11_v1-v2/NANOAOD", 
+                        isData = True, 
+                        procname = "data"),
+                mca_proc("EGamma_Run2022G",
+                        dbspath = "/EGamma/Run2022G-PromptNanoAODv11_v1-v2/NANOAOD", 
+                        isData = True, 
+                        procname = "data"),
+                mca_proc("Muon_Run2022G", 
+                        dbspath = "/Muon/Run2022G-PromptNanoAODv11_v1-v2/NANOAOD",
+                        isData = True, 
+                        procname = "data"),
+                mca_proc("MuonEG_Run2022G", 
+                        dbspath = "/MuonEG/Run2022G-PromptNanoAODv11_v1-v2/NANOAOD",
+                        isData = True, 
+                        procname = "data")
+        ],
+        # ================== MC ================== #
+        # + Signals
+        "wz" : [mca_proc("WZto3LNu",
+                        dbspath = "/WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v2/NANOAODSIM", 
+                        isData = False, 
+                        fC = "kOrange", 
+                        label = "WZ", 
+                        procname="prompt_WZ+")],
+        # + Prompt backgrounds
+        "prompts" : [
+                # --- ZZ 
+                mca_proc("ZZto4l",
+                        dbspath = "/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v2/NANOAODSIM",  
+                        isData = False, 
+                        fC = "kGreen+1", 
+                        label = "ZZ", 
+                        procname="prompt_ZZ"),
+                # --- VVV
+                mca_proc("WWZ", 
+                        isData = False,
+                        dbspath = "/WWZ_4F_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kRed+1", 
+                        label = "VVV", 
+                        procname="prompt_VVV"),
+                mca_proc("WZZ", 
+                        isData = False,
+                        dbspath = "/WZZ_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kRed+1", 
+                        label = "VVV", 
+                        procname="prompt_VVV"),
+                mca_proc("ZZZ", 
+                        isData = False,
+                        dbspath = "/ZZZ_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kRed+1", 
+                        label = "VVV", 
+                        procname="prompt_VVV"),
+                mca_proc("WZG", 
+                        isData = False,
+                        dbspath = "/WZGtoLNuZG_TuneCP5_13p6TeV_amcatnlo-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kRed+1", 
+                        label = "VVV", 
+                        procname="prompt_VVV")],
+        # + Fakes (MC)
+        "mcfakes" : [
+                # --- Drell Yan
+                mca_proc("DYJetsToLL_M-50", 
+                        isData = False,
+                        dbspath = "/DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",  
+                        norm = xsecs["DYJetstoLL_M10to50"],
+                        fC = "kGray", 
+                        label = "DY nonprompt", 
+                        procname="fakes_DY" ),
+                mca_proc("DYJetsToLL_M10to50", 
+                        isData = False,
+                        dbspath = "/DYto2L-2Jets_MLL-10to50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",  
+                        fC = "kGray", 
+                        label = "DY nonprompt", 
+                        procname="fakes_DY"),
+                # --- TT
+                mca_proc("TTTo2L2Nu", 
+                        isData = False,
+                        dbspath = "/TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kGray+2", 
+                        label = "TOP nonprompt", 
+                        procname="fakes_TT" ),
+                # --- Single top
+                mca_proc("TWminus", 
+                        isData = False,
+                        dbspath = "/TWminus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM", 
+                        fC = "kGray+2", 
+                        label = "TOP nonprompt", 
+                        procname="fakes_TT" ),
+                mca_proc("TbarWplus", 
+                        isData = False, 
+                        dbspath = "/TbarWplus_DR_AtLeastOneLepton_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kGray+2", 
+                        label = "TOP nonprompt", 
+                        procname="fakes_TT" ),
+                # --- VV
+                mca_proc("WW", 
+                        isData = False,
+                        dbspath = "/WW_TuneCP5_13p6TeV_pythia8/Run3Summer22EENanoAODv11-126X_mcRun3_2022_realistic_postEE_v1-v1/NANOAODSIM",
+                        fC = "kGray+9", 
+                        label = "WW", 
+                        procname="fakes_VV"),               
+        ]
+    }
+}

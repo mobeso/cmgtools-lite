@@ -3,69 +3,10 @@
 import argparse
 import os,sys
 from cfgs.samplepaths import samplepaths as paths
+from functions import color_msg
 
 class producer(object):
-    # -- Friend tree modules 
-    modules = { 
-        "2022": {
-            1 : {"data" : "jmeCorrections_data", 
-                 "mc"   : "jmeCorrections_mc", 
-                 "addmethod" : "simple", 
-                 "outname" : "jmeCorrections"},
-            2 : {"data" : "temp_lepmva_ee_data",
-                 "mc"   : "temp_lepmva_ee",
-                 "addmethod" : "simple",
-                 "outname" : "lepmva" },
-            3 : {"data" : "leptonJetRecleaning",
-                 "mc"   : "leptonJetRecleaning",
-                 "addmethod" : "simple",
-                 "outname" : "leptonJetRecleaning" },
-            4 : {"data" : "leptonBuilder",
-                 "mc"   : "leptonBuilder",
-                 "addmethod" : "simple",
-                 "outname" : "leptonBuilder"},
-
-            5 : {"data" : "triggerSequence",
-                 "mc"   : "triggerSequence",
-                 "addmethod" : "simple",
-                 "outname" : "triggerSequence"},
-           # 5 : {"data" : None,
-           #      "mc"   : "scalefactors",
-           #      "addmethod" : "simple",
-           #      "outname" : "scalefactors"}
-            
-        },
-        "2022EE": {
-            1 : {"data" : "jmeCorrections_data_EE", 
-                 "mc"   : "jmeCorrections_mc_EE", 
-                 "addmethod" : "simple", 
-                 "outname" : "jmeCorrections"},
-            2 : {"data" : "temp_lepmva_ee_data",
-                 "mc"   : "temp_lepmva_ee",
-                 "addmethod" : "simple",
-                 "outname" : "lepmva" },
-            3 : {"data" : "leptonJetRecleaning",
-                 "mc"   : "leptonJetRecleaning",
-                 "addmethod" : "simple",
-                 "outname" : "leptonJetRecleaning" },
-            4 : {"data" : "leptonBuilder",
-                 "mc"   : "leptonBuilder",
-                 "addmethod" : "simple",
-                 "outname" : "leptonBuilder"},
-            5 : {"data" : "triggerSequence",
-                 "mc"   : "triggerSequence",
-                 "addmethod" : "simple",
-                 "outname" : "triggerSequence"},
-            
-          #  6 : {"data" : None,
-          #       "mc"   : "scalefactors",
-          #       "addmethod" : "mc",
-          #       "outname" : "scalefactors"}
-          #  
-        }
-    }
-
-    weights = []#["muonSF*electronSF"]
+    weights = ['puWeight*muonSF*electronSF*bTagWeight']
     functions = ["wz-run3/functionsWZ.cc"]
 
     name = "producer"
@@ -85,14 +26,14 @@ class producer(object):
 
     def summarize(self):
         ''' Method to show a summary of the given options '''
-        print((" >> %s will run with the following options"%self.name)) 
+        color_msg(" >> %s will run with the following options"%self.name, "green") 
         opts = vars(self.opts)
         
         for opt in opts:
             if opt == "extra" : continue # Plot this at the end 
-            print(("    * %s : %s"%(opt, getattr(self, opt))))
+            print("    * %s : %s"%(opt, getattr(self, opt)))
         print("    * extra : %s"%(getattr(self, "extra")))
-        print(" >> Command below:")
+        color_msg(" >> Command below:", "green")
         return
  
     def submit_InCluster(self):
@@ -107,7 +48,7 @@ class producer(object):
         return newcommand
 
     def build_command(self):
-        self.summarize()
+        if self.summary: self.summarize() 
         confs = self.commandConfs 
         command = "%s %s"%(self.basecommand," ".join(confs))
         self.command = command
@@ -137,18 +78,21 @@ class producer(object):
         ''' Minimal cuts to define different regions of the analysis '''
         cuts = {
             "srwz" : "-E ^SRWZ",
-            "crzz" : "-E ^CRZZnomet -X ^AllTight -E ^ZZTight"
+            "crzz" : "-E ^CRZZnomet -X ^AllTight -E ^ZZTight",
+            "crdy" : "-E ^CRDY",
+            "crtt" : "-E ^CRTT",
+            "crxg" : "-E ^CRconv"
         }
         return cuts[region]
-    
-
+        
     def raiseError(self, msg):
         logmsg = "[%s::ERROR]: %s"%(self.name, msg)
-        raise RuntimeError(logmsg)
-        return
+        color_msg(logmsg, "red")
+        sys.exit(1)
+        
 
     def raiseWarning(self, msg):
         logmsg = "[%s::WARNING]: %s"%(self.name, msg)
-        raise RuntimeWarning(logmsg)
+        color_msg(logmsg, "yellow")
         return
 

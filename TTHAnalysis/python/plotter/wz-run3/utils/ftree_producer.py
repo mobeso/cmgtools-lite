@@ -1,6 +1,7 @@
 from .producer import producer
 import os
 from cfgs.samplepaths import samplepaths as paths
+from cfgs.friends_cfg import friends as modules
 
 class ftree_producer(producer):
   name = "ftree_producer"
@@ -31,7 +32,7 @@ class ftree_producer(producer):
       """ Method to add friends to command """
       friends = []
       # Iterate over modules available in this year
-      for step, module in self.modules[self.year].items():
+      for step, module in modules[self.year].items():
           # Only add friends to a certain point if step is given
           if maxstep != -1 and step >= maxstep:
               continue
@@ -42,19 +43,21 @@ class ftree_producer(producer):
           else: 
               friends.append( " -F Friends %s/%s/{cname}_Friend.root "%(self.inpath, modulename))
           
-      
       return " ".join(friends)
         
   def run(self):
     self.inpath  = os.path.join(self.inpath, self.doData, self.year)
-    module_name = self.modules[self.year][self.step][self.doData]
-    outfriend_folder = self.modules[self.year][self.step]["outname"]
+    module_name = modules[self.year][self.step][self.doData]
+    outfriend_folder = modules[self.year][self.step]["outname"]
     
     if self.local_test:
       self.outname = "prueba"
       self.chunksize = 1000
       self.run_local = True
-      self.extra = "--dm WZ"
+      if not self.isData:
+        self.extra = "--dm WZ"
+      else:
+        self.extra = "--dm MuonEG"
        
     self.outname = os.path.join(self.outname, self.doData.lower(), self.year, outfriend_folder)
 

@@ -1,0 +1,6 @@
+# vim: syntax=sh
+
+# ---- convs ----
+convs: WZG: 0.08425 ;FillColor=ROOT.kOrange-3, Label="Convs.", genSumWeightName="genEventSumw"
+
+

@@ -1,18 +1,26 @@
-# ----- DYJetsToLL_M-50
-fakes_DY: DYJetsToLL_M-50_part8 + DYJetsToLL_M-50_part7 + DYJetsToLL_M-50_part12 + DYJetsToLL_M-50_part5 + DYJetsToLL_M-50_part11 + DYJetsToLL_M-50_part3 + DYJetsToLL_M-50_part6 + DYJetsToLL_M-50_part9 + DYJetsToLL_M-50_part10 + DYJetsToLL_M-50_part2 + DYJetsToLL_M-50_part1 + DYJetsToLL_M-50_part4: xsec ;FillColor=ROOT.kGray, Label="DY nonprompt", genSumWeightName="genEventSumw"
+# vim: syntax=sh
 
-# ----- DYJetsToLL_M10to50
-fakes_DY: DYJetsToLL_M10to50: xsec ;FillColor=ROOT.kGray, Label="DY nonprompt", genSumWeightName="genEventSumw"
+# ---- fakes_T ----
+fakes_T: TWminus: 23.8979 ;FillColor=ROOT.kGray-2, Label="NP ST", genSumWeightName="genEventSumw"
+fakes_T: TbarWplus: 23.8979 ;FillColor=ROOT.kGray-2, Label="NP ST", genSumWeightName="genEventSumw"
 
-# ----- TTTo2L2Nu
-fakes_TT: TTTo2L2Nu_part5 + TTTo2L2Nu_part12 + TTTo2L2Nu_part4 + TTTo2L2Nu_part2 + TTTo2L2Nu_part14 + TTTo2L2Nu_part16 + TTTo2L2Nu_part10 + TTTo2L2Nu_part6 + TTTo2L2Nu_part13 + TTTo2L2Nu_part15 + TTTo2L2Nu_part11 + TTTo2L2Nu_part7 + TTTo2L2Nu_part3 + TTTo2L2Nu_part17 + TTTo2L2Nu_part9 + TTTo2L2Nu_part8 + TTTo2L2Nu_part1: xsec ;FillColor=ROOT.kGray+2, Label="TOP nonprompt", genSumWeightName="genEventSumw"
 
-# ----- TWminus
-fakes_TT: TWminus: xsec ;FillColor=ROOT.kGray+2, Label="TOP nonprompt", genSumWeightName="genEventSumw"
+# ---- fakes_VV ----
+fakes_VV: ZZto2L2Q_part1: 8.08 ;FillColor=ROOT.kGray+9, Label="NP VV", genSumWeightName="genEventSumw"
+fakes_VV: ZZto2L2Nu_part1+ZZto2L2Nu_part2+ZZto2L2Nu_part3: 1.19 ;FillColor=ROOT.kGray+9, Label="NP VV", genSumWeightName="genEventSumw"
+WW: WW: 116.8 ;FillColor=ROOT.kGray-9, Label="NP WW", genSumWeightName="genEventSumw"
 
-# ----- TbarWplus
-fakes_TT: TbarWplus: xsec ;FillColor=ROOT.kGray+2, Label="TOP nonprompt", genSumWeightName="genEventSumw"
 
-# ----- WW
-fakes_VV: WW: xsec ;FillColor=ROOT.kGray+9, Label="WW", genSumWeightName="genEventSumw"
+# ---- fakes_V ----
+fakes_V: WtoLnu_2jets: 64481.58 ;FillColor=ROOT.kGray-5, Label="Wjets", genSumWeightName="genEventSumw"
+
+
+# ---- fakes_DY ----
+fakes_DY: DYJetsToLL_M50_part4+DYJetsToLL_M50_part10+DYJetsToLL_M50_part8+DYJetsToLL_M50_part6+DYJetsToLL_M50_part1+DYJetsToLL_M50_part2+DYJetsToLL_M50_part7+DYJetsToLL_M50_part12+DYJetsToLL_M50_part3+DYJetsToLL_M50_part5+DYJetsToLL_M50_part11+DYJetsToLL_M50_part9: 6345.99 ;FillColor=ROOT.kGray, Label="NP DY", genSumWeightName="genEventSumw"
+fakes_DY: DYJetsToLL_M10to50: 19982.5 ;FillColor=ROOT.kGray, Label="NP DY", genSumWeightName="genEventSumw"
+
+
+# ---- fakes_TT ----
+fakes_TT: TTTo2L2Nu_part5+TTTo2L2Nu_part12+TTTo2L2Nu_part4+TTTo2L2Nu_part2+TTTo2L2Nu_part14+TTTo2L2Nu_part16+TTTo2L2Nu_part10+TTTo2L2Nu_part6+TTTo2L2Nu_part13+TTTo2L2Nu_part15+TTTo2L2Nu_part11+TTTo2L2Nu_part7+TTTo2L2Nu_part3+TTTo2L2Nu_part17+TTTo2L2Nu_part9+TTTo2L2Nu_part8+TTTo2L2Nu_part1: 97.4488 ;FillColor=ROOT.kGray+2, Label="NP TT", genSumWeightName="genEventSumw"
+
 

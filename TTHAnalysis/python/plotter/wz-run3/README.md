@@ -70,4 +70,27 @@ cd $CMSSW_BASE/src/CMGTools/TTHAnalysis/python/plotter/wz-run3/scripts/
 python3 doChunkStuff.py --mode friend --inpath $PATH_TO_FRIEND_CHUNKS
 ```
 
+## Generate analysis files
+This is basically writing mca files automatically based on the information stored under `cfgs/datasets_cfg.py`.
+
+```
+python3 write_mca.py
+```
+
+This will:
+ * Generate mca individual files for each group of processes as defined in the dictionary of datasets.
+ * Generate a global mca file which includes all the generated individual mcas.
+
+ **<span style="color:RED">NOTE</span>**: There are some issues with the dataset name matching. WW gets matched in the WWZ line as well, so it's included twice.
+
+ ## Run trigger efficiencies
+ All the results for the trigger efficiency measurements can be repeated by executing the following commands:
+
+ **Generate yields/plots for both numerator (PR+HLT) and denominator (PR) region.**
+ ```
+ ./wz-run3/scripts/make_plots.sh trigger_eff --ncores 16 --outname trigger_efficiencies --do-submit
+ ```
+
+
+
 

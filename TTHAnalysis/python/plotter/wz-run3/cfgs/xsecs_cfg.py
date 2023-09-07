@@ -11,7 +11,7 @@ xsecs = {
     "ZZto4L" : 1.65,
     "ZZto2L2Nu" : 1.19,
     "ZZto2L2Q" : 8.08,
-    "ggHtoZZto4L" : 52.276,
+    "ggHtoZZto4L" : 0.012,
     "WW" : 116.8,
     "WWZ" : 0.18510,
     "WZZ" : 0.06206,

@@ -1,58 +1,51 @@
+# vim: syntax=sh
+
 # -- Cut file for WZ analyis -- #
 alwaystrue: 1
-
 filters: $DATA{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter} $MC{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter} 
 
-## Trigger requirements
-## -------------------------------------
+# ----- Baseline selection ----- #
+# Trigger
 trigger : Trigger_3l 
 
-## Lepton requirements
-## -------------------------------------
+# Leptons
 3l         : nLepSel >= 3
 AllTight   : allTight(LepSel_isTight[0], LepSel_isTight[1], LepSel_isTight[2])
-NOallTight : !(LepSel_isTight[0] &&  LepSel_isTight[1] && LepSel_isTight[2]); Disable= True
 lepPt      : LepZ1_pt >= 25 && LepZ2_pt >= 10 && LepW_pt >= 25
 lowmass    : minMllSFOS_Mini > 12 || minMllSFOS_Mini == -1
-chargeplus  : LepW_pdgId < 0 ; Disable=True
-chargeminus : LepW_pdgId > 0 ; Disable=True
-m3lmetblind : $DATA{m3Lmet <= 400} $MC{1} $FASTSIM{1}; Disable=True
-Cha_Tight  : LepGood_tightCharge[0]==2 &&   LepGood_tightCharge[1]==2 &&  LepGood_tightCharge[2]==2; Disable= True
-cha3_Tight :   LepGood_tightCharge[iW]==2; Disable= True
 BRevent    : abs(LepSel_pdgId[0]) < 15 && abs(LepSel_pdgId[1]) < 15 && abs(LepSel_pdgId[2]) < 15 && nOSSF_3l >= 1
 
-## Analysis regions
-## -------------------------------------
-## Signal region
-SRWZ      : m3L >= 100  &&  $DATA{MET_pt_central} $MC{MET_pt_central}  > 30 && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0 ; Disable=True
+# ----- Analysis regions ----- #
+# Signal region
+SRWZ      : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0 && MET_pt_central > 30; Disable=True
+SRWZnomet : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0; Disable=True
 
-## Signal region with no MET cut
-SRWZnomet  : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0 ; Disable=True
+# ZZ Control region
+CRZZ      : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepSel == 4 && nBJetTight25_Mini == 0 && MET_pt_central > 30 && LepSel_pt[3] > 10; Disable=True
+CRZZnomet : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepSel == 4 && nBJetTight25_Mini == 0 && LepSel_pt[3] > 10 && ((abs(LepSel_pdgId[0]) + abs(LepSel_pdgId[1]) + abs(LepSel_pdgId[2]) + abs(LepSel_pdgId[3]) - 44)/2)%2 == 0 ;Disable=True
+ZZTight   : allTight(LepSel_isTight[0], LepSel_isTight[1], LepSel_isTight[2], LepSel_isTight[3]) ; Disable=True
 
-## Application region for trigger efficiency measurement
+# Application region (trigger measurement)
 ARWZ      : !(LepSel_isTight[0] &&  LepSel_isTight[1] && LepSel_isTight[2]); Disable=True
 
-## Drell-Yan Control region
-CRDY : m3L >= 100  &&  $DATA{MET_pt_central} $MC{MET_pt_central}  < 30 && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0 ; Disable=True
+# Drell-Yan Control region
+CRDY : m3L >= 100  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && nBJetTight25_Mini == 0 && MET_pt_central  < 30 ; Disable=True
 
-## Charge splitted regions
-SRwzPL      : m3L >= 100 && nBJetTight25_Mini == 0 && MET_pt_central > 30  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && LepW_pdgId < 0; Disable=True
-SRWzMn      : m3L >= 100 && nBJetTight25_Mini == 0 && MET_pt_central > 30  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && LepW_pdgId > 0; Disable=True
-
-## Other control regions
-CR3T1L : nLepSel == 3 && nLepGood >= 4 && LepGood_pt[3] >= 10 &&  nBJetTight25_Mini == 0; Disable=True
-CRZZ   : m3L >= 100 && nBJetTight25_Mini == 0  && abs(mll_3l - 91.16) < 15 && nLepSel == 4 && LepSel_pt[3] > 10 && MET_pt_central > 30; Disable=True
-ZZTight : allTight(LepSel_isTight[0], LepSel_isTight[1], LepSel_isTight[2], LepSel_isTight[3]) ; Disable=True
-CRZZnomet  :  m3L >= 100 && nBJetTight25_Mini == 0 &&  nLepSel == 4 && LepSel_pt[3] > 10 && abs(mll_3l - 91.16) < 15 && ((abs(LepSel_pdgId[0]) + abs(LepSel_pdgId[1]) + abs(LepSel_pdgId[2]) + abs(LepSel_pdgId[3]) - 44)/2)%2 == 0 ;Disable=True
-CRTT   : m3L >= 100 && nBJetTight25_Mini > 0   && nLepGood < 4 && MET_pt_central > 30 && abs(mll_3l - 91.16) < 15; Disable=True
+# Conversions
 CRconv : m3L < 100 && nBJetTight25_Mini == 0  && MET_pt_central < 30 && nLepGood < 4; Disable=True
 
-## Jet requirements 
-## -------------------------------------
-onejet : nJet25_Mini>0; Disable=True
+# TTZ
+CRTT   : m3L >= 100 && nBJetTight25_Mini > 0   && nLepGood < 4 && MET_pt_central > 30 && abs(mll_3l - 91.16) < 15; Disable=True
 
-## Flavor splitting 
-## -------------------------------------
+# ----- Other control regions ----- #
+# 3 tight and 1 loose
+CR3T1L : nLepSel == 3 && nLepGood >= 4 && LepGood_pt[3] >= 10 &&  nBJetTight25_Mini == 0; Disable=True
+
+# Charge splitted regions
+SRwzPL : m3L >= 100 && nBJetTight25_Mini == 0 && MET_pt_central > 30  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && LepW_pdgId < 0; Disable=True
+SRWzMn : m3L >= 100 && nBJetTight25_Mini == 0 && MET_pt_central > 30  && abs(mll_3l - 91.16) < 15 && nLepGood < 4 && LepW_pdgId > 0; Disable=True
+
+# ----- Flavor splittings ----- #
 flav_eee : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 0; Disable=True
 flav_eem : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 1; Disable=True
 flav_mme : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 2; Disable=True
@@ -60,7 +53,10 @@ flav_mmm : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 3; Disabl
 flav_xxx : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 0 || (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 3; Disable=True
 flav_xxy : (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 1 || (abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2 == 2; Disable=True
 
-cIn : abs(cos_ThetaWDn_HE) < 0.9; Disable=True
-
-
-
+# ----- Other optional selections ----- #
+NOallTight : !(LepSel_isTight[0] &&  LepSel_isTight[1] && LepSel_isTight[2]); Disable= True
+chargeplus  : LepW_pdgId < 0 ; Disable=True
+chargeminus : LepW_pdgId > 0 ; Disable=True
+m3lmetblind : $DATA{m3Lmet <= 400} $MC{1} $FASTSIM{1}; Disable=True
+Cha_Tight  : LepGood_tightCharge[0]==2 &&   LepGood_tightCharge[1]==2 &&  LepGood_tightCharge[2]==2; Disable= True
+cha3_Tight :   LepGood_tightCharge[iW]==2; Disable= True

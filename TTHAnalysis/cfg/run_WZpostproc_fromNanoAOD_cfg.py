@@ -115,13 +115,13 @@ DatasetsAndTriggers["Muon"].extend(deepcopy(DatasetsAndTriggers["SingleMuon"]))
 
 ### MET
 DatasetsAndTriggers["JetMET"] = triggerGroups_dict["triggers_met"][year]
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_htmet"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_metNoMu100_mhtNoMu100"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht1050"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht800_mass50"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet500"])
-DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet400_mass30"])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_htmet"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_metNoMu100_mhtNoMu100"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht1050"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfht800_mass50"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet500"][year])
+DatasetsAndTriggers["JetMET"].extend(triggerGroups_dict["triggers_pfjet400_mass30"][year])
 
 
 ### TRIGGER OVERLAP REMOVAL: inherited from tt-run3 analysis
@@ -168,8 +168,8 @@ else:
       # ----------------- Single boson
       "WtoLnu_2jets",
       # ----------------- Drell Yan
-      "DYJetstoLL_M-50",
-      "DYJetstoLL_M10to50",
+      "DYJetsToLL_M50",
+      "DYJetsToLL_M10to50",
       # ----------------- ttbar
       "TTTo2L2Nu",
       "TTTo2J1L1Nu",
@@ -205,7 +205,7 @@ else:
       #'tZq_ll_1','tZq_ll_2',
       # ----------------- Diboson
       "WZto3LNu",
-      "ZZto4L",
+      "ZZto4l",
       "ZZto2L2Nu",
       "ZZto2L2Q",
       "WW",
@@ -288,7 +288,7 @@ if (doData):
   from CMGTools.TTHAnalysis.tools.nanoAOD.remove_overlap import OverlapRemover
   modules.extend( [lambda : OverlapRemover()] ) 
 
-cut = None 
+cut = "1" 
 compression = "ZLIB:3" #"LZ4:4" #"LZMA:9"
 branchsel_out = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/python/tools/nanoAOD/OutputSlim_wz.txt"
 branchsel_in  = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/python/tools/nanoAOD/InputSlim_wz.txt"
