@@ -1,0 +1,80 @@
+# vim: syntax=sh
+
+# -- Systematic uncertainties file for WZ analyis -- #
+
+### Alias definitions
+# signal
+$alias : WZ           : prom.*WZ
+
+# prompts
+$alias : ZZ           : prom.*ZZ
+$alias : VVV          : prom.*VVV
+$alias : hZZ          : prom.*hZZ
+$alias : promptMC     : $ZZ|$VVV|$hZZ
+
+# fakes
+$alias : DY     : .*fakes_DY.*
+$alias : VV     : .*fakes_VV.*
+$alias : WW     : .*WW
+$alias : TT     : .*fakes_TT.*
+$alias : ST     : .*fakes_ST.*
+$alias : V      : .*fakes_V
+$alias : NonpromptMC  : $DY|$VV|$TT|$ST|$V|$WW
+
+# convs
+$alias : convs : .*conv.*
+
+# Correlated groups
+$alias : bkg : $promptMC|$NonpromptMC|$convs
+$alias : allProcs : $WZ|$bkg
+
+## Lumi uncertainties 
+lumi_2022_early  : $allProcs  : .*  : normSymm  :1.022
+
+## Normalization 
+normZZ    : $ZZ      : .* : normSymm : 1.06
+normVVV   : $VVV     : .* : normSymm : 1.50
+normConvs : $convs   : .* : normSymm : 1.12
+normfakes : $mcfakes : .* : normSymm : 1.30
+
+## JECs 
+jesHF                  : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesHFUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesHFDown.txt'] 
+jesBBEC1_year          : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesBBEC1_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesBBEC1_yearDown.txt']
+jesFlavorQCD           : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesFlavorQCDUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesFlavorQCDDown.txt'] 
+jesRelativeSample_year : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesRelativeSample_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesRelativeSample_yearDown.txt'] 
+jesEC2                 : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesEC2Up.txt'\,'wz-run3/common/frs-jec/fr-standard-jesEC2Down.txt'] 
+jesHF_year             : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesHF_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesHF_yearDown.txt'] 
+jesRelativeBal         : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesRelativeBalUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesRelativeBalDown.txt'] 
+jesAbsolute_year       : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesAbsolute_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesAbsolute_yearDown.txt'] 
+jesBBEC1               : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesBBEC1Up.txt'\,'wz-run3/common/frs-jec/fr-standard-jesBBEC1Down.txt'] 
+jesEC2_year            : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesEC2_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesEC2_yearDown.txt'] 
+jesAbsolute            : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesAbsoluteUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesAbsoluteDown.txt']
+
+## Lepton SFs 
+elecidsf : $allProcs : .* : templateAsymm; AddWeights=["electronSF_Up/electronSF"\,"electronSF_Down/electronSF"]
+muonidsf : $allProcs : .* : templateAsymm; AddWeights=["muonSF_Up/muonSF"\,"muonSF_Down/muonSF"]
+
+## Pileup
+pileup : $allProcs : .* : templateAsymm; AddWeights=["puWeight_up/puWeight"\,"puWeight_dn/puWeight"]
+
+## btag SFs
+btag_LF : $allProcs : .* : templateAsymm; AddWeights=['bTagWeight_mistag_correlatedUp/bTagWeight'\,'bTagWeight_mistag_correlatedDown/bTagWeight']
+btag_HF : $allProcs : .* : templateAsymm; AddWeights=['bTagWeight_btag_correlatedUp/bTagWeight'\,'bTagWeight_btag_correlatedDown/bTagWeight']
+
+## Theoretical uncertainties
+### scale
+scale_wz  : $WZ  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_zz  : $ZZ  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_vvv : $VVV : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_hZZ : $hZZ : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_dy  : $DY  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_vv  : $VV  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_tt  : $TT  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_ST  : $ST  : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+#scale_V   : $V   : .* : envelope; FakeRates=['wz-run3/common/frs-scales/fr-muR_2p0_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_1p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_1p0_muF_0p5.txt'\,'wz-run3/common/frs-scales/fr-muR_2p0_muF_2p0.txt'\,'wz-run3/common/frs-scales/fr-muR_0p5_muF_0p5.txt']
+
+
+
+## Signal uncertainties
+ISR    : $WZ : .* : templateSymm; AddWeight="ISRUp(nJet25_Mini)" 
+FSR    : $WZ : .* : templateSymm; AddWeight="ISRUp(nJet25_Mini)"
