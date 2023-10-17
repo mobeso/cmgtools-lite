@@ -29,7 +29,7 @@ what=%s
 """ 
         cmd = """
 if [[ "$1" != "" ]]; then what=$1; fi
-for F in $(ls ${what}*.chunk*.root | sed 's/\.chunk[0-9]\+//' | sort | uniq); do
+for F in $(ls ${what}_Friend.chunk*.root | sed 's/\.chunk[0-9]\+//' | sort | uniq); do
     if test -f $F; then echo "Merged file $F already exists. skipping."; continue; fi
     FILES=$(ls ${F/.root/.chunk*.root} | \\
             perl -npe 's/\.chunk(\d+)\./sprintf(".%06d.",$1)/e' | \\
@@ -70,7 +70,7 @@ done
             os.system("chmod +x mergefriend_%s.sh"%pname)
             
             # Execute
-            os.system('sbatch -J merge -e {inpath}/logs/log{pname}.%j.%x.err -o {inpath}/logs/log{pname}.%j.%x.out --wrap "./mergefriend_{pname}.sh {inpath}" '.format(pname = pname, inpath = inpath))
+            os.system('sbatch -J merge -e {inpath}/logs/log{pname}.%j.%x.err -o {inpath}/logs/log{pname}.%j.%x.out --wrap "./mergefriend_{pname}.sh" '.format(pname = pname, inpath = inpath))
             
             # Now remove the script
             #os.system("rm mergefriend_%s.sh"%pname)
