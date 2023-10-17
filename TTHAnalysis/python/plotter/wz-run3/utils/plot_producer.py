@@ -1,6 +1,7 @@
 from .producer import producer
 from utils.ftree_producer import ftree_producer
 from cfgs.lumi import lumis
+from cfgs.selections_cfg import *
 import os
 from cfgs.friends_cfg import friends as modules
 from cfgs.datasets_cfg import datasets
@@ -23,18 +24,16 @@ class plot_producer(producer):
         "lep.*" 
       ],
       "mva" : [
-         "lepsel1_pt", "lepsel1_eta", "lepsel1_minireliso",
-         "lepsel2_pt", "lepsel2_eta", "lepsel2_minireliso",
-         "lepsel3_pt", "lepsel3_eta", "lepsel3_minireliso",
-          "jetptratio", "relv2", "jetdf"
+         "mva_lepsel1.*", "mva_lepsel2.*", "mva_lepsel3.*", "mvatth"
       ],
       "trigger" : [
-         "lepZ1_pt", "lepZ2_pt", "lepZ3_pt", 
-         "lepZ1_eta", "lepZ2_eta", "lepZ3_eta",
-         "tot_weight"
+         "tot_weight", "lepZ2_pt_trig"
       ]
   }
   
+  regions = [
+    "srwz", "crzz", "trigger"
+  ]
 
   def add_more_options(self, parser):
     self.parser = parser
@@ -42,13 +41,11 @@ class plot_producer(producer):
     parser.add_option("--mca", dest = "mca", type="string", default = "wz-run3/mca/mca_wz_3l.txt", 
                   help = '''Input mcafile''')
     # -- CMGTools configuration files -- #
-    parser.add_option("--cutfile", dest = "cutfile", type="string", default = "wz-run3/common/cuts_wzsm.txt", 
-                  help = '''Event selection requirements file''')
-    parser.add_option("--mcc", dest = "mcc", type="string", default = "wz-run3/common/mcc_triggerdefs.txt", 
+    parser.add_option("--mccfile", dest = "mccfile", type="string", default = None, 
                   help = '''Event selection requirements file''')
     parser.add_option("--plotfile", dest = "plotfile", type="string", default = "wz-run3/common/plots_wz.txt", 
                   help = '''File with plots''')
-    parser.add_option("--unc", dest = "uncfile", type="string", default = "wz-run3/common/systs_wz.txt",
+    parser.add_option("--uncfile", dest = "uncfile", type="string", default = "wz-run3/common/systs-wz.txt",
             help = "File with systematic variations")
     parser.add_option("--treename", dest = "treename", default = "NanoAOD", 
                   help = ''' Name of the tree file ''')
@@ -56,6 +53,8 @@ class plot_producer(producer):
     # --- More options for customization --- #
     parser.add_option("--blind", dest = "blind", default = False, action = "store_true",
                   help = ''' Blind data flag.''')
+    parser.add_option("--unc", dest = "unc", default = False, action = "store_true",
+                  help = ''' Apply uncertainties (default is false).''')
     parser.add_option("--region", dest = "region", default = "srwz",
                   help = ''' Region for cut application.''')
     parser.add_option("--normtodata", dest = "normtodata", default = False, action = "store_true",
@@ -107,14 +106,19 @@ class plot_producer(producer):
      
   def run(self):
     # Yearly stuff 
-    year     = self.year
-    outname  = os.path.join(self.outname, self.region)
+    year      = self.year
+    if self.region not in self.regions:
+      self.raiseError("Region %s not defined. Choose from: %s"%(self.region, self.regions))
+      
+    self.cutfile = "wz-run3/common/cuts-%s.txt"%self.region
+    outname   = os.path.join(self.outname, self.region if self.region != None else "")
     self.outname = outname
-    extra    = self.extra
-    blind    = self.blind if self.region == "srwz" else False # Only blind SR
-    mincuts  = self.get_cut(self.region)
-    uncfile  = self.uncfile
-    lumi     = lumis[year]
+    extra     = self.extra
+    blind     = self.blind if self.region == "srwz" else False # Only blind SR
+    uncfile   = self.uncfile
+    mccfile   = self.mccfile
+    apply_unc = self.unc
+    lumi      = lumis[year]
 
 
     # Other plotting stuff 
@@ -126,7 +130,7 @@ class plot_producer(producer):
     plottingStuff += "--legendFontSize 0.036 "
     plottingStuff += "--showMCError "
     plottingStuff += "--showRatio "
-    plottingStuff += "--perBin "
+#    plottingStuff += "--perBin "
     plottingStuff += "--showRatio "
     plottingStuff += "--neg "
     plottingStuff += "--TotalUncRatioColor 922 922 "
@@ -137,7 +141,7 @@ class plot_producer(producer):
     plots = ""
     if self.plot_group:
         plots = self.get_additional_plots()
-    else:
+    elif "sP" not in extra:
        self.raiseWarning(" This command will submit everything under %s"%self.plotfile)
 
     self.mcpath = os.path.join(self.inpath, "mc", self.year)
@@ -155,8 +159,8 @@ class plot_producer(producer):
                    "-W '%s'"%("*".join(self.weights)) if len(self.weights) else "",
                    "%s"%plottingStuff,
                    "-j %s"%(self.ncores),
-                   "%s"%mincuts,
-                   #"--unc %s"%uncfile,
+                   "--mcc %s"%mccfile if mccfile != None else "", 
+                   "--unc %s"%uncfile if apply_unc else "",
                    "--xp data" if blind else "",
                    plots,
                    "%s"%extra]

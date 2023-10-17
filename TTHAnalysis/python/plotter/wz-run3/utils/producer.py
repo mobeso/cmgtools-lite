@@ -6,7 +6,8 @@ from cfgs.samplepaths import samplepaths as paths
 from functions import color_msg
 
 class producer(object):
-    weights = ['puWeight*muonSF*electronSF*bTagWeight']
+    #weights = ['puWeight*bTagWeight*electronSF*muonSF']
+    weights = ['puWeight*bTagWeight']
     functions = ["wz-run3/functionsWZ.cc"]
 
     name = "producer"
@@ -41,9 +42,6 @@ class producer(object):
         jn = self.jobname
         q    = self.queue
         logpath = self.outname
-        ### Make sure log folder exists
-        if not os.path.exists("%s/logs"%logpath):
-            os.system("mkdir -p %s/logs"%logpath)
         newcommand = self.cluster_comm.format(nc = nc, jn = jn, q = q, logpath = logpath, comm = self.command)
         return newcommand
 
@@ -60,6 +58,9 @@ class producer(object):
             comm = self.submit_InCluster()
         print(comm) 
         if self.doSubmit:
+            ### Make sure log folder exists before submitting
+            if not os.path.exists("%s/logs"%self.outname):
+                os.system("mkdir -p %s/logs"%self.outname)
             os.system(comm)
         return
          
@@ -73,17 +74,6 @@ class producer(object):
     def run(self):
         ''' To be implemented in different classes ''' 
         pass
-
-    def get_cut(self, region):
-        ''' Minimal cuts to define different regions of the analysis '''
-        cuts = {
-            "srwz" : "-E ^SRWZ",
-            "crzz" : "-E ^CRZZnomet -X ^AllTight -E ^ZZTight",
-            "crdy" : "-E ^CRDY",
-            "crtt" : "-E ^CRTT",
-            "crxg" : "-E ^CRconv"
-        }
-        return cuts[region]
         
     def raiseError(self, msg):
         logmsg = "[%s::ERROR]: %s"%(self.name, msg)

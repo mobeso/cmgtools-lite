@@ -30,6 +30,8 @@ class card_producer(plot_producer):
     year     = self.year
     binname  = self.binname
     outname  = self.outname.replace("plots", "cards")
+    if self.region == None:
+        self.raiseError("Please you have to specify a region to do cards")
     outname  = os.path.join(outname, self.region)
     self.outname = outname
     extra    = self.extra
@@ -39,6 +41,7 @@ class card_producer(plot_producer):
     mcpath   = os.path.join(self.inpath, "mc", self.year)
     datapath = os.path.join(self.inpath, "data", self.year)
 
+    doAsimov = "--xp data --asimov signal" if self.region == "srwz" else "" # Always blind the fit for SR!!!
     # List with all the options given to CMGTools
     self.commandConfs = ["%s"%self.mca, 
                    "%s"%self.cutfile,
@@ -52,8 +55,8 @@ class card_producer(plot_producer):
                    "-W '%s'"%("*".join(self.weights)) if len(self.weights) else "",
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
+                   doAsimov,
                    "%s"%mincuts,
-                   "--xp data --asimov signal", # Always blind the fit!!!
                    "--unc %s"%uncfile,
                    "--od %s/"%outname,
                    "--autoMCStats",
