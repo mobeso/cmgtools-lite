@@ -47,5 +47,6 @@ for tier in ["data", "mc"]:
                                     fc = subsample.fC,
                                     label = subsample.label))
             f.write("\n\n")
+
         f.close()
-    ftotal.close()
+ftotal.close()
