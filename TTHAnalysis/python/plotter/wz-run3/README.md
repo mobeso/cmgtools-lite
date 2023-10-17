@@ -88,9 +88,10 @@ This will:
 
  **Generate yields/plots for both numerator (PR+HLT) and denominator (PR) region.**
  ```
- ./wz-run3/scripts/make_plots.sh trigger_eff --ncores 16 --outname trigger_efficiencies --do-submit
+ ./wz-run3/scripts/make_plots.sh trigger_eff --ncores 16 --outname wz-run3/scripts/trigger_efficiencies --do-submit
  ```
-
-
-
-
+ **Produce table with trigger efficiencies, yields and SFs.**
+ ```
+ cd wz-run3/scripts/
+ python3 get_triggerSF.py
+ ```
