@@ -49,7 +49,7 @@ elecSelection = lambda l : (
 # + Electrons: postEE+ leak
 elecSelection_EE = lambda l : (
     elecSelection(l)
-#    and not(l.eta > etaLeak and int(l.seediEtaOriX) < 45 and l.seediPhiOriY > 72)
+    and not(l.eta > etaLeak and int(l.seediEtaOriX) < 45 and l.seediPhiOriY > 72)
 )
 
 lepMerge = collectionMerger(
@@ -71,6 +71,7 @@ tagger  = lambda : datasetTagger()
 # --- PU weights --- #
 puweight_file = os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/pileup/puWeights_UL_2022.root")
 puweighter = lambda : puWeighter(filename = puweight_file)
+
 # --- lepton MVA identification --- #
 weightspath = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/mvaTTH/")
 
@@ -242,13 +243,10 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import conept
 looseDeepFlavB = 0.0494
 mediumDeepFlavB = 0.2770
 
-# --- Lepton selectors
-selector = "mva"
-#selector = "cutbased"
 looselep = lambda lep          : _loose_lepton(lep, looseDeepFlavB, mediumDeepFlavB)
-cleanlep = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist, selector)
-folep    = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist, selector)
-tightlep = lambda lep, jetlist : _tight_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist, selector)
+cleanlep = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
+folep    = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
+tightlep = lambda lep, jetlist : _tight_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
 
 
 # --- Groups of systematics

@@ -15,7 +15,7 @@ class MVAvar:
         self.var[0] = val
 
 class lepMVAWZ_run3(Module):
-    def __init__(self, inputpath, modelname = "BDTGttw_vetoLeak", isMC = True):
+    def __init__(self, inputpath, modelname = "BDTGtth", isMC = True):
         
         self.branches = [
             ("LepGood_mvaTTH_run3", "F", 20, "nLepGood"),
