@@ -198,6 +198,8 @@ else:
       #"TTH_ctcvcp",
       #'TTH_pow',
       # ----------------- Top + V rare processes
+      "TTLL_MLL_50",
+      "TTLL_MLL_4to50",
       #"TZQToLL",
       #"tWll",
       # "TTWW","TTWW_LO",
@@ -208,7 +210,7 @@ else:
       "ZZto4l",
       "ZZto2L2Nu",
       "ZZto2L2Q",
-      "WW",
+      "WWto2L2Nu",
       #"WWTo2L2Nu"
       #"WW_DPS", 
       #"WpWpJJ",
