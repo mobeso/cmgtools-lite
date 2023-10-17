@@ -1,7 +1,7 @@
 samplepaths = {
   "nanoaod" : {
-    "mc"   : "/beegfs/data/nanoAODv11/30march2023/MC",
-    "data" : "/beegfs/data/nanoAODv11/30march2023/data"
+    "mc"   : "/lustrefs/hdd_pool_dir/nanoAODv11/30march2023/MC",
+    "data" : "/lustrefs/hdd_pool_dir/nanoAODv11/30march2023/data"
   },
-  "processed" : "/beegfs/data/nanoAODv11/wz-run3/trees_v4/"
+  "processed" : "/lustrefs/hdd_pool_dir/nanoAODv11/wz-run3/trees_v5/"
 }
