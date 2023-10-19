@@ -97,7 +97,9 @@ lep1_eta       : LepSel_eta[0] : 10,-2.5,2.5  ; XTitle="#eta(l1)", MoreY=1.5
 lep2_eta       : LepSel_eta[1] : 10,-2.5,2.5  ; XTitle="#eta(l2)", MoreY=1.5
 lep3_eta       : LepSel_eta[1] : 10,-2.5,2.5  ; XTitle="#eta(l3)", MoreY=1.5
 
-cr_3l: ttW_3l_clasifier(nJet25_Mini, nBJetMedium25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="1j\,2j\,3j\,>3j\,2j\,3j\,4j\,>4j\,2j\,3j\,4j\,>4j"
+wz_TightBclassifier: wz_TightBtag_clasifier(nJet25_Mini, nBJetTight25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
+wz_MediumBclassifier: wz_MediumBtag_clasifier(nJet25_Mini, nBJetMedium25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
+wz_LooseBclassifier: wz_LooseBtag_clasifier(nJet25_Mini, nBJetLoose25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
 
 ## Lepton MVAs
 mvatth : LepGood_mvaTTH_run3 : 20,-1,1; XTitle="mvaTTH score (run3)", Logy, Legend='TL', MoreY=1.5

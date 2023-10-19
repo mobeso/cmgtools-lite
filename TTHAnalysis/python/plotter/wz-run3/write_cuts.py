@@ -11,28 +11,36 @@ import re
 
 # -------------------- Cut in met (to be optimized) -------------------- #
 met = {
-    "met" : "MET_pt_central > 30"
+    "met_10" : "MET_pt_central > 10; Disable=True",
+    "met_15" : "MET_pt_central > 15; Disable=True",
+    "met_20" : "MET_pt_central > 20; Disable=True",
+    "met_25" : "MET_pt_central > 25; Disable=True",
+    "met_30" : "MET_pt_central > 30; Disable=True",
+    "met_35" : "MET_pt_central > 35; Disable=True",
+    "met_40" : "MET_pt_central > 40; Disable=True",
 }
 
 ## Define the cut files here
 # --- Signal region --- #
 srwz = deepcopy(baseline_wz)
 srwz.update(ExactlyThreeLeptons)
-srwz.update(met)
 srwz.update({
     "btag" : "nBJetTight25_Mini == 0",
     "zPeak" : "abs(mll_3l - 91.16) < 15"
 })
+srwz.update(met)
+
 
 # --- ZZ Control region --- #
 crzz = deepcopy(baseline_wz)
 crzz.update(ExactlyFourLeptons)
-crzz.update(met)
 crzz.update({
     "btag" : "nBJetTight25_Mini == 0",
     "zPeak" : "abs(mll_3l - 91.16) < 15",
     "noTau" : "((abs(LepSel_pdgId[0]) + abs(LepSel_pdgId[1]) + abs(LepSel_pdgId[2]) + abs(LepSel_pdgId[3]) - 44)/2)%2 == 0"
 })
+crzz.update(met)
+
 
 # --- CR Nonprompt (DY) Control region --- #
 crnpdy = deepcopy(baseline_wz)

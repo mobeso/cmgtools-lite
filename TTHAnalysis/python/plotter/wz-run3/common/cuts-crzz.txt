@@ -10,10 +10,16 @@ AllTight: allTight(LepSel_isTight[0], LepSel_isTight[1], LepSel_isTight[2], LepS
 lepPt: LepZ1_pt >= 25 && LepZ2_pt >= 10 && LepW_pt >= 25 && LepSel_pt[3] > 10
 BRevent: abs(LepSel_pdgId[0]) < 15 && abs(LepSel_pdgId[1]) < 15 && abs(LepSel_pdgId[2]) < 15 && nOSSF_3l >= 1
 m3l: m3L >= 100
-met: MET_pt_central > 30
 btag: nBJetTight25_Mini == 0
 zPeak: abs(mll_3l - 91.16) < 15
 noTau: ((abs(LepSel_pdgId[0]) + abs(LepSel_pdgId[1]) + abs(LepSel_pdgId[2]) + abs(LepSel_pdgId[3]) - 44)/2)%2 == 0
+met_10: MET_pt_central > 10; Disable=True
+met_15: MET_pt_central > 15; Disable=True
+met_20: MET_pt_central > 20; Disable=True
+met_25: MET_pt_central > 25; Disable=True
+met_30: MET_pt_central > 30; Disable=True
+met_35: MET_pt_central > 35; Disable=True
+met_40: MET_pt_central > 40; Disable=True
 
 
 # Flavor split
