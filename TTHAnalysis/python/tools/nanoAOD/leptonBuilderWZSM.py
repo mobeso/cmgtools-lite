@@ -3,8 +3,25 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collect
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 from CMGTools.TTHAnalysis.tools.nanoAOD.friendVariableProducerTools import declareOutput, writeOutput
 from CMGTools.TTHAnalysis.tools.nanoAOD.leptonJetRecleanerWZSM import passMllTLVeto, passTripleMllVeto
+
+import itertools
 import ROOT, copy, os
 import array, math
+
+
+""" These are just some stupid functions to print messages with coloring and all that. Useful for debugging. """
+def color_msg(msg, color = "none"):
+    """ Prints a message with ANSI coding so it can be printout with colors """
+    codes = {
+        "none" : "0m",
+        "green" : "1;32m",
+        "red" : "1;31m",
+        "blue" : "1;34m",
+        "yellow" : "1;35m"
+    }
+
+    print("\033[%s%s \033[0m"%(codes[color], msg))
+    return
 
 class OSpair:
   def __init__(self, l1, l2):
@@ -17,9 +34,17 @@ class OSpair:
     self.isSF = False
     self.wTau = False
 
+    # Check if we target Z leptons
     if self.l1.pdgId  == -self.l2.pdgId: self.isSF = True
+    
+    # Check if these are from tau decays
     if abs(self.l1.pdgId) == 15 or abs(self.l2.pdgId) == 15: self.wTau = True
-
+    
+    # Target cases:
+    #   - 2 OSSF leptons should come from Z decay (target is Zmass)
+    #   - 2 OSOF leptons may come from W (target is less than 80 due to neutrino)
+    #         - 60 if there are taus
+    #         - 50 if there are not taus.  
     if self.isSF: self.target = 91.1876
     elif abs(self.l1.pdgId) == 15 or abs(self.l2.pdgId) == 15: self.target = 60
     else: self.target = 50
@@ -38,10 +63,12 @@ class leptonBuilderWZSM(Module):
                inputlabel, 
                metbranch = "MET",
                systsJEC = [],
-               lepScaleSysts = []):
+               lepScaleSysts = [],
+               verbosity = 0):
     
     ''' Initialise some variables '''
     self.mt2maker = None
+    self.verbosity = verbosity
     self.inputlabel = '_' + inputlabel
 
     self.systsJEC = systsJEC
@@ -51,6 +78,9 @@ class leptonBuilderWZSM(Module):
     self.metbranch = metbranch
     self.isData = False
     self.listBranches()
+    
+    if self.verbosity > 0:
+      color_msg(" >> Module %s initiated in debug mode"%(self.__class__.__name__), "green")
     return
 
   def listBranches(self):
@@ -75,11 +105,13 @@ class leptonBuilderWZSM(Module):
         ("is_4l" + var       , "I"),
         ("is_5l" + var       , "I"),
         ("nOSSF_3l" + var    , "I"),
+        ("nOSDF_3l" + var    , "I"),
         ("nOSLF_3l" + var    , "I"),
         ("nOSTF_3l" + var    , "I"),
         ("mll_3l"   + var    , "F"),
         ("m3L"      + var    , "F"),
         ("nOSSF_4l" + var    , "I"),
+        ("nOSDF_4l" + var    , "I"),
         ("nOSLF_4l" + var    , "I"),
         ("nOSTF_4l" + var    , "I"),
         ("mll_4l"   + var    , "F"),
@@ -138,6 +170,9 @@ class leptonBuilderWZSM(Module):
 
   def analyze(self, event):
     ''' Called from postprocessor '''
+    
+    if self.verbosity > 0:
+      color_msg("   ---- Analyzing event %d"%(event.event), "green")
     self.isData = (event.datatag != 0)
 
     if self.isData:
@@ -155,6 +190,8 @@ class leptonBuilderWZSM(Module):
       # -- Collect objects -- #
       self.collectObjects(event)
       # -- Analyze objects -- #
+      if self.verbosity > 0:
+        color_msg("     * There are %d leptons in this event"%(len(self.lepSelFO)), "blue")
       self.analyzeTopology()
       # -- Write lepton objects -- #
       self.writeLepSel()     
@@ -203,10 +240,16 @@ class leptonBuilderWZSM(Module):
     if len(self.lepSelFO) >= 3: self.ret["is_3l"] = 1
     if len(self.lepSelFO) >= 4: self.ret["is_4l"] = 1
     self.getGenMatch() 
-    self.collectOSpairs(3, False)
+  
+    if self.verbosity > 0:
+      color_msg("     * Collecting OSpairs")
+    self.collectOSpairs(3)
     self.makeMass(3)
-    self.makeMt2(3)
+    if self.verbosity > 0:
+      color_msg("     * Finding best pair")
     self.findBestOSpair(3)
+    if self.verbosity > 0:
+      color_msg("     * Finding minimum Mt value")
     self.findMtMin(3)
     self.makeMassMET(3)
     self.makeUncMassMET(3)
@@ -216,8 +259,10 @@ class leptonBuilderWZSM(Module):
     return #Fix this
   
   def makeMassMET(self, maxlep):
+    """ Compute invariant mass taking into account neutrino contributions. Assumming neutrino momentum in the Z plane to be 0"""
     # Using pt gives corrected pt
     if len(self.lepSelFO) < 3: return
+    
     sumlep = self.lepSelFO[0].p4()
     metp4 = ROOT.TLorentzVector()
     for i in range(1, min(maxlep, len(self.lepSelFO))):
@@ -230,24 +275,30 @@ class leptonBuilderWZSM(Module):
     return
 
   def findMtMin(self, maxlep):
-    self.mTmin = {}
+    """ This method finds the minimum Mt between a lepton from W and the MET """
     used = [self.bestOSPair.l1, self.bestOSPair.l2] if self.bestOSPair else [] 
-    leps = []
-
-    for i in range(min(maxlep, len(self.lepSelFO))):
-      if self.lepSelFO[i] in used: continue
-      leps.append(self.lepSelFO[i])
+    leps = [l for l in self.lepSelFO if l not in used ]
+    if len(leps) == 0:
+      return
+    
+    if self.verbosity > 0:
+      print("       + leps: ", leps) 
    
     for var in [""] + self.systsJEC:
       var = "_%s"%var if var != "" else var
       if var != "" and self.lepVar != "": continue
+
+      
       bufferPF = []
       if not self.isData:
         bufferGEN = []
+
+      # Iterate over the leptons that do not originate from Z
       for l in leps:
         bufferPF.append(self.mtW(l, var))
         if not self.isData:
           bufferGEN.append(self.mtW(l, var, True))
+
       if len(bufferPF):
         bufferPF.sort()
         self.ret["mT_" + str(maxlep) + "l" + var] = bufferPF[0]
@@ -259,131 +310,132 @@ class leptonBuilderWZSM(Module):
     return self.mt(lep.conePt, self.met[var.replace("_","", 1)], lep.phi, self.metphi[var.replace("_","", 1)])
 
 
-  def findBestOSpair(self, maxlep): 
+  def findBestOSpair(self, maxlep):
+    """ Module to find the best OS pair from the ones available """
     self.bestOSPair = None
     allpairs = []
+
+    if len(self.OS) == 0: return # No best OS pair if no OS pairs :)
+
     for os in self.OS:
-      allpairs.append( (0 if os.isSF else 1, os.diff, os) )
-    if allpairs:
-      allpairs.sort()
+      metadata = (0 if os.isSF else 1, os.diff, os)
+      allpairs.append( metadata )
       
-      self.bestOSPair = allpairs[0][2]
-      self.ret["mll_" + str(maxlep) + "l"] = self.bestOSPair.mll
-      used = [self.bestOSPair.l1, self.bestOSPair.l2] if self.bestOSPair else []
-      self.ret["iZ1"] = self.bestOSPair.l1.idx
-      self.ret["iZ2"] = self.bestOSPair.l2.idx
-
-      for var in ["pt", "eta", "phi", "mass", "conePt","genpt", "geneta", "genphi", "genmass"]:
-        if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
-        self.ret["LepZ1_" + var] = getattr(self.bestOSPair.l1, var, 0)
-        self.ret["LepZ2_" + var] = getattr(self.bestOSPair.l2, var, 0)
-      for var in ["pdgId", "isTight"]:
-        if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
-        self.ret["LepZ1_" + var] = int(getattr(self.bestOSPair.l1, var, 0))
-        self.ret["LepZ2_" + var] = int(getattr(self.bestOSPair.l2, var, 0))
-
-      for i in range(min(maxlep,len(self.lepSelFO))):
-        if self.lepSelFO[i] in used: continue
-        self.ret["iW"] = self.lepSelFO[i].idx
-        for var in ["pt", "eta", "phi", "mass", "conePt", "genpt", "geneta", "genphi", "genmass"]:
-            if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
-            self.ret["LepW_" + var] = getattr(self.lepSelFO[i], var, 0)
-        for var in ["pdgId", "isTight"]:
-            if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
-            self.ret["LepW_" + var] = int(getattr(self.lepSelFO[i], var, 0))
-            self.ret["LepW_" + var] = int(getattr(self.lepSelFO[i], var, 0))
-        balance = self.bestOSPair.l1.p4()
-        balance += self.bestOSPair.l2.p4()
-        self.ret["deltaR_WZ"] = deltaR(balance.Eta(), balance.Phi(), self.lepSelFO[i].p4().Eta(), self.lepSelFO[i].p4().Phi())
-        balance += self.lepSelFO[i].p4()
-        metmom = ROOT.TLorentzVector()
-        metmom.SetPtEtaPhiM(self.met[""], 0, self.metphi[""], 0)
-        balance += metmom
-        # Later do it with standalone function like makeMassMET
-        self.ret["wzBalance_pt"] = balance.Pt()
-        balance = self.bestOSPair.l1.p4(self.bestOSPair.l1.conePt)
-        balance += self.bestOSPair.l2.p4(self.bestOSPair.l2.conePt)
-        balance += self.lepSelFO[i].p4(self.lepSelFO[i].conePt)
-        balance += metmom
-        self.ret["wzBalance_conePt"] = balance.Pt()
-
-        #Now do the fit to the W mass, neglect lepton/neutrino masses
-        phil = getattr(self.lepSelFO[i], "phi", 0)
-        etal = getattr(self.lepSelFO[i], "eta", 0)
-        ptl = getattr(self.lepSelFO[i], "pt", 0)
-        phinu = self.metphi[""]
-        etanu = 0
-        ptnu  = self.met[""]
-        muVal = (80.385)**2/2. + ptl*ptnu*math.cos(phil-phinu)
-        disc  = (muVal**2*ptl**2*math.sinh(etal)**2/ptl**4 - ((ptl**2*math.cosh(etal)**2)*ptnu**2 - muVal**2)/ptl**2)
-
-        
-        metUp = ROOT.TLorentzVector()
-        metUp.SetPtEtaPhiM(self.met[""],0,self.metphi[""],0)
-        metDn = ROOT.TLorentzVector()
-        metDn.SetPtEtaPhiM(self.met[""],0,self.metphi[""],0)
-
-        if disc < 0:
-             metUp.SetPz(muVal*ptl*math.sinh(etal)/ptl**2)
-             metDn.SetPz(muVal*ptl*math.sinh(etal)/ptl**2)
-        else:
-             metUp.SetPz(muVal*ptl*math.sinh(etal)/ptl**2 + math.sqrt(disc))
-             metDn.SetPz(muVal*ptl*math.sinh(etal)/ptl**2 - math.sqrt(disc))
-
-        sumlep = self.lepSelFO[0].p4()
-        for i in range(1,min(maxlep,len(self.lepSelFO))):
-          sumlep += self.lepSelFO[i].p4(self.lepSelFO[i].conePt) 
-        for var in [""] + self.systsJEC:
-          var = "_%s"%var if var != "" else var
-          if var != "" and (self.lepVar != "" or self.isData): continue
-          sumtotUp = sumlep + metUp
-          sumtotDn = sumlep + metDn
-          self.ret["m3LmetRecDn" + var] = sumtotDn.M()
-          self.ret["m3LmetRecUp" + var] = sumtotUp.M()
-    return
-
-  def makeMt2(self, maxlep):
-    ## Building two sets of MT2
-    ## mT2L: two light flavor leptons from the OS pair (category, C, D)
-    ## mT2T: hardest light lepton and one tau (category, E, F)
+    # Make sure the first pair is the SF one (easier to tag from Z decays).
+    # If there are none, then just use the first pair.
+    allpairs.sort()
     
-    if not self.mt2maker: return False
-    anyPairs = []
-    for i in range(min(maxlep, len(self.lepSelFO))):
-      for j in range(i+1, min(maxlep, len(self.lepSelFO))):
-        if abs(self.lepSelFO[i].pdgId) == 15 or abs(self.lepSelFO[j].pdgId) == 15:
-          anyPairs.append(OSpair(self.lepSelFO[i], self.lepSelFO[j]))
+    for pair in range(len(allpairs)):
+      ospair = allpairs[pair][2]
+      if self.verbosity > 0:
+        print("        o pair diff to target mass of %3.2f GeV"%ospair.target, ospair.diff)
+    
+    self.bestOSPair = allpairs[0][2]
+    if self.verbosity > 0:
+      print("       + My best pair is the one whose diff is: %3.2f"%self.bestOSPair.diff)
+    
+    
+    self.ret["mll_" + str(maxlep) + "l"] = self.bestOSPair.mll
+    
 
-    mt2t = []
-    mt2l = []
-    for os in anyPairs:
-      if os.wTau and abs(os.l1.pdgId) != 15 or  abs(os.l2.pdgId) != 15: mt2t.append((os.l1.pt+os.l2.pt, os))
-    for os in self.OS:
-      if abs(os.l1.pdgId) != 15 and abs(os.l2.pdgId) != 15: mt2l.append((os.l1.pt+os.l2.pt, os))
+    
+    lz1 = self.bestOSPair.l1
+    lz2 = self.bestOSPair.l2
 
-    mt2t.sort(reverse=True) # we want the hardest leptons here! 
-    mt2l.sort(reverse=True) # we want the hardest leptons here! 
+    # The following list, by construction, is never empty.
+    used = [lz1, lz2] if self.bestOSPair else []
+    if self.verbosity > 0:
+      print("       + leps from best pair: ", used) 
+
+
+    # --- Fill info for the leptons coming from the Z decay (as tagged by the algorithm)
+    self.ret["iZ1"] = lz1.idx
+    self.ret["iZ2"] = lz2.idx
+    for var in ["pt", "eta", "phi", "mass", "conePt", "genpt", "geneta", "genphi", "genmass"]:
+      if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
+      self.ret["LepZ1_" + var] = getattr(lz1, var, 0)
+      self.ret["LepZ2_" + var] = getattr(lz2, var, 0)
+    for var in ["pdgId", "isTight"]:
+      if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
+      self.ret["LepZ1_" + var] = int(getattr(lz1, var, 0))
+      self.ret["LepZ2_" + var] = int(getattr(lz1, var, 0))
+
+    # --- The remaining one (if any) is coming from the W
+    lw_cands = [l for l in self.lepSelFO if l not in [lz1, lz2] ]
+    if len(lw_cands) == 0:
+      return
+    
+
+    # ----- If there's at least three leptons, the third hardest is the one tagged from W 
+    lw = lw_cands[0] 
+    self.ret["iW"] = lw.idx 
+    for var in ["pt", "eta", "phi", "mass", "conePt", "genpt", "geneta", "genphi", "genmass"]:
+        if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
+        self.ret["LepW_" + var] = getattr(lw, var, 0)
+    for var in ["pdgId", "isTight"]:
+        if self.isData and ("gen" in var or "mc" in var or "Match" in var): continue
+        self.ret["LepW_" + var] = int(getattr(lw, var, 0))
+        self.ret["LepW_" + var] = int(getattr(lw, var, 0))
+
+    # Compute the difference in deltaR between the Z candidate and the W boson candidate.    
+    Z_vecp4 = lz1.p4()
+    Z_vecp4 += lz2.p4()
+    Wnomet_vecp4 = lw.p4() 
+    self.ret["deltaR_WZ"] = deltaR(Z_vecp4.Eta(), Z_vecp4.Phi(), Wnomet_vecp4.Eta(), Wnomet_vecp4.Phi())
+
+
+    # Reconstruct the WZ system
+    # ---- With the neutrino contribution
+    WZ_vecp4 = Z_vecp4 + Wnomet_vecp4 
+    metnom = ROOT.TLorentzVector()
+    metnom.SetPtEtaPhiM(self.met[""], 0, self.metphi[""], 0)
+    WZ_vecp4 += metnom
+    self.ret["wzBalance_pt"] = WZ_vecp4.Pt()
+    
+    # ---- With the neutrino, using conePt
+    WZ_vecp4_conePt = lz1.p4(lz1.conePt)
+    WZ_vecp4_conePt += lz2.p4(lz2.conePt)
+    WZ_vecp4_conePt += lw.p4(lw.conePt)
+    WZ_vecp4_conePt += metnom
+    self.ret["wzBalance_conePt"] = WZ_vecp4_conePt.Pt()
+
+    # Now do the fit to the W mass, neglect lepton/neutrino masses
+    phil  = getattr(lw, "phi", 0)
+    etal  = getattr(lw, "eta", 0)
+    ptl   = getattr(lw, "pt", 0)
+    phinu = self.metphi[""]
+    etanu = 0
+    ptnu  = self.met[""]
+    muVal = (80.385)**2/2. + ptl * ptnu * math.cos(phil-phinu)
+    disc  = (muVal**2*ptl**2*math.sinh(etal)**2/ptl**4 - ((ptl**2*math.cosh(etal)**2)*ptnu**2 - muVal**2)/ptl**2)
+
+    metUp = ROOT.TLorentzVector()
+    metUp.SetPtEtaPhiM(self.met[""],0,self.metphi[""],0)
+    metDn = ROOT.TLorentzVector()
+    metDn.SetPtEtaPhiM(self.met[""],0,self.metphi[""],0)
+
+    if disc < 0:
+         metUp.SetPz(muVal*ptl*math.sinh(etal)/ptl**2)
+         metDn.SetPz(muVal*ptl*math.sinh(etal)/ptl**2)
+    else:
+         metUp.SetPz(muVal*ptl*math.sinh(etal)/ptl**2 + math.sqrt(disc))
+         metDn.SetPz(muVal*ptl*math.sinh(etal)/ptl**2 - math.sqrt(disc))
+
+    sumlep = self.lepSelFO[0].p4()
+    for i in range(1,min(maxlep,len(self.lepSelFO))):
+      sumlep += self.lepSelFO[i].p4(self.lepSelFO[i].conePt) 
     for var in [""] + self.systsJEC:
-      var = "_%s" if var != "" else var
-      if len(mt2t)>0: 
-          self.ret["mT2T_" + str(maxlep) + "l" + var] = self.mt2(mt2t[0][1].l1, mt2t[0][1].l2, var)
-      if len(mt2l)>0: 
-          self.ret["mT2L_" + str(maxlep) + "l" + var] = self.mt2(mt2l[0][1].l1, mt2l[0][1].l2, var)
-    return 
+      var = "_%s"%var if var != "" else var
+      if var != "" and (self.lepVar != "" or self.isData): continue
+      sumtotUp = sumlep + metUp
+      sumtotDn = sumlep + metDn
+      self.ret["m3LmetRecDn" + var] = sumtotDn.M()
+      self.ret["m3LmetRecUp" + var] = sumtotUp.M()
+
+    return
 
   def mt(self, pt1, pt2, phi1, phi2):
     return math.sqrt(2*pt1*pt2*(1-math.cos(phi1-phi2)))
-
-  def mt2(self, obj1, obj2, var, useGenMet = False):
-    vector_met     = array.array('d', [0, self.met[var.replace("_","", 1)]*math.cos(self.metphi[var]), self.met[var.replace("_","", 1)]*sin(self.metphi[var])])
-    vector_obj1    = array.array('d', [obj1.mass, obj1.p4(obj1.pt).Px(), obj1.p4(obj1.pt).Py()])
-    vector_obj2    = array.array('d', [obj2.mass, obj2.p4(obj2.pt).Px(), obj2.p4(obj2.pt).Py()])
-
-
-    self.mt2maker.set_momenta(vector_obj1, vector_obj2, vector_met)
-    self.mt2maker.set_mn(0)
-
-    return self.mt2maker.get_mt2()
 
   def makeMass(self, maxlep):
     if len(self.lepSelFO) < 3: return
@@ -393,39 +445,50 @@ class leptonBuilderWZSM(Module):
     self.ret["m" + str(maxlep) + "L"] = summed_p4.M()
     return
 
-  def collectOSpairs(self, maxlep, useBuffer = False):
+  def collectOSpairs(self, maxlep):
+    """ This function makes combination of pairs of leptons and counts how many
+        types of pairs we have:
+          + OSSF: Opposite sign, same flavor (ee, mm).
+          + OSTF: Opposite sign, at least one of the leptons in the pair is a tau.
+          + OSLF: Opossite sign, any flavor but no hadronic taus involved (em, me, ee, mm).
+        This means OSSF <= OSLF
+    """
     self.OS = []
     nFO = len(self.lepSelFO)
-    ### Iterate over a maximum of maxlep and a minimum of nFO leptons
-    for i in range(min(maxlep, nFO)): 
-      for j in range(i+1, min(maxlep, nFO)):
-        ### Forget about taus
-        if abs(self.lepSelFO[i].pdgId) == 15 and abs(self.lepSelFO[j].pdgId) == 15: continue 
-        ### Make sure leptons are of the same flavor
-        if useBuffer and abs(self.lepSelFO[i].pdgId) != abs(self.lepSelFO[j].pdgId): continue
-        if self.lepSelFO[i].pdgId * self.lepSelFO[j].pdgId < 0: 
-          ### You got yourself an OSSF :D
-          self.OS.append(OSpair(self.lepSelFO[i], self.lepSelFO[j]))
+    
+    # Now make pairs
+    combs = itertools.combinations(self.lepSelFO, 2)
 
-    ### Snippet below the if statement is effectively never used
-    if useBuffer:
-       self.OS.sort(key = lambda x: x.diff)
-       buffer = self.OS
-       self.OS = []
-       used = []
-       for os in buffer:
-         if not os.l1 in used and not os.l2 in used:
-           self.os.append(os)
-           used.append(os.l1); used.append(os.l2)
+    for icomb, comb in enumerate(combs):
+      if self.verbosity > 0: print("        o Checking combination %d: "%(icomb), (comb[0], comb[0].pdgId,comb[1], comb[1].pdgId))
+      l1 = comb[0]
+      l2 = comb[1]
+      
+      if abs(l1.pdgId) == 15 and abs(l2.pdgId) == 15: # No tau tau SF pairs 
+        if self.verbosity > 0: color_msg("        * Skipping pair of taus")
+        continue
+      
+      if l1.pdgId * l2.pdgId < 0:
+        self.OS.append( OSpair(l1, l2) )
+
+    # Now count pairs
     self.ret["nOSSF_" + str(maxlep) + "l"] = self.countOSSF(maxlep)
+    self.ret["nOSDF_" + str(maxlep) + "l"] = self.countOSDF(maxlep)
     self.ret["nOSTF_" + str(maxlep) + "l"] = self.countOSTF(maxlep)
     self.ret["nOSLF_" + str(maxlep) + "l"] = self.countOSLF(maxlep)
+    if self.verbosity > 0: 
+      print("      + Found: nOSSF = %d, nOSDF = %d, nOSTF = %d, nOSLF = %d "%(self.ret["nOSSF_" + str(maxlep) + "l"],
+                                                                   self.ret["nOSDF_" + str(maxlep) + "l"],
+                                                                   self.ret["nOSTF_" + str(maxlep) + "l"],
+                                                                   self.ret["nOSLF_" + str(maxlep) + "l"]))
     return
 
   def countOSLF(self, maxlep):
     return sum(1 if not os.wTau else 0 for os in self.OS)
   def countOSSF(self, maxlep):
     return sum(1 if os.isSF else 0 for os in self.OS)
+  def countOSDF(self, maxlep):
+    return sum(1 if not os.isSF else 0 for os in self.OS)
   def countOSTF(self, maxlep):
     return sum(1 if os.wTau else 0 for os in self.OS)
 
@@ -563,6 +626,7 @@ class leptonBuilderWZSM(Module):
     self.ret["is_3l"]        = 0
     self.ret["is_4l"]        = 0
     self.ret["nOSSF_3l"]     = 0
+    self.ret["nOSDF_3l"]     = 0
     self.ret["nOSLF_3l"]     = 0
     self.ret["nOSTF_3l"]     = 0
     self.ret["mll_3l"]       = 0
@@ -613,8 +677,48 @@ def deltaR(eta1, phi1, eta2, phi2):
   return math.sqrt(dEta*dEta + dPhi*dPhi)
 
 if __name__ == '__main__':
-  pass
-
+    """ Debug the module """
+    from sys import argv
+    from copy import deepcopy
+    from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import eventLoop
+    from PhysicsTools.NanoAODTools.postprocessing.framework.output import FriendOutput, FullOutput
+    from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import InputTree
+    
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv11/wz-run3/trees_v5/mc/2022EE/"
+    process = "WZto3LNu"
+#    process = "TTTo2L2Nu_part17"
+    
+    friends = [
+      "jmeCorrections",
+      "leptonJetRecleaning"
+    ]
+    nentries = int(argv[1])
+    ### Open the main file
+    file_ = ROOT.TFile( os.path.join(mainpath, process+".root") )
+    tree = file_.Get("Events")
+    for friend in friends:
+      print(os.path.join(mainpath, friend, process+"_Friend.root"))
+      friendfile = ROOT.TFile( os.path.join(mainpath, friend, process+"_Friend.root") ) 
+      tree.AddFriend("Friends", friendfile)
+    
+    ### Replicate the eventLoop
+    tree = InputTree(tree)
+    outFile = ROOT.TFile.Open("test_%s.root"%process, "RECREATE")
+    outTree = FriendOutput(file_, tree, outFile)
+    
+    module_test =  leptonBuilderWZSM("Mini", 
+                        metbranch="PuppiMET",
+                        systsJEC  = [],
+                        lepScaleSysts = [],
+                        verbosity = 2)
+    module_test.beginJob()
+    (nall, npass, timeLoop) = eventLoop([module_test], file_, outFile, tree, outTree, maxEvents = nentries)
+    print(('Processed %d preselected entries from %s (%s entries). Finally selected %d entries' % (nall, __file__.split("/")[-1].replace(".py", ""), nentries, npass)))
+    outTree.write()
+    file_.Close()
+    outFile.Close()
+    print("Test done")
+    module_test.endJob()
 
 
 

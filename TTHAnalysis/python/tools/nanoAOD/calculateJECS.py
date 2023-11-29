@@ -209,7 +209,7 @@ class JetEnergyCorrector( Module ):
             # For corrections in data, we need to know at anytime which era we are considering. There's an entry
             # for each era in 2022: C or D so far (for EFG we also apply era D corrections...)
             # Solution: load all corrections into memory an select which one to use on the fly when looping over jets...
-            for era in ["F", "G"]:
+            for era in ["E", "F", "G"]:
                 mainJECname = "{}_{}_V1_{}_{}_{}".format(self.jec, "Run%s"%era, self.runOn, "L1L2L3Res", self.algo)
                 for key in list(self.jerc_corrs):
                     if self.runOn not in key: continue
@@ -308,12 +308,12 @@ class JetEnergyCorrector( Module ):
                 era = "C"
             elif "Run%sD"%self.year in datasetname: 
                 era = "D"
+            elif "Run%sE"%self.year in datasetname: 
+                era = "E"
             elif "Run%sF"%self.year in datasetname: 
                 era = "F"
             elif "Run%sG"%self.year in datasetname: 
                 era = "G"
-            else:
-                era = "D" # use era D for EFG as well
             L1L2L3Res_corrector = self.jes_corrs["L1L2L3Res_era{}".format(era)]
         
         L1_corrector = self.jes_corrs["L1FastJet"]

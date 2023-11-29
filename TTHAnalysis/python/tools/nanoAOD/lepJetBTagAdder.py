@@ -22,7 +22,4 @@ class lepJetBTagAdder( Module ):
         self.out.fillBranch("LepGood_" + self._lepBTagLabel, values)
         return True
 
-lepJetBTagCSV = lambda : lepJetBTagAdder("btagCSVV2", "jetBTagCSV")
-lepJetBTagDeepCSV = lambda : lepJetBTagAdder("btagDeepB", "jetBTagDeepCSV")
 lepJetBTagDeepFlav = lambda : lepJetBTagAdder("btagDeepFlavB", "jetBTagDeepFlav")
-lepJetBTagDeepFlavC = lambda : lepJetBTagAdder("btagDeepFlavC", "jetBTagDeepFlavC")

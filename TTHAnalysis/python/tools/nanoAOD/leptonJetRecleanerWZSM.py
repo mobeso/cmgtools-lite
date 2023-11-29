@@ -64,6 +64,21 @@ def passTripleMllVeto(l1, l2, l3, mZmin, mZmax, isOSSF ):
   if all(ls): return True
   return False
 
+""" These are just some stupid functions to print messages with coloring and all that. Useful for debugging. """
+def color_msg(msg, color = "none"):
+    """ Prints a message with ANSI coding so it can be printout with colors """
+    codes = {
+        "none" : "0m",
+        "green" : "1;32m",
+        "red" : "1;31m",
+        "blue" : "1;34m",
+        "yellow" : "1;35m"
+    }
+
+    print("\033[%s%s \033[0m"%(codes[color], msg))
+    return
+
+
 """ Proper class implementation """
 class LeptonJetRecleanerWZSM(Module):
   def __init__(self, label,
@@ -92,9 +107,10 @@ class LeptonJetRecleanerWZSM(Module):
                systsJEC      = [],
                systsLepScale = [],
                year=2022, 
-               bAlgo="DeepCSV"):
-
+               bAlgo="DeepCSV",
+               verbosity = 0):
     # --- Constructor --- #
+    self.verbosity = verbosity
     # * Label for output variables
     self.label = "" if (label in ["",None]) else ("_"+label)
     
@@ -139,9 +155,6 @@ class LeptonJetRecleanerWZSM(Module):
     self.systsJEC      = systsJEC
     self.systsLepScale = systsLepScale
 
-    # * Control verbosity 
-    self.debugprinted = False
-
     # * Other stuff
     self.storeJetVariables = storeJetVariables
     self.year = year
@@ -149,6 +162,8 @@ class LeptonJetRecleanerWZSM(Module):
     
     # List the branches that will be written to declare the output
     self.listBranches()
+    if self.verbosity > 0:
+      color_msg(" >> Module %s initiated in debug mode"%(self.__class__.__name__), "green")
 
   def listBranches(self):
     ''' Method to prompt with a list of the branches produced in this module'''
@@ -282,9 +297,9 @@ class LeptonJetRecleanerWZSM(Module):
     for lep in lepspass:
         ## Veto leptons that belong to any OSSF pair that does not originate from a 
         ## Z or low mass resonance. 
-        comesfromZ  = (not doVetoZ  or passMllTLVeto(lep, lepsforveto, 76, 106, True))
-        comesfromLM = (not doVetoLM or passMllTLVeto(lep, lepsforveto,  0,  12, True))
-        if comesfromLM and comesfromZ:
+        NOcomesfromZ  = (not doVetoZ  or passMllTLVeto(lep, lepsforveto, 76, 106, True))
+        NOcomesfromLM = (not doVetoLM or passMllTLVeto(lep, lepsforveto,  0,  12, True))
+        if NOcomesfromLM and NOcomesfromZ:
             ret['i'+lab+'V'+extraTag].append(refcollection.index(lep))
 
     ## Sort the vetoed leptons
@@ -308,26 +323,41 @@ class LeptonJetRecleanerWZSM(Module):
     newsort = sorted([(ij,parentcollection[ij]) for ij in indexlist], key = lambda x: func(x[1]), reverse=True)
     return [x[0] for x in newsort]
 
-  def recleanJets(self, jetcollcleaned, jetcolldiscarded, lepcoll, postfix, ret, jetret, discjetret):
+  def recleanJets(self, jetcollcleaned, lepcoll, postfix, ret, jetret, discjetret):
     ## Define jets
     ret["iJSel"+postfix]     = [] 
     ret["iDiscJSel"+postfix] = []
 
     # 0. mark each jet as clean
-    for j in jetcollcleaned+jetcolldiscarded: 
+    for j in jetcollcleaned: 
       j._clean = True
       if getattr(j,  "idx_veto") != -1:
         j._clean = False # Already discard the jet if it's in the veto region of the HCAL
 
+    if self.verbosity > 0:
+      color_msg("      o I'm going to assume all jets are good.", "red")
+      
     # 1. associate to each lepton passing the cleaning selection its nearest jet 
-    for lep in lepcoll:
-        best = None; bestdr = 0.4
-        for j in jetcollcleaned+jetcolldiscarded:
-            dr = deltaR(lep, j)
-            if dr < bestdr:
-                best = j; bestdr = dr
-        if best is not None and self.cleanJet(lep, best, bestdr):
-            best._clean = False
+    for ilep, lep in enumerate(lepcoll):
+      if self.verbosity > 0:
+        color_msg("      o Cleaning lepton %d"%ilep, "green")
+      
+      
+      best = None; bestdr = 0.4
+      for j in jetcollcleaned:
+          dr = deltaR(lep, j)
+          if dr < bestdr:
+              best = j; bestdr = dr
+      
+      if self.verbosity > 0:
+        print("         > Best jet candidate:", best)
+      if best is not None and self.cleanJet(lep, best, bestdr):
+          best._clean = False
+      
+      if self.verbosity > 0 and best is not None:
+          print("         > This jet will be removed.")
+
+
 
     # 2. compute the jet list
     for ijc, j in enumerate(jetcollcleaned):
@@ -337,18 +367,13 @@ class LeptonJetRecleanerWZSM(Module):
           ret["iDiscJSel"+postfix].append(ijc)
         else: 
           ret["iJSel"+postfix].append(ijc)
-
-    for ijd,j in enumerate(jetcolldiscarded):
-        if not self.selectJet(j): 
-          continue
-        elif not j._clean: 
-          ret["iDiscJSel"+postfix].append(-1-ijd)
-        else: 
-          ret["iJSel"+postfix].append(-1-ijd)
-
+    
     # 3. sort the jets by pt
-    ret["iJSel"+postfix].sort(key = lambda idx : jetcollcleaned[idx].pt if idx >= 0 else jetcolldiscarded[-1-idx].pt, reverse = True)
-    ret["iDiscJSel"+postfix].sort(key = lambda idx : jetcollcleaned[idx].pt if idx >= 0 else jetcolldiscarded[-1-idx].pt, reverse = True)
+    ret["iJSel"+postfix].sort(key = lambda idx : jetcollcleaned[idx].pt, reverse = True)
+    ret["iDiscJSel"+postfix].sort(key = lambda idx : jetcollcleaned[idx].pt, reverse = True)
+    if self.verbosity > 0:
+      print("      o (Ordered by pT) Finally selected these jets. (these are indices in the main jet list)", ret["iJSel"+postfix])
+      print("      o (Ordered by pT) Finally discarded these jets. (these are indices in the main jet list)", ret["iDiscJSel"+postfix])
     ret["nJetSel"+postfix] = len(ret["iJSel"+postfix])
     ret["nDiscJetSel"+postfix] = len(ret["iDiscJSel"+postfix])
 
@@ -359,15 +384,15 @@ class LeptonJetRecleanerWZSM(Module):
                 jetret[jfloat] = []
                 discjetret[jfloat] = []
             for idx in ret["iJSel"+postfix]:
-                jet = jetcollcleaned[idx] if idx >= 0 else jetcolldiscarded[-1-idx]
+                jet = jetcollcleaned[idx]
                 for jfloat in "pt eta phi mass btagDeepB".split():
                     jetret[jfloat].append( getattr(jet,jfloat) )
             for idx in ret["iDiscJSel"+postfix]:
-                jet = jetcollcleaned[idx] if idx >= 0 else jetcolldiscarded[-1-idx]
+                jet = jetcollcleaned[idx]
                 for jfloat in "pt eta phi mass btagDeepB".split():
                     discjetret[jfloat].append( getattr(jet,jfloat) )
 
-      # 5. compute some variables and their sum
+    # 5. compute some variables and their sum
     ret["nJet"+self.strBJetPt+postfix] = 0
     ret["htJet"+self.strBJetPt+"j"+postfix] = 0
     ret["mhtJet"+self.strBJetPt+postfix] = 0
@@ -383,7 +408,7 @@ class LeptonJetRecleanerWZSM(Module):
     ret["nBJetTight"+self.strJetPt+postfix] = 0
 
     cleanjets = []
-    alljets = jetcollcleaned + jetcolldiscarded
+    alljets = jetcollcleaned
     mhtBJetPtvec = ROOT.TLorentzVector(0,0,0,0)
     mhtJetPtvec = ROOT.TLorentzVector(0,0,0,0)
     for x in lepcoll: 
@@ -395,34 +420,20 @@ class LeptonJetRecleanerWZSM(Module):
           continue
         cleanjets.append(j)
         if j.pt > float(self.bJetPt):
-            if self.year == 2022 and self.bAlgo == "DeepCSV":
+            if self.year == "2022" and self.bAlgo == "DeepJet":
                 ret["nJet"+self.strBJetPt+postfix] += 1
                 ret["htJet"+self.strBJetPt+"j"+postfix] += j.pt 
-                if j.btagDeepB>0.0490: ret["nBJetLoose"+self.strBJetPt+postfix]  += 1
-                if j.btagDeepB>0.6321: ret["nBJetMedium"+self.strBJetPt+postfix] += 1
-                if j.btagDeepB>0.8953: ret["nBJetTight"+self.strBJetPt+postfix]  += 1
-                mhtBJetPtvec = mhtBJetPtvec - j.p4()
-            if self.year == 2022 and self.bAlgo == "DeepJet":
-                ret["nJet"+self.strBJetPt+postfix] += 1
-                ret["htJet"+self.strBJetPt+"j"+postfix] += j.pt 
-                if j.btagDeepFlavB>0.0614: ret["nBJetLoose"+self.strBJetPt+postfix]  += 1
-                if j.btagDeepFlavB>0.2783: ret["nBJetMedium"+self.strBJetPt+postfix] += 1
-                if j.btagDeepFlavB>0.7100: ret["nBJetTight"+self.strBJetPt+postfix]  += 1
+                if j.btagDeepFlavB>0.0583: ret["nBJetLoose"+self.strJetPt+postfix]  += 1
+                if j.btagDeepFlavB>0.3086: ret["nBJetMedium"+self.strJetPt+postfix] += 1
+                if j.btagDeepFlavB>0.7183: ret["nBJetTight"+self.strJetPt+postfix]  += 1
                 mhtBJetPtvec = mhtBJetPtvec - j.p4()
 
         if j.pt > float(self.jetPt):
-            if self.year == 2022 and self.bAlgo == "DeepCSV":
-                ret["nJet"+self.strJetPt+postfix] += 1
-                ret["htJet"+self.strJetPt+"j"+postfix] += j.pt
-                if j.btagDeepB>0.2217: ret["nBJetLoose"+self.strJetPt+postfix]  += 1
-                if j.btagDeepB>0.6321: ret["nBJetMedium"+self.strJetPt+postfix] += 1
-                if j.btagDeepB>0.8953: ret["nBJetTight"+self.strJetPt+postfix]  += 1
-                mhtBJetPtvec = mhtBJetPtvec - j.p4()
-            if self.year == 2022 and self.bAlgo == "DeepJet":
+            if self.year == "2022EE" and self.bAlgo == "DeepJet":
                 ret["nJet"+self.strJetPt+postfix] += 1; ret["htJet"+self.strJetPt+"j"+postfix] += j.pt; 
-                if j.btagDeepFlavB>0.0490: ret["nBJetLoose"+self.strJetPt+postfix]  += 1
-                if j.btagDeepFlavB>0.2783: ret["nBJetMedium"+self.strJetPt+postfix] += 1
-                if j.btagDeepFlavB>0.7100: ret["nBJetTight"+self.strJetPt+postfix]  += 1
+                if j.btagDeepFlavB>0.0614: ret["nBJetLoose"+self.strJetPt+postfix]  += 1
+                if j.btagDeepFlavB>0.3196: ret["nBJetMedium"+self.strJetPt+postfix] += 1
+                if j.btagDeepFlavB>0.7300: ret["nBJetTight"+self.strJetPt+postfix]  += 1
                 mhtBJetPtvec = mhtBJetPtvec - j.p4()
 
     ret["mhtJet"+self.strBJetPt+postfix] = mhtBJetPtvec.Pt()
@@ -465,6 +476,13 @@ class LeptonJetRecleanerWZSM(Module):
       jetsc = []
       jecvar = "_%s"%jecvar if jecvar != "" else jecvar
       #print(">> var: %s"%jecvar)
+      if self.verbosity > 0:
+        print("    - Jets available for cleaning:", self.nominal_jetsc)
+        print("    - Jet pTs:", [(ij, j.pt) for ij, j in enumerate(self.nominal_jetsc)])
+        print("    - Jet Eta:", [(ij, abs(j.eta)) for ij, j in enumerate(self.nominal_jetsc)])
+        print("    - Jet IDs:", [(ij, j.jetId) for ij, j in enumerate(self.nominal_jetsc)])
+
+
       for j in self.nominal_jetsc:
         jcopy = copy(j)
         #print(" -- nominal pt: %3f"%j.pt)
@@ -473,12 +491,10 @@ class LeptonJetRecleanerWZSM(Module):
         #print(" ------- ")
         jetsc.append(jcopy)
       #print("===========")
-      jetsd = []
       
       # Now do the cleaning with the variated jet
       cleanjets[jecvar] = self.recleanJets(
         jetcollcleaned   = jetsc,
-        jetcolldiscarded = jetsd,
         lepcoll          = lepsc, 
         postfix          = self.label + jecvar,
         ret              = retwlabel,
@@ -494,11 +510,18 @@ class LeptonJetRecleanerWZSM(Module):
        * If lepvar == None --> performs cleaning
        * If lepvar != None --> Create loose, FO and Tight collections (jets should be cleaned beforehand)
     '''
+    if self.verbosity > 0:
+      color_msg(">> Creating the lepton classes", "blue")
     # Use a copy of the nominal leptons
     leplabel = "_%s"%lepvar if lepvar else ""
     ret  = {}
-    leps = [copy(l) for l in self.nominal_leps]
     
+    leps = [copy(l) for l in self.nominal_leps]
+    if self.verbosity > 0:
+      color_msg("  * All leptons", "yellow")
+      print("   - ", leps)
+      print("   - ", [lep.pdgId for lep in leps], "PDGID")
+
     # -- Set the lepton scale variations, if needed
     for lep in leps:
       #if lepvar == "elScaleUp"   and l.pdgId == 11: 
@@ -529,6 +552,11 @@ class LeptonJetRecleanerWZSM(Module):
       ht            = -1, 
       extraTag      = leplabel
     )
+    if self.verbosity > 0:
+      color_msg("  * Loose leptons", "yellow")
+      print("   - ", lepsl)
+      print("   - ", [lep.pdgId for lep in lepsl], "PDGID")
+
     
     # -- Compute lepton pair masses
     ret['mZ1%s'%leplabel]        = bestZ1TL(lepsl, lepsl)
@@ -537,7 +565,9 @@ class LeptonJetRecleanerWZSM(Module):
     ret['minMllAFSS%s'%leplabel] = minMllTL(lepsl, lepsl, paircut = lambda l1,l2 : l1.charge ==  l2.charge)
     ret['minMllSFOS%s'%leplabel] = minMllTL(lepsl, lepsl, paircut = lambda l1,l2 : l1.pdgId  == -l2.pdgId)
     
-    # Do the cleaning if needed 
+    # Do the cleaning if needed
+    if self.verbosity > 0:
+      color_msg("  * Going to clean jets now with FO leptons", "red")
     if doClean: self.clean_jets(ret, leps, lepsl)
         
     # -- Calculate FOs and tight leptons using the cleaned Jets, and sort by conePt
@@ -550,12 +580,13 @@ class LeptonJetRecleanerWZSM(Module):
       labext        = 'FO',
       selection     = self.FOLeptonSel,
       lepsforveto   = lepsl, 
-      ht            =1, 
+      ht            = 1, 
       sortby        = lambda x: x.conept, 
       doVetoZ       = self.doVetoZ, 
       doVetoLM      = self.doVetoLMf, 
       extraTag      = leplabel
     )
+    
     
     lepst = []; lepstv = []
     ret, lepst, lepstv = self.fillCollWithVeto(
@@ -569,13 +600,25 @@ class LeptonJetRecleanerWZSM(Module):
       ht            = 1, 
       sortby        = lambda x: x.conept, 
       doVetoZ       = self.doVetoZ, 
-      doVetoLM      = self.doVetoLMf, 
+      doVetoLM      = self.doVetoLMt, 
       extraTag      = leplabel
     )
+    if self.verbosity > 0:
+      color_msg("  * Tight leptons", "yellow")
+      print("   - ", lepst)
+      print("   - ", [lep.pdgId for lep in lepst], "PDGID")
+      print("   - ", [lep.mvaTTH_run3_withDF_withISO for lep in lepst], "PDGID")
+
+    
+
     return ret, leps
   
   def analyze(self, event):
     ''' Method called at runtime by the PostProcesssor '''
+    
+    if self.verbosity > 0:
+      color_msg("   ---- Analyzing event %d"%(event.event), "green")
+      
     self.fullret = {}                # Container for variables
     self.create_nominal_colls(event) # Save nominal objects in lists
 
@@ -599,7 +642,11 @@ class LeptonJetRecleanerWZSM(Module):
 
     # -- Save also some variables computed during the cleaning        
     self.fullret.update(self.retwlabel)
+    if self.verbosity > 0:
+      color_msg("      o Selected these jets:", "green")
     for k, v in self.jetret.items():
+      if self.verbosity > 0:
+        print("         > ", k, v) 
       self.fullret["JetSel%s_%s"%(self.label, k)] = v
           
     ### Write the output
@@ -622,5 +669,99 @@ def bestZ1TL(lepsl,lepst,cut=lambda lep:True):
     return 0.
 
 
-if  __name__ == '__main__':
-  pass        
+if __name__ == '__main__':
+    """ Debug the module """
+    from sys import argv
+    from copy import deepcopy
+    import os
+    from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import eventLoop
+    from PhysicsTools.NanoAODTools.postprocessing.framework.output import FriendOutput, FullOutput
+    from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import InputTree
+    ## Loose selections
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _loose_muon
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _loose_electron
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _loose_lepton
+
+    ## Fakeable selections
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _fO_muon
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _fO_electron
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _fO_lepton
+
+    ## Tight selections
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _tight_muon
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _tight_electron
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _tight_lepton
+    
+    from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import conept
+    
+    # --- b tagging working points from 2018
+    looseDeepFlavB = 0.0494
+    mediumDeepFlavB = 0.2770
+    looselep = lambda lep          : _loose_lepton(lep, looseDeepFlavB, mediumDeepFlavB)
+    cleanlep = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
+    folep    = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
+    tightlep = lambda lep, jetlist : _tight_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
+
+
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
+    process = "WZto3LNu"
+#    process = "TTTo2L2Nu_part17"
+    
+    friends = [
+      "jmeCorrections",
+      "lepmva"
+    ]
+    nentries = int(argv[1])
+    ### Open the main file
+    file_ = ROOT.TFile( os.path.join(mainpath, process+".root") )
+    tree = file_.Get("Events")
+    for friend in friends:
+      print(os.path.join(mainpath, friend, process+"_Friend.root"))
+      friendfile = ROOT.TFile( os.path.join(mainpath, friend, process+"_Friend.root") ) 
+      tree.AddFriend("Friends", friendfile)
+    
+    ### Replicate the eventLoop
+    tree = InputTree(tree)
+    outFile = ROOT.TFile.Open("test_%s.root"%process, "RECREATE")
+    outTree = FriendOutput(file_, tree, outFile)
+    
+    module_test =  LeptonJetRecleanerWZSM(
+      "Mini",
+      # Lepton selectors
+      looseLeptonSel    = looselep, # Loose selection 
+      cleaningLeptonSel = cleanlep, # Clean on FO
+      FOLeptonSel       = folep,    # FO selection
+      tightLeptonSel    = tightlep, # Tight selection
+      coneptdef = lambda lep: conept(lep),
+      # Lepton jet cleaner functions
+      jetPt = 30,
+      bJetPt = 25,
+      cleanJet  = lambda lep, jet, dr : dr < 0.4,
+      selectJet = lambda jet: abs(jet.eta) < 4.7 and (jet.jetId & 2), 
+      # For taus (used in EWKino)
+      cleanTau  = lambda lep, tau, dr: True, 
+      looseTau  = lambda tau: True, # Used in cleaning
+      tightTau  = lambda tau: True, # On top of loose
+      cleanJetsWithTaus = False,
+      cleanTausWithLoose = False,
+      # For systematics
+      systsJEC = [],
+      systsLepScale = [],
+      # These are used for EWKino as well
+      doVetoZ   = False,
+      doVetoLMf = False,
+      doVetoLMt = True,
+      # ------------------------------------- #
+      year  = 2022,
+      bAlgo = "DeepJet",
+      verbosity = 2
+    )
+    module_test.beginJob()
+    (nall, npass, timeLoop) = eventLoop([module_test], file_, outFile, tree, outTree, maxEvents = nentries)
+    print(('Processed %d preselected entries from %s (%s entries). Finally selected %d entries' % (nall, __file__.split("/")[-1].replace(".py", ""), nentries, npass)))
+    outTree.write()
+    file_.Close()
+    outFile.Close()
+    print("Test done")
+    module_test.endJob()
+      
