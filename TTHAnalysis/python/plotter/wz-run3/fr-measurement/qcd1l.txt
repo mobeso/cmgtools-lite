@@ -1,0 +1,38 @@
+# vim: syntax=sh
+
+# ---- cuts for fake rate measurement ---- #
+minimal: LepGood_awayJet_pt > 30 && LepGood_awayJet_jetId > 0
+pvdof : PV_ndof > 100
+
+
+# ---- Muons ---- #
+mu : abs(LepGood_pdgId)==13; Disable=True
+trigMu   : ( HLT_Mu3_PFJet40 && LepGood_awayJet_pt > 45 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.85&&LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) < 32  ) || \
+           ( HLT_Mu8  && LepGood_pt >  8 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 15 ) || \
+           ( HLT_Mu17 && LepGood_pt > 17 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ) || \
+           ( HLT_Mu20 && LepGood_pt > 20 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ) || \
+           ( HLT_Mu27 && LepGood_pt > 27 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 45 ); Disable=True
+
+# ---- Electrons ---- #
+trigEl   : ( HLT_Ele8_CaloIdM_TrackIdM_PFJet30  && LepGood_pt >  8 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 15 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.80, 1.0, 0.9*(1+LepGood_jetRelIso)) < 45  ) || \
+           ( HLT_Ele17_CaloIdM_TrackIdM_PFJet30 && LepGood_pt > 17 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 25 ) || \
+           ( HLT_Ele23_CaloIdM_TrackIdM_PFJet30 && LepGood_pt > 23 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ); Disable=True
+
+el : abs(LepGood_pdgId)==11 && LepGood_convVeto && LepGood_lostHits == 0 && LepGood_idEmu3; Disable=True
+nocv_el : abs(LepGood_pdgId)==11; Disable=True
+dfM : LepGood_jetBTagDeepFlav < deepFlavB_WPMedium(year)
+
+
+
+# ---- Selectable
+pt15 : LepGood_pt > 15; Disable=True
+wSel : mt_2(MET_pt,MET_phi,LepGood_pt,LepGood_phi) > 50; Disable=True
+barrel : abs(LepGood_eta) <= (1.2 + 0.279 *(abs(LepGood_pdgId)==11)); Disable=True
+btagMR_M : LepGood_awayNBJetMedium25 > 0 && LepGood_awayNBJetMedium25 < 2 && LepGood_awayHTJet25 < 150 && MET_pt < 80; Disable=True
+btagMR_T : LepGood_awayNBJetTight25 > 0 && LepGood_awayNBJetMedium25 < 2 && LepGood_awayHTJet25 < 150 && MET_pt < 80; Disable=True
+awayBMedium : LepGood_awayJet_btagDeepFlavB > deepFlavB_WPMedium(year); Disable=True
+awayBTight : LepGood_awayJet_btagDeepFlavB > deepFlavB_WPTight(year); Disable=True
+topVeto : MET_pt < 60 && LepGood_awayJet_pt < 100; Disable=True
+
+
+

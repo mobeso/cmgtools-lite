@@ -1,0 +1,12 @@
+
+# Plots for IDS in the FR measurement
+
+# Electrons
+ele_num_mva_097: mvaTTH_run3_withDF_withISO > 0.97:  2,-0.5,1.5;   Title="MVA > 0.97 + Id", MarkerColor=4,  MarkerStyle=21, MarkerSize=1.3
+
+# Muons
+mu_num_mva_064: mvaTTH_run3_withDF_withISO > 0.64:  2,-0.5,1.5;   Title="MVA > 0.64 + Id", MarkerColor=4,  MarkerStyle=21, MarkerSize=1.3
+
+
+
+
