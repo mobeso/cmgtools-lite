@@ -57,6 +57,16 @@ Bool_t allTight(Bool_t isT1, Bool_t isT2, Bool_t isT3, Bool_t isT4){
   return isT1 && isT2 && isT3 && isT4;
 }
 
+Bool_t neutralCharge(int ch0, int ch1, int ch2, int ch3){
+  int chsign0 = ch0/abs(ch0);
+  int chsign1 = ch1/abs(ch1);
+  int chsign2 = ch2/abs(ch2);
+  int chsign3 = ch3/abs(ch3);
+  int total_charge = chsign0 + chsign1 + chsign2 + chsign3;
+  Bool_t isNeutral = (total_charge == 0);
+  return isNeutral;
+}
+
 Bool_t lepMVACut(Float_t lep1mva, Float_t lep2mva, Float_t lep3mva, Int_t pdg1, Int_t pdg2, Int_t pdg3, Float_t elecut, Float_t mucut, Bool_t tightW){
   Bool_t pass1 = false;
   Bool_t pass2 = false;
@@ -302,5 +312,48 @@ float weight_mWZ(float mWZ){
  if (mWZ <= 1500) return 0.822343;
  //if (mWZ <= 3000) return 0.740922;
  else return 1.;
+}
+
+float wz_TightBtag_clasifier(float nJet25,float nBJetTight25){
+  if ((nJet25 == 0)*(nBJetTight25 == 0)) return 1;
+  if ((nJet25 == 1)*(nBJetTight25 == 0)) return 2;
+  if ((nJet25>2)*(nBJetTight25 == 0))    return 3;
+  if ((nJet25 == 1)*(nBJetTight25 == 1)) return 4;
+  if ((nJet25>2)*(nBJetTight25 == 1))    return 5;
+  if ((nJet25>=2)*(nBJetTight25 >= 2))    return 6;
+  else return -1;
+}
+
+float wz_MediumBtag_clasifier(float nJet25,float nBJetMedium25){
+  if ((nJet25 == 0)*(nBJetMedium25 == 0)) return 1;
+  if ((nJet25 == 1)*(nBJetMedium25 == 0)) return 2;
+  if ((nJet25>2)*(nBJetMedium25 == 0))    return 3;
+  if ((nJet25 == 1)*(nBJetMedium25 == 1)) return 4;
+  if ((nJet25>2)*(nBJetMedium25 == 1))    return 5;
+  if ((nJet25>2)*(nBJetMedium25 >= 2))    return 6;
+  else return -1;
+}
+
+float wz_LooseBtag_clasifier(float nJet25,float nBJetLoose25){
+  if ((nJet25 == 0)*(nBJetLoose25 == 0)) return 1;
+  if ((nJet25 == 1)*(nBJetLoose25 == 0)) return 2;
+  if ((nJet25>2)*(nBJetLoose25 == 0))    return 3;
+  if ((nJet25 == 1)*(nBJetLoose25 == 1)) return 4;
+  if ((nJet25>2)*(nBJetLoose25 == 1))    return 5;
+  if ((nJet25>2)*(nBJetLoose25 >= 2))    return 6;
+  else return -1;
+}
+
+float wz_tauClasifier(float lep1_pdgid, float lep2_pdgid, float lep3_pdgid){
+  float atLeastOneTau = 1;
+  if (lep1_pdgid == 15 || lep2_pdgid == 15 || lep3_pdgid == 15) {
+    atLeastOneTau = 2;
+  }
+  return atLeastOneTau;
+}
+
+
+float abs_log(float quantity) {
+  return abs( log(quantity) );
 }
 void functionsWZ() {}

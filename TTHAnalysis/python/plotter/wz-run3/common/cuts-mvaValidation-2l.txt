@@ -1,0 +1,25 @@
+# ---- Cut file for mva validation in OS events ---- #
+# The idea here is to:
+#  * Do not apply ID --> to check input variable modeling
+#  * Target dileptonic events with fakes.
+# --- Basics
+alwaystrue   :  1
+filters      : $DATA{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter} $MC{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter}
+trigger      : Trigger_ee || Trigger_em || Trigger_mm || Trigger_se || Trigger_sm
+
+# --- Two lepton selection
+dilep    : nLepGood == 2
+lepPt    : LepGood_pt[0] >= 25 && LepGood_pt[1] >= 20
+BRevent  : abs(LepGood_pdgId[0]) < 15 && abs(LepGood_pdgId[1]) < 15
+met      : MET_pt_central > 35
+njet     : nJetSel_Mini >= 0
+btag     : nBJetMedium25_Mini >= 0
+lowmass  : minMllSFOS_Mini > 20 || minMllSFOS_Mini == -1;Disable=True
+
+
+# --- Flavor splits
+flav_ee : (abs(LepGood_pdgId[0])+abs(LepGood_pdgId[1])) == 22; Disable=True
+flav_mm : (abs(LepGood_pdgId[0])+abs(LepGood_pdgId[1])) == 26; Disable=True
+flav_em : (abs(LepGood_pdgId[0])+abs(LepGood_pdgId[1])) == 24; Disable=True
+ss_only : (LepGood_pdgId[0]*LepGood_pdgId[1]) > 0; Disable=True
+os_only : (LepGood_pdgId[0]*LepGood_pdgId[1]) < 0; Disable=True

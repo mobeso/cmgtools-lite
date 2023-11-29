@@ -7,18 +7,17 @@ from functions import color_msg
 
 class producer(object):
     #weights = ['puWeight*bTagWeight*electronSF*muonSF']
-    weights = ['puWeight*bTagWeight']
+    weights = ['puWeight']
     functions = ["wz-run3/functionsWZ.cc"]
 
     name = "producer"
-    cluster_comm = "sbatch -c {nc} -J {jn} -p {q} -e {logpath}/logs/log.%j.%x.err -o {logpath}/logs/log.%j.%x.out --wrap '{comm}' "
+    cluster_comm = "sbatch -c {nc} -J {jn} -p batch -e {logpath}/logs/log.%j.%x.err -o {logpath}/logs/log.%j.%x.out --wrap '{comm}' "
     jobname = "CMGjob"
     
     def __init__(self, parser):
         self.add_more_options(parser)
         self.unpack_opts()
         self.doData = "data" if self.isData else "mc"
-
         return
 
     def add_more_options(self, parser):
@@ -61,7 +60,10 @@ class producer(object):
             ### Make sure log folder exists before submitting
             if not os.path.exists("%s/logs"%self.outname):
                 os.system("mkdir -p %s/logs"%self.outname)
+                if self.name == "plot_producer":
+                    os.system("cp wz-run3/scripts/index.php %s"%self.outname)
             os.system(comm)
+            
         return
          
     def unpack_opts(self):

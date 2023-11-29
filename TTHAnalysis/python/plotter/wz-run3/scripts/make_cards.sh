@@ -17,29 +17,30 @@ function append_to_path (){
 # we can later modify insitu
 isThereOutname=$( echo $extra | grep outname)
 if [[ -z $isThereOutname ]]; then
-    extra="$extra --outname plots"
+    extra="$extra --outname cards"
 fi
 
 
-# --------------------------------------------- #
-#   1. PRODUCE ALL PLOTS USED IN THE ANALYSIS   #
-# --------------------------------------------- #
+# -------------------------------------------- #
+#   1. PRODUCE MAIN DISTRIBUTION FOR THE FIT   #
+# -------------------------------------------- #
 if [[ $mode == *analysis* ]]; then
 
     echo -e $GREEN SUBMITTING for flavor: inclusive $NC
     append_to_path inclusive
-    python3 wz-run3/wz-run.py plot $outname --plot-group main
+    python3 wz-run3/wz-run.py card $outname 
     echo "-----------------------------"
 
-    # Produce plots per flavor
-    if [[ $mode == *perflav* ]]; then
-    for flav in eee eem mme mmm; do
-        # Create an specific folder for each flavor channel
-        append_to_path $flav
-        echo -e $GREEN SUBMITTING for flavor: $flav $NC
-        python3 wz-run3/wz-run.py plot --extra "-E ^flav_${flav}" $outname --plot-group main
-        echo "-----------------------------"
-    done
-    fi
 fi
 
+# ------------------------------------------- #
+#   2. PRODUCE CARDS FOR OPTIMISING MET CUT   #
+# ------------------------------------------- #
+if [[ $mode == *met_optimise* ]]; then
+    for metcut in {10..30..5}; do        
+        echo -e $GREEN SUBMITTING for met cut: ">$metcut" $NC
+        append_to_path met_gt$metcut
+        python3 wz-run3/wz-run.py card $outname --extra "-E ^met_${metcut}"
+        echo "-----------------------------"
+    done
+fi

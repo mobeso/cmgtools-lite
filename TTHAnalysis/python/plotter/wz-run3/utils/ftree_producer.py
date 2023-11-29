@@ -1,7 +1,6 @@
 from .producer import producer
 import os
 from cfgs.samplepaths import samplepaths as paths
-from cfgs.friends_cfg import friends as modules
 
 class ftree_producer(producer):
   name = "ftree_producer"
@@ -20,6 +19,8 @@ class ftree_producer(producer):
                       help = ''' Name of the tree file ''')
     parser.add_option("--chunksize", dest = "chunksize", default = 100000, 
                       help = ''' Number of chunks to split jobs''')
+    parser.add_option("--analysis", dest = "analysis",  default = "main",
+                        help = ''' Run for main analysis or FR analysis ''')
     return
 
   def submit_InCluster(self):
@@ -28,10 +29,11 @@ class ftree_producer(producer):
     newcommand = self.command + " --env oviedo -q %s --log-dir %s"%(queue, logpath)
     return newcommand
   
-  def add_friends(self, maxstep = -1):
+  def add_friends(self, modules, maxstep = -1):
       """ Method to add friends to command """
       friends = []
-      # Iterate over modules available in this year
+        
+
       for step, module in modules[self.year].items():
           # Only add friends to a certain point if step is given
           if maxstep != -1 and step >= maxstep:
@@ -46,10 +48,18 @@ class ftree_producer(producer):
       return " ".join(friends)
         
   def run(self):
-    self.inpath  = os.path.join(self.inpath, self.doData, self.year)
+    if self.analysis == "main":
+      from cfgs.friends_cfg import friends as modules
+      self.inpath  = os.path.join(self.inpath, self.doData, self.year)
+
+    elif self.analysis == "fr":
+      self.inpath  = os.path.join(self.inpath, self.doData+"_fr", self.year)
+      from cfgs.friends_fr_cfg import friends as modules
+      
+      
     module_name = modules[self.year][self.step][self.doData]
     outfriend_folder = modules[self.year][self.step]["outname"]
-    
+      
     if self.local_test:
       self.outname = "prueba"
       self.chunksize = 1000
@@ -59,7 +69,7 @@ class ftree_producer(producer):
       else:
         self.extra = "--dm MuonEG"
        
-    self.outname = os.path.join(self.outname, self.doData.lower(), self.year, outfriend_folder)
+    self.outname = os.path.join(self.inpath, outfriend_folder)
 
     self.commandConfs = ["%s"%self.inpath,
         "%s"%self.outname,
@@ -68,6 +78,6 @@ class ftree_producer(producer):
         "-n -I %s %s"%(self.wz_modules, module_name),
         " -N %s"%self.chunksize,
         "%s"%self.extra,
-        self.add_friends(self.step)]
+        self.add_friends(modules,  self.step)]
     
     return

@@ -1,0 +1,33 @@
+# ==== Nominal samples ==== #
+
+# o EM enriched
+qcdel: QCD_PT_10to30_EMEnriched      : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_30to50_EMEnriched      : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_50to80_EMEnriched      : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_80to120_EMEnriched     : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_120to170_EMEnriched    : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_20to30_bcToE           : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel: QCD_PT_30to80_bcToE           : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+
+qcdel_NC: QCD_PT_10to30_EMEnriched   : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_30to50_EMEnriched   : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_50to80_EMEnriched   : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_80to120_EMEnriched  : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_120to170_EMEnriched : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_20to30_bcToE        : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+qcdel_NC: QCD_PT_30to80_bcToE        : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ;FillColor=ROOT.kPink-2, Label="qcd e", genSumWeightName="genEventSumw"
+
+
+# o Mu enriched
+qcdmu: QCD_PT_15to20_MuEnrichedPt5 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+qcdmu: QCD_PT_20to30_MuEnrichedPt5 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+qcdmu: QCD_PT_30to50_MuEnrichedPt5 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+qcdmu: QCD_PT_50to80_MuEnrichedPt5 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+qcdmu: QCD_PT_80to120_MuEnrichedPt5_part1+QCD_PT_80to120_MuEnrichedPt5_part2 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+qcdmu: QCD_PT_120to170_MuEnrichedPt5 : 1  ;FillColor=ROOT.kPink-2, Label="qcd\#mu", genSumWeightName="genEventSumw"
+
+
+WJets  : WtoLNu_2Jets_part14        : xsec : (LepGood_genPartFlav == 1 || LepGood_genPartFlav == 15) ; Label="W+jets", FillColor=ROOT.kAzure+1
+DYJets : DYto2L_2Jets_MLL_50_part14 : xsec : (LepGood_genPartFlav == 1 || LepGood_genPartFlav == 15) ; Label="Z+jets", FillColor=ROOT.kAzure+3 
+Top    : TTtoLNu2Q_part42           : xsec : (LepGood_genPartFlav == 1 || LepGood_genPartFlav == 15) ; Label="Top", FillColor=ROOT.kOrange+3
+

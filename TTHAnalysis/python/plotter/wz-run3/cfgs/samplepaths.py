@@ -1,7 +1,13 @@
 samplepaths = {
   "nanoaod" : {
-    "mc"   : "/lustrefs/hdd_pool_dir/nanoAODv11/30march2023/MC",
-    "data" : "/lustrefs/hdd_pool_dir/nanoAODv11/30march2023/data"
+    "mc"   : "/lustrefs/hdd_pool_dir/nanoAODv12/24october2023/MC",
+    "data" : "/lustrefs/hdd_pool_dir/nanoAODv12/24october2023/data"
   },
-  "processed" : "/lustrefs/hdd_pool_dir/nanoAODv11/wz-run3/trees_v5/"
+  "nanoaod_FR" : {
+    "mc"   : "/lustrefs/hdd_pool_dir/nanoAODv12/27oct2023_noSkimForFR/MC",
+    "data" : "/lustrefs/hdd_pool_dir/nanoAODv12/27oct2023_noSkimForFR/data"
+  },
+  "processed"    : "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/",
+  "processed_FR" : "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/"
+  
 }

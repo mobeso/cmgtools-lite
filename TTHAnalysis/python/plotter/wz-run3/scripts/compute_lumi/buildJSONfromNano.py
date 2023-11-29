@@ -74,12 +74,11 @@ if __name__ == "__main__":
   files_per_dataset = { d : [] for d in datasets }
   ## Do a recursive search to find the rootfiles
   ## this should work for any given format of the input path.
-  
   for root, dirs, files in os.walk(mainDir): 
-    if "data2022F_28nov2022_EGamma_Run2022F-PromptNanoAODv10_v1-v2/221128_143539/0000" in root: continue # Duplicated folder from v10
     inputFiles = [file_ for file_ in files if (".root" in file_ and "log" not in root)]
     if len(inputFiles) == 0: continue
     dataset = re.match("%s/(.*)"%mainDir, root).groups()[0].split("/")[0] # Get the name of the dataset 
+    print(dataset)
     if dataset not in datasets: continue
     filters = []
     if filter_era: 
@@ -88,7 +87,7 @@ if __name__ == "__main__":
       filters.append( check_match(".*(-|_)(%s)\/.*"%filter_version, root, filter_version) )
       # Extra care:
       if filter_version == "v1" and ("v1-v1" in root or "v1_v1" in root or "v1-v2" in root or "v1-v3" in root): continue
-    print((filters, root, dataset)) 
+    print("hola", (filters, root, dataset)) 
     if not all(filters): continue
     
     print((" >> Getting files for dataset %s (folder: %s)"%(dataset, root)))

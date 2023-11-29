@@ -17,7 +17,7 @@ Multicolumns: This can be represented as nested dictionaries.
               sub-column titles, and the values are the corresponding rows.
 """
 
-def dict_to_latex_table(data):
+def dict_to_latex_table(data, caption, label):
     """Convert dictionary to LaTeX table format."""
 
     # Define a helper function for multirow
@@ -80,6 +80,7 @@ def dict_to_latex_table(data):
         latex_str = latex_str.rstrip(" & ") + "\\\\\n\\hline\n"
     # End table format
     latex_str += "  \\end{tabular}}\n"
+    latex_str += "\caption{\label{%s} %s}\n"%(label, caption)
     latex_str += "\\end{table}\n"
 
     return latex_str

@@ -1,10 +1,11 @@
 from .producer import producer
 from utils.ftree_producer import ftree_producer
 from cfgs.lumi import lumis
-from cfgs.selections_cfg import *
 import os
+import numpy as np
 from cfgs.friends_cfg import friends as modules
-from cfgs.datasets_cfg import datasets
+from cfgs.datasets_cfg import mcas
+
 from functions import color_msg
 
 
@@ -24,17 +25,13 @@ class plot_producer(producer):
         "lep.*" 
       ],
       "mva" : [
-         "mva_lepsel1.*", "mva_lepsel2.*", "mva_lepsel3.*", "mvatth"
+         "mva_lep1.*", "mva_lep2.*", "mva_lep3.*", "mvatth.*"
       ],
       "trigger" : [
          "tot_weight", "lepZ2_pt_trig"
       ]
   }
   
-  regions = [
-    "srwz", "crzz", "trigger"
-  ]
-
   def add_more_options(self, parser):
     self.parser = parser
     # -- mca includes to consider -- #
@@ -55,7 +52,7 @@ class plot_producer(producer):
                   help = ''' Blind data flag.''')
     parser.add_option("--unc", dest = "unc", default = False, action = "store_true",
                   help = ''' Apply uncertainties (default is false).''')
-    parser.add_option("--region", dest = "region", default = "srwz",
+    parser.add_option("--cutfile", dest = "cutfile", default = "wz-run3/common/cuts-srwz.txt",
                   help = ''' Region for cut application.''')
     parser.add_option("--normtodata", dest = "normtodata", default = False, action = "store_true",
                   help = ''' Normalize MC to data.''')
@@ -85,16 +82,6 @@ class plot_producer(producer):
               friends.append( " --Fs {P}/%s "%(modulename))
       
       return " ".join(friends)
-  
-  def norm_data(self):
-    texttonorm = ""
-
-    # Get the correct list of MCA processes
-    for mca, mca_procs in datasets["mc"].items():
-      for proc in mca_procs:
-        procname = proc.replace("+","")
-        texttonorm += "--scaleBkgSigToData %s "%procname if "--scaleBkgSigToData %s "%procname not in texttonorm else ""
-    return texttonorm 
  
   def get_additional_plots(self):
     plots = ""
@@ -103,18 +90,23 @@ class plot_producer(producer):
     else:
        self.raiseWarning(" >> Warning, there is no group of plots named %s. This will print everything under %s"%(self.plot_group, self.plotfile))
     return plots
-     
+  
+  def norm_data(self):
+    texttonorm = ""
+
+    # Get the correct list of MCA processes
+    mc = { group : mcas[group] for group in mcas if group != "data"}
+    for group, procs in mc.items():
+      for procname in procs.get_datasets():
+        texttonorm += "--scaleBkgSigToData %s "%procname if "--scaleBkgSigToData %s "%procname not in texttonorm else ""
+    return texttonorm 
+ 
   def run(self):
     # Yearly stuff 
     year      = self.year
-    if self.region not in self.regions:
-      self.raiseError("Region %s not defined. Choose from: %s"%(self.region, self.regions))
-      
-    self.cutfile = "wz-run3/common/cuts-%s.txt"%self.region
-    outname   = os.path.join(self.outname, self.region if self.region != None else "")
-    self.outname = outname
+    outname   = self.outname
     extra     = self.extra
-    blind     = self.blind if self.region == "srwz" else False # Only blind SR
+    blind     = self.blind
     uncfile   = self.uncfile
     mccfile   = self.mccfile
     apply_unc = self.unc

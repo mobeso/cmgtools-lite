@@ -1,6 +1,5 @@
-# vim: syntax=sh
+## WZto3LNu
+WZ: WZto3LNu: 5.31  ;FillColor=ROOT.kOrange, Label="WZ", genSumWeightName="genEventSumw"
 
-# ---- prompt_WZ ----
-prompt_WZ+: WZto3LNu: 5.31 ;FillColor=ROOT.kOrange, Label="WZ", genSumWeightName="genEventSumw"
 
 

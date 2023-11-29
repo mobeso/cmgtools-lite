@@ -1,5 +1,6 @@
 from .producer import producer
 from cfgs.samplepaths import samplepaths as paths
+import os
 class postprocessor_producer(producer):
   name = "postprocesor_producer"
   basecommand = "nanopy_batch.py"
@@ -10,6 +11,8 @@ class postprocessor_producer(producer):
     self.parser = parser
     parser.add_option("--outname", dest = "outname", type="string", default = paths["processed"],
                       help = "Output (folder) name")
+    parser.add_option("--analysis", dest = "analysis", type="string", default = "main",
+                      help = "Output (folder) name")
     return
   
   def submit_InCluster(self):
@@ -18,20 +21,28 @@ class postprocessor_producer(producer):
   def run(self):
     self.doData = "DATA" if self.isData else "MC"
     outname   = "/".join([self.outname])
-    
-    if self.local_test:
-      outname = "prueba"
-      self.extra = self.extra + "--option justSummary=True"
       
     year     = self.year
     extra    = self.extra
     doData   = self.doData
- 
+  
+  
+    outname = os.path.join(outname, self.doData.lower(), year)
+
+    if self.analysis != "main":
+      outname = outname.replace(self.doData.lower(), self.doData.lower()+"_fr")
+      self.extra += " --option analysis=%s"%self.analysis
+      
+    if self.local_test:
+      outname = "prueba"
+      self.extra += " --option justSummary=True"
+    
+
     self.commandConfs = ["%s"%self.wz_cfg,
                     "-b 'sbatch batchScript.sh'",
                     "--option year='%s'"%year,
                     "--option selectComponents='%s'"%doData,
-                    "--output-dir %s/%s/%s"%(outname, self.doData.lower(), year),
-                    "%s"%extra]
+                    "--output-dir %s"%outname,
+                    "%s"%self.extra]
     return
   

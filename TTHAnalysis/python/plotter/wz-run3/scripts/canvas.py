@@ -23,13 +23,28 @@ def new_legend(pos = (0.15, 0.7, 0.25, 0.8), nCols = 1):
     x1,y1,x2,y2 = pos
     l = r.TLegend(x1,y1,x2,y2)
     l.SetBorderSize(0)
-    l.SetTextSize(0.04)
+    l.SetTextSize(0.02)
     l.SetNColumns(nCols)
     l.SetFillColor(0)
     l.SetShadowColor(0)
     l.SetFillStyle(0)
     l.SetTextFont(42)
     return l
+_noDelete = {}
+def add_text(text, coords, textSize = 0.07):
+    x1, y1, x2, y2 = coords
+    align=12
+    note = r.TPaveText(x1, y1, x2, y2,"NDC");
+    note.SetTextSize(textSize)
+    note.SetFillColor(0)
+    note.SetFillStyle(0)
+    note.SetLineStyle(2)
+    note.SetLineColor(0)
+    note.SetTextAlign(align)
+    note.SetTextFont(42)
+    note.AddText(text)
+    _noDelete[text] = note; ## so it doesn't get deleted by PyROOT
+    return note
 
 def new_canvas(name, nPads = 2):
     """ This function creates a new canvas whose style is uniform depending on the number of PADs """

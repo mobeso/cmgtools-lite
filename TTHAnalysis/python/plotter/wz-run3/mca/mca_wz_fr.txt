@@ -1,0 +1,3 @@
+incl_TT : + ; IncludeMca="wz-run3/mca/includes/mca-top.txt", Processes="TT.*"
+
+incl_QCD : + ; IncludeMca="wz-run3/mca/includes/mca-qcd.txt", Processes="QCD.*"

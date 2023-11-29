@@ -30,12 +30,13 @@ class card_producer(plot_producer):
     year     = self.year
     binname  = self.binname
     outname  = self.outname.replace("plots", "cards")
-    if self.region == None:
-        self.raiseError("Please you have to specify a region to do cards")
-    outname  = os.path.join(outname, self.region)
+    if self.region not in self.regions:
+      self.raiseError("Region %s not defined. Choose from: %s"%(self.region, self.regions))
+      
+    self.cutfile = "wz-run3/common/cuts-%s.txt"%self.region
+    outname   = os.path.join(self.outname, self.region if self.region != None else "")
     self.outname = outname
     extra    = self.extra
-    mincuts  = self.get_cut(self.region)
     uncfile  = self.uncfile
     lumi     = lumis[year]
     mcpath   = os.path.join(self.inpath, "mc", self.year)
@@ -56,9 +57,8 @@ class card_producer(plot_producer):
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
                    doAsimov,
-                   "%s"%mincuts,
                    "--unc %s"%uncfile,
-                   "--od %s/"%outname,
+                   "--od %s/"%self.outname,
                    "--autoMCStats",
                    "%s"%extra]
     return

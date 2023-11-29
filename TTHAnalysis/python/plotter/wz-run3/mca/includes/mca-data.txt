@@ -1,22 +1,2 @@
-# vim: syntax=sh
-
-# ---- Muon ----
-data: Muon_Run2022F_part1+Muon_Run2022F_part3+Muon_Run2022F_part2; Label="data"
-data: Muon_Run2022G; Label="data"
-
-
-# ---- Egamma ----
-data: EGamma_Run2022F_part1+EGamma_Run2022F_part2; Label="data"
-data: EGamma_Run2022G; Label="data"
-
-
-# ---- JetMET ----
-data: JetMET_Run2022F; Label="data"
-data: JetMET_Run2022G; Label="data"
-
-
-# ---- MuonEG ----
-data: MuonEG_Run2022F; Label="data"
-data: MuonEG_Run2022G; Label="data"
 
 
