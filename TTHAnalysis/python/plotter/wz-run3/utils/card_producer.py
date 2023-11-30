@@ -30,11 +30,8 @@ class card_producer(plot_producer):
     year     = self.year
     binname  = self.binname
     outname  = self.outname.replace("plots", "cards")
-    if self.region not in self.regions:
-      self.raiseError("Region %s not defined. Choose from: %s"%(self.region, self.regions))
-      
-    self.cutfile = "wz-run3/common/cuts-%s.txt"%self.region
-    outname   = os.path.join(self.outname, self.region if self.region != None else "")
+    cutfile  = self.cutfile
+    outname   = self.outname
     self.outname = outname
     extra    = self.extra
     uncfile  = self.uncfile
@@ -42,10 +39,10 @@ class card_producer(plot_producer):
     mcpath   = os.path.join(self.inpath, "mc", self.year)
     datapath = os.path.join(self.inpath, "data", self.year)
 
-    doAsimov = "--xp data --asimov signal" if self.region == "srwz" else "" # Always blind the fit for SR!!!
+    doAsimov = "--xp data --asimov signal" if "srwz" in self.cutfile else "" # Always blind the fit for SR!!!
     # List with all the options given to CMGTools
     self.commandConfs = ["%s"%self.mca, 
-                   "%s"%self.cutfile,
+                   "%s"%cutfile,
                    '"%s"'%self.var,
                    '"%s"'%self.binning,
                    "--binname %s"%binname,
