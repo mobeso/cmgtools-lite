@@ -97,7 +97,7 @@ def apply_categorisation(mca, cuts, report, options, allreports, binname):
     
   for icat, label in enumerate(catlabels):
     kk = {}
-    for (k, h) in report.iteritems:
+    for (k, h) in report.items():
       kk[k] = h.projectionX("x_%s"%k, icat+1, icat+1)
     allreports["%s_%s"%(binname, label)] = kk
   return allreports
@@ -141,129 +141,145 @@ def apply_bin_by_bin(report):
       h.addBinByBin(namePattern = "%s_%s_%s_bin{bin}" % (options.bbb, binname, p), conservativePruning = True)
   return
 
-def get_systematics(mca, cuts, report, allreports, options, binname):
+def find_shapes(options):
+  """ 
+  This function reads the variations file and finds which inputs
+  must be put as shape in the datacard (otherwise everything is set to lnN when
+  doing categories). This is duplicated work but it's the quickes thing to
+  implement.
+  """
+  shapes = []
+  variation_list = options.variationsFile
+  f = open(variation_list, "r")
+  for line in f.readlines():
+    if line[0].strip() in ["#", "", "$"]: continue
+    if "template" in line: shapes.append( line.split(":")[0].strip())
+  f.close()
+  return shapes
+
+def get_systematics(mca, cuts, report, options, binname, shapes):
   ''' Function to process histogram and write datacard '''
   # Iterate over bin names and reports 
   
-  for binname, report in allreports.items():
+  # Check which option to use for MC stat propagation (aMC: barlow-beeston, bbb: bin-by-bin)
+  if options.bbb and options.autoMCStats: 
+    raise RuntimeError("Can't use --bbb together with --amc/--autoMCStats")
+  elif options.bbb: 
+    apply_bin_by_bin(report)
     
-    # Check which option to use for MC stat propagation (aMC: barlow-beeston, bbb: bin-by-bin)
-    if options.bbb and options.autoMCStats: 
-      raise RuntimeError("Can't use --bbb together with --amc/--autoMCStats")
-    elif options.bbb: 
-      apply_bin_by_bin(report)
+  # Crop all uncertainties to 100% to avoid negative variations if desired
+  if not options.cropnegativeuncs:
+    for p, h in report.items():
+      for b in range(1, h.GetNbinsX() + 1):
+        h.SetBinError(b, min(h.GetBinContent(b), h.GetBinError(b)))
+        
+  # List all the nuisances to be written in the cards.
+  nuisances = sorted(listAllNuisances(report))
+  log_msg("List of nuisances considered: %s"%(["%s"%n for n in nuisances]))
+  log_msg("Shape uncertainties: %s"%(["%s"%s for s in shapes]))
+
+  allyields = dict([(p, h.Integral()) for p, h in report.items()])
+  
+  procs = []
+  iproc = {}
+  
+  signals     = mca.listSignals()
+  backgrounds = mca.listBackgrounds()
+  
+  
+  # Keep track of the position of a given process within the list of processes
+  for i, p in enumerate(signals + backgrounds):
+    if p not in allyields: continue
+    if allyields[p] <= options.threshold:
+      print(("Dropping %s due to low statistics"%p))
+      continue
+    procs.append(p)        
+    iproc[p] = i+1
+    if p in signals:
+      iproc[p] -= len(signals)
+    
+  # Now iterate over the systematics
+  systs = {}
+  for name in nuisances:
+    effshape = {}
+    isShape = False
+    
+    # Iterate over processes
+    for p in procs:
+      h = report[p]
+      n0 = h.Integral()
       
-    # Crop all uncertainties to 100% to avoid negative variations if desired
-    if not options.cropnegativeuncs:
-      for p, h in report.items():
-        for b in range(1, h.GetNbinsX() + 1):
-          h.SetBinError(b, min(h.GetBinContent(b), h.GetBinError(b)))
+      # First, check if the process has this variation
+      if not h.hasVariation(name): continue
+      
+      # Is it a shape variation?
+      isShape = name in shapes #isShape or h.isShapeVariation(name, debug = True)
+      log_msg("Is %s nuisance shape? %s"%(name, isShape))
+      
+      
+      variants = list(h.getVariation(name))  
+      
+      # Treatment of extreme cases: symmetrization
+      for bini in range(1, h.GetNbinsX()+1):
+        for d in range(2):
+          # Case variant has no content: shift by a small factor
+          if variants[d].GetBinContent(bini) == 0: 
+            shift = max(5e-6, variants[1-d].GetBinContent(bini))
+            variants[d].SetBinContent(bini, h.raw().GetBinContent(bini)**2/shift)
+          # Case variant is big in comparison with nominal
           
-    # List all the nuisances to be written in the cards.
-    nuisances = sorted(listAllNuisances(report))
-    log_msg("List of nuisances considered: %s"%(["%s"%n for n in nuisances]))
-    allyields = dict([(p, h.Integral()) for p, h in report.items()])
-    
-    procs = []
-    iproc = {}
-    
-    signals     = mca.listSignals()
-    backgrounds = mca.listBackgrounds()
-    
-    
-    # Keep track of the position of a given process within the list of processes
-    for i, p in enumerate(signals + backgrounds):
-      if p not in allyields: continue
-      if allyields[p] <= options.threshold:
-        print(("Dropping %s due to low statistics"%p))
-        continue
-      procs.append(p)        
-      iproc[p] = i+1
-      if p in signals:
-        iproc[p] -= len(signals)
-      
-    # Now iterate over the systematics
-    systs = {}
-    for name in nuisances:
-      effshape = {}
-      isShape = False
-      
-      # Iterate over processes
-      for p in procs:
-        h = report[p]
-        n0 = h.Integral()
-        
-        # First, check if the process has this variation
-        if not h.hasVariation(name): continue
-        
-        # Is it a shape variation?
-        isShape = isShape or h.isShapeVariation(name, debug = True)
-        log_msg("Is %s nuisance shape? %s"%(name, isShape))
-        
-        
-        variants = list(h.getVariation(name))  
-        
-        # Treatment of extreme cases: symmetrization
-        for bini in range(1, h.GetNbinsX()+1):
-          for d in range(2):
-            # Case variant has no content: shift by a small factor
-            if variants[d].GetBinContent(bini) == 0: 
-              shift = max(5e-6, variants[1-d].GetBinContent(bini))
-              variants[d].SetBinContent(bini, h.raw().GetBinContent(bini)**2/shift)
-            # Case variant is big in comparison with nominal
+          # --- Check for float divisions by 0
+          if h.raw().GetBinContent(bini) == 0:
+            log_msg("Histogram %s has 0 content in bin %d for nuisance %s"%(h.GetName(), bini, name), "WARNING")
+            h.raw().SetBinContent(bini, 1e-5) 
+            #sys.exit()
             
-            # --- Check for float divisions by 0
-            if h.raw().GetBinContent(bini) == 0:
-              log_msg("Histogram %s has 0 content in bin %d for nuisance %s"%(h.GetName(), bini, name), "WARNING")
-              h.raw().SetBinContent(bini, 1e-5) 
-              #sys.exit()
-              
-            if variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini) > 10: 
-              log_msg("Big shift in template for %s %s %s %s in bin %d: variation = %g"
-                      %( binname, p, name, d, bini, variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini)), "WARNING")
-                      
-              variants[d].SetBinContent( bini, 10*h.raw().GetBinContent(bini) )
-            if variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini) < 0.1: 
-              log_msg("Big shift in template for %s %s %s %s in bin %d: variation = %g"
-                      %( binname, p, name, d, bini, variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini)), "WARNING")
-              variants[d].SetBinContent( bini, 0.1*h.raw().GetBinContent(bini) )
+          if variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini) > 10: 
+            log_msg("Big shift in template for %s %s %s %s in bin %d: variation = %g"
+                    %( binname, p, name, d, bini, variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini)), "WARNING")
+                    
+            variants[d].SetBinContent( bini, 10*h.raw().GetBinContent(bini) )
+          if variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini) < 0.1: 
+            log_msg("Big shift in template for %s %s %s %s in bin %d: variation = %g"
+                    %( binname, p, name, d, bini, variants[d].GetBinContent( bini )/h.raw().GetBinContent(bini)), "WARNING")
+            variants[d].SetBinContent( bini, 0.1*h.raw().GetBinContent(bini) )
 
-        # Now save into dictionary
-        effshape[p] = variants
+      # Now save into dictionary
+      effshape[p] = variants
 
-      # Now prepare lines for data cards
-      if isShape: # Shape uncertainty
-        if options.regularize:
-          for p in procs: report[p].regularizeVariation(name, binname = binname)
-        systs[name] = ("shape", dict((p, "1" if p in effshape else "-") for p in procs), effshape)
-      else:       # Normalization unc.
-        effyield = dict((p, "-") for p in procs)
-        isNorm = False
-        for p, (hup, hdn) in effshape.items():
-          i0 = allyields[p]
-          kup, kdn = hup.Integral()/i0, hdn.Integral()/i0
-          
-          # Choose to apply (a)symm normalizations based on how much they
-          # vary the nominal yield.
-          
-          # If the variations are small and close to 1: symmetric variation
-          if abs(kup*kdn-1) < 1e-5 or abs(kdn-1) < 5e-4:
-            if abs(kup-1) > 5e-4:
-              effyield[p] = "%.3f"%kup
-              isNorm = True
-          else: # asymmetric variation
-            effyield[p] = "%.3f/%.3f"%(kdn, kup) 
+    # Now prepare lines for data cards
+    if isShape: # Shape uncertainty
+      if options.regularize:
+        for p in procs: report[p].regularizeVariation(name, binname = binname)
+      systs[name] = ("shape", dict((p, "1" if p in effshape else "-") for p in procs), effshape)
+    else:       # Normalization unc.
+      effyield = dict((p, "-") for p in procs)
+      isNorm = False
+      for p, (hup, hdn) in effshape.items():
+        i0 = allyields[p]
+        kup, kdn = hup.Integral()/i0, hdn.Integral()/i0
+        
+        # Choose to apply (a)symm normalizations based on how much they
+        # vary the nominal yield.
+        
+        # If the variations are small and close to 1: symmetric variation
+        if abs(kup*kdn-1) < 1e-5 or abs(kdn-1) < 5e-4:
+          if abs(kup-1) > 5e-4:
+            effyield[p] = "%.3f"%kup
             isNorm = True
-            
-          # Create line for datacard.
-          if isNorm or options.storeall:
-            thedict = {}
-            if options.storeall:
-              thedict = effshape
-            if name.endswith("_lnU"):
-              systs[name] = ("lnU", effyield, thedict)
-            else:
-              systs[name] = ("lnN", effyield, thedict)
+        else: # asymmetric variation
+          effyield[p] = "%.3f/%.3f"%(kdn, kup) 
+          isNorm = True
+          
+        # Create line for datacard.
+        if isNorm or options.storeall:
+          thedict = {}
+          if options.storeall:
+            thedict = effshape
+          if name.endswith("_lnU"):
+            systs[name] = ("lnU", effyield, thedict)
+          else:
+            systs[name] = ("lnN", effyield, thedict)
 
   return systs,allyields,procs, iproc
   
@@ -344,7 +360,7 @@ if __name__ == "__main__":
 
 
   ## Categorisation
-  allreports = None
+  allreports = {}
   if options.categ:
     allreports = apply_categorisation(mca, cuts, report, options, allreports, binname)
   elif options.categ_ranges:
@@ -356,13 +372,14 @@ if __name__ == "__main__":
   if options.filter:
     allreports = apply_filtering(mca, cuts, report, allreports, options)
   
-  
-  ''' 3) Processing '''
-  systs, allyields, procs, iproc = get_systematics(mca, cuts, report, allreports, options, binname)
-  
-  
-  ''' 4) Write datacards '''
-  write_datacards(mca, cuts, report, options, systs, outdir, binname, allyields, procs,iproc)
+  shapes = find_shapes(options)
+  for binname, report in allreports.items():
+    ''' 3) Processing '''
+    systs, yields, procs, iproc = get_systematics(mca, cuts, report, options, binname, shapes)
+    
+    
+    ''' 4) Write datacards '''
+    write_datacards(mca, cuts, report, options, systs, outdir, binname, yields, procs,iproc)
   
   
   
