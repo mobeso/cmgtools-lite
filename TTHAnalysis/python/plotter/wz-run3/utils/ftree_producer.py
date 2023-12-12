@@ -60,6 +60,8 @@ class ftree_producer(producer):
     module_name = modules[self.year][self.step][self.doData]
     outfriend_folder = modules[self.year][self.step]["outname"]
       
+    self.outname = os.path.join(self.inpath, outfriend_folder)
+
     if self.local_test:
       self.outname = "prueba"
       self.chunksize = 1000
@@ -69,7 +71,6 @@ class ftree_producer(producer):
       else:
         self.extra = "--dm MuonEG"
        
-    self.outname = os.path.join(self.inpath, outfriend_folder)
 
     self.commandConfs = ["%s"%self.inpath,
         "%s"%self.outname,

@@ -7,8 +7,9 @@ from functions import color_msg
 
 class producer(object):
     #weights = ['puWeight*bTagWeight*electronSF*muonSF']
-    weights = ['puWeight']
-    functions = ["wz-run3/functionsWZ.cc"]
+    weights = ['puWeight*muonSF']
+    #weights = ['puWeight']
+    functions = ["wz-run3/functionsWZ.cc", "functions.cc"]
 
     name = "producer"
     cluster_comm = "sbatch -c {nc} -J {jn} -p batch -e {logpath}/logs/log.%j.%x.err -o {logpath}/logs/log.%j.%x.out --wrap '{comm}' "

@@ -125,15 +125,17 @@ class leptonBuilderWZSM(Module):
       branches.append(("mll_i2"+ var, "I", 20, "nOS"))
       branches.append(("deltaR_WZ"+ var, "F"))
       branches.append(("nLepSel" + var  , "I"))
+      branches.append(("nLepSel_forMemory" + var  , "I"))
+
       for vvar in ["pt", "eta", "phi", "mass", "conePt","genpt", "geneta", "genphi", "genmass","unc"]:
         if self.isData and ("gen" in vvar or "mc" in vvar or "Match" in vvar): continue
-        branches.append(("LepSel_" + vvar+ var, "F", 4, "nLepSel"))
+        branches.append(("LepSel_" + vvar+ var, "F", 4, "nLepSel_forMemory"))
         branches.append(("LepZ1_"  + vvar+ var, "F"))
         branches.append(("LepZ2_"  + vvar+ var, "F"))
         branches.append(("LepW_"   + vvar+ var, "F"))
       for vvar in ["pdgId", "isTight"]:
         if self.isData and ("gen" in vvar or "mc" in vvar or "Match" in vvar): continue
-        branches.append(("LepSel_" + vvar+ var, "I", 4, "nLepSel"))
+        branches.append(("LepSel_" + vvar+ var, "I", 4, "nLepSel_forMemory"))
         branches.append(("LepZ1_"  + vvar+ var, "I"))
         branches.append(("LepZ2_"  + vvar+ var, "I"))
         branches.append(("LepW_"   + vvar+ var, "I"))
@@ -217,6 +219,8 @@ class leptonBuilderWZSM(Module):
 
   def writeLepSel(self):
     self.ret["nLepSel"] = len(self.lepSelFO)
+    self.ret["nLepSel_forMemory"] = len(self.lepSelFO)
+
     for i, l in enumerate(self.lepSelFO):
       if i == 4: break # Only keep the first 4 entries
       for var in ["pt", "eta", "phi", "mass"]:
@@ -640,6 +644,7 @@ class leptonBuilderWZSM(Module):
     self.ret["mll_i2"]       = [-1]*20
 
     self.ret["nLepSel"] = 0
+    self.ret["nLepSel_forMemory"] = 0
     for var in ["pt", "eta", "phi", "mass", "conePt", "genpt", "geneta", "genphi", "genmass"]:
       self.ret["LepSel_" + var] = [0.]*4
       self.ret["LepZ1_"  + var] = 0.

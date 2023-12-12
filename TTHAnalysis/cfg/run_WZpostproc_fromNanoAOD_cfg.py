@@ -26,7 +26,8 @@ def byCompName(components, regexps):
 
 
 # -- Unpack submission configurations  -- #
-year              = getHeppyOption("year", "2022")    
+year              = getHeppyOption("year", "2022")
+analysis          = getHeppyOption("analysis", "main")    
 analysis          = getHeppyOption("analysis", "main") 
 selectComponents  = getHeppyOption('selectComponents')
 justSummary       = getHeppyOption("justSummary")
@@ -39,38 +40,26 @@ applyTriggersInMC = getHeppyOption('applyTriggersInMC')
 doData = (selectComponents == "DATA")
 
 # -- Import sample configuration files -- #
-### THESE FILES NEED TO BE UPDATED ONCE RUN3 DATASETS ARE MADE PUBLIC
-
-
-# -- From prenano 2022 -- september (nanoAOD for ttrun3)
-#from CMGTools.RootTools.samples.samples_13p6TeV_2022_preNanoAODv10     import samples as mcSamples_
-#from CMGTools.RootTools.samples.samples_13p6TeV_DATA2022_preNanoAODv10 import dataSamples as allData
-
-# -- From 13.5fb-1 (november 2022 -- BCDE)
-#from CMGTools.RootTools.samples.samples_13p6TeV_mc2022_nanoAODv10_fromLocal   import mcSamples_toImport   as mcSamples_
-#from CMGTools.RootTools.samples.samples_13p6TeV_data2022_nanoAODv10_fromLocal import dataSamples_toImport as allData
 
 # -- From ~10 fb-1 (preEE)
-if year == "2022":
-  from CMGTools.RootTools.samples.samples_13p6TeV_mc2022_nanoAODv11_fromLocal   import mcSamples_toImport   as mcSamples_
-  allData = []
+if year == "2022": 
+  if analysis == "main":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mc2022_nanoAODv12_fromLocal   import mcSamples_toImport   as mcSamples_
+    from CMGTools.RootTools.samples.samples_13p6TeV_data2022_nanoAODv12_fromLocal import dataSamples_toImport as allData
+  elif analysis == "fr":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mc_FR_2022_nanoAODv12_fromLocal   import mcSamples_toImport   as mcSamples_
+    allData = []
 #  from CMGTools.RootTools.samples.samples_13p6TeV_data2022_nanoAODv11_fromLocal import dataSamples_toImport as allData
 
 # -- From 20.06 fb-1 (March 2023 -- FG -- postEE)
 elif year == "2022EE":
-  from CMGTools.RootTools.samples.samples_13p6TeV_mc2022EE_nanoAODv11_fromLocal   import mcSamples_toImport   as mcSamples_
-  from CMGTools.RootTools.samples.samples_13p6TeV_data2022EE_nanoAODv11_fromLocal import dataSamples_toImport as allData
-
-# -- From 2018 UL: to do preliminary studies before having all the MC ready
-elif year == "2018":
-  from CMGTools.RootTools.samples.samples_13p6TeV_mc2018_nanoAODv11_fromLocal   import mcSamples_toImport   as mcSamples_
-  from CMGTools.RootTools.samples.samples_13p6TeV_data2022EE_nanoAODv11_fromLocal import dataSamples_toImport as allData
-  if doData:
-    print(" ERROR: Cannot use 2018 data for Run3 processing!!!! Only MC")
-    sys.exit()
-  yearstr = "2022EE"
-  year = 2022 # Effectively this is used for 2022
-
+  if analysis == "main":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mc2022EE_nanoAODv12_fromLocal   import mcSamples_toImport   as mcSamples_
+    from CMGTools.RootTools.samples.samples_13p6TeV_data2022EE_nanoAODv12_fromLocal import dataSamples_toImport as allData
+  elif analysis == "fr":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mcFR2022EE_nanoAODv12_fromLocal  import mcSamples_toImport  as mcSamples_
+    from CMGTools.RootTools.samples.samples_13p6TeV_dataFR2022EE_nanoAODv12_fromLocal  import dataSamples_toImport  as allData
+    
 autoAAA(mcSamples_ + allData, 
         quiet         = quiet, 
         redirectorAAA = "xrootd-cms.infn.it",
@@ -164,20 +153,18 @@ if doData:
       dataSamples.append(comp)
   selectedComponents = dataSamples 
 else:
-  mcSamples = byCompName(mcSamples_, ["%s(|_PS)$"%dset for dset in [
+  mcSamples = byCompName(mcSamples_, ["%s$"%dset for dset in [
       # ----------------- Single boson
-      "WtoLnu_2jets",
+      "WtoLNu_2Jets",
       # ----------------- Drell Yan
-      "DYJetsToLL_M50",
-      "DYJetsToLL_M10to50",
+      "DYto2L_2Jets_MLL_50",
+      "DYto2L_2Jets_MLL_10to50",
       # ----------------- ttbar
-      "TTTo2L2Nu",
+      "TTto2L2Nu",
       "TTTo2J1L1Nu",
       # ----------------- single top + tW
-      "TbarBQ_t",
-      "TBbarQ_t",
-      "TbarWplus",
-      "TWminus",
+      "TbarWplusto2L2Nu",
+      "TWminusto2L2Nu",
       # ----------------- conversions
       #"TTGJets",
       #"TTGJets_ext", 
@@ -207,7 +194,7 @@ else:
       #'tZq_ll_1','tZq_ll_2',
       # ----------------- Diboson
       "WZto3LNu",
-      "ZZto4l",
+      "ZZto4L",
       "ZZto2L2Nu",
       "ZZto2L2Q",
       "WWto2L2Nu",
@@ -216,8 +203,8 @@ else:
       #"WpWpJJ",
       #"WWTo2L2Nu_DPS",
       # ----------------- TRIBOSON  
-      "WWW",
-      "WWZ",
+      "WWW_4F",
+      "WWZ_4F",
       "WZZ", 
       "ZZZ",
       "WZG",
@@ -230,8 +217,13 @@ else:
       #"ZHToTauTau", 
       #"TTWH", 
       #"TTZH",
+      # ------------------ For fake rate
+      "TTtoLNu2Q",
+      "WZto2L2Q",
+      "QCD_PT.*Enriched",
+      "QCD_PT.*MuEnriched.*",
+      "QCD_PT.*bcToE.*",
   ]])
-
   # -- Apply trigger in MC -- # 
   mcTriggers = sum((trigs for (pd,trigs) in DatasetsAndTriggers.items() if trigs), [])
   if applyTriggersInMC :
@@ -270,21 +262,42 @@ if justSummary:
     sys.exit(0)
 
 
-from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector,lepCollector_EE,lepCollector_data, lepCollector_EE_data
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector,lepCollector_EE,lepCollector_data, lepCollector_EE_data, lepCollector_FR,lepCollector_EE_FR,lepCollector_data_FR, lepCollector_EE_data_FR
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
 
 # in the cut string, keep only the main cuts to have it simpler
 modules = []
 if yearstr == "2022":
-  if doData:
-    modules = lepCollector_data 
-  else:
-    modules = lepCollector
+  if analysis == "main":
+    if doData:
+      print(" >> Using lepCollector for data")
+      modules = lepCollector_data
+    else:
+      print(" >> Using lepCollector")
+      modules = lepCollector
+  elif analysis == "fr":
+    if doData:
+      print(" >> Using lepCollector_FR for data")
+      modules = lepCollector_data_FR
+    else:
+      print(" >> Using lepCollector_FR")
+      modules = lepCollector_FR
+    
 elif yearstr == "2022EE":
-  if doData:
-    modules = lepCollector_EE_data 
-  else:
-    modules = lepCollector_EE
+  if analysis == "main":
+    if doData:
+      print(" >> Using lepCollector_EE for data")
+      modules = lepCollector_EE_data
+    else:
+      print(" >> Using lepCollector_EE")
+      modules = lepCollector_EE
+  elif analysis == "fr":
+    if doData:
+      print(" >> Using lepCollector_EE_FR for data")
+      modules = lepCollector_EE_data_FR
+    else:
+      print(" >> Using lepCollector_EE_FR")
+      modules = lepCollector_EE_FR
 
 if (doData):
   from CMGTools.TTHAnalysis.tools.nanoAOD.remove_overlap import OverlapRemover

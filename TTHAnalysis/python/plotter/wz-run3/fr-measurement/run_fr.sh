@@ -8,97 +8,6 @@ NC='\033[0m' # No Color
 mode=$1
 step=$2
 
-function optimise_wp () {
-    # ----------------- Inputs ----------------- #
-    year=$1
-    
-    # ----------------- Define here some metadata ----------------- #
-    trees="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc_fr/$year"
-    friends=" --Fs {P}/frUtils --Fs {P}/lepmva"
-    
-    cmd="python3 mcEfficiencies.py"
-    mcafile=wz-run3/mca/includes/mca_qcd.txt
-    cutfile=wz-run3/fr-measurement/lepton-perlep.txt
-    plotfile_ids=wz-run3//fr-measurement/plots-fr-ids.txt
-    plotfile_xvars=wz-run3//fr-measurement/plots-fr-xvars.txt
-    functions="wz-run3/functionsWZ.cc"
-    mvaName=LepGood_mvaTTH_run3_withDF_withISO
-    
-    
-    signal="TT_SS_red"
-    
-    # ----------------- Used to define num/den ----------------- #
-    
-    # + Jets
-    AwayJetPt=30
-    JetPt="1/(1+LepGood_jetRelIso) > 0.7"
-    
-    # + B tagging WPs (DeepJET) 
-    VDFL="LepGood_jetBTagDeepFlav < 0.0614"
-    VDFM="LepGood_jetBTagDeepFlav < 0.3196"
-    VDFT="LepGood_jetBTagDeepFlav < 0.73"
-    VDXT="LepGood_jetBTagDeepFlav < 0.8184"
-    VDXXT="LepGood_jetBTagDeepFlav < 0.9542"
-    
-    # + Muons
-    MuIdDen=0
-    MuRecoPt=10
-    MuMVAWP=0.64
-    
-    # + Electrons
-    EleTC=0
-    IDEmu=1
-    EleRecoPt=10
-    EleMVAWP=0.97
-    
-    # + Leptons in general
-    SIP8="LepGood_sip3d < 8" 
-    VETOCONVERSIONS="LepGood_mcPromptGamma==0"
-    
-    # ----------------- Build Numerators/Denominators ----------------- #
-    SelDen="-A pt20 den '$SIP8'"
-    
-    
-    # + Denominator for muons
-    MuDen="$SelDen -A pt20 ptfden '($mvaName > $MuMVAWP || $JetPt)' -A pt20 mmuid 'LepGood_mediumId>=${MuIdDen}' -A pt20 mpt 'LepGood_pt > ${MuRecoPt}' "
-    MuNum="mu_num_mva_${MuMVAWP//./}"
-    MuXVar="mu_mva${MuMVAWP//./}"
-    
-    # + Denominator for electrons
-    EleDen="$SelDen -A pt20 ptfden '($mvaName > $ElMVAWP || $JetPt)'"
-    EleDen="$EleDen -I mu"
-    EleDen="$EleDen -A pt20 convveto 'LepGood_convVeto && LepGood_lostHits == 0 && LepGood_tightCharge >= ${EleTC} && ${IDEmu}'"
-    EleDen="$EleDen -A pt20 elpt 'LepGood_pt > ${EleRecoPt}'  "
-    EleNum="ele_num_mva_${EleMVAWP//./}"
-    EleXVar="ele_mva${EleMVAWP//./}"
-    
-    # + Cut on away jets
-    JetBDen="-A pt20 jet 'LepGood_awayJet_pt >= $AwayJetPt' -A pt20 mll 'nLepGood == 1'"
-
-    # ----------------- Build final command ----------------- #
-    cmd="${cmd} $mcafile"
-    cmd="${cmd} $cutfile"
-    cmd="${cmd} $plotfile_ids"
-    cmd="${cmd} $plotfile_xvars"
-    cmd="${cmd} --tree NanoAOD"
-    cmd="${cmd} -L $functions"
-    cmd="${cmd} -P $trees $friends"
-    cmd="${cmd} --groupBy cut"
-    
-    # cosmectic stuff
-    cmd="${cmd} --legend=TR --showRatio --ratioRange 0.00 1.99   --yrange 0 0.35"
-    
-    # + Add denominator (muons)
-    cmd_muon="${cmd} --sP ${MuNum} ${MuDen} ${JetBDen} "     
-    cmd_muon="${cmd_muon} --sP '${MuXVar}_coarsecomb'"
-    cmd_muon="${cmd_muon} --sp ${signal}"
-    cmd_muon="${cmd_muon} --xcut 10 999 --xline 15"
-    
-    echo -e " $GREEN >> Fake rate command for muons $NC"
-    echo $cmd_muon
-    
-}
-
 function measure_fr () {
     # ----------------- Inputs ----------------- #
     year=$1
@@ -110,7 +19,7 @@ function measure_fr () {
     # ----------------- Define here some metadata ----------------- #
     # I/O
     trees="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc_fr/$year"
-    trees_data="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/data/$year"
+    trees_data="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/data_fr/$year"
     friends=" --Fs {P}/frUtils --Fs {P}/lepmva"
     PBASE="plots/WZRUN3/lepMVA/v1.0/fr-meas/qcd1l/$lepton/$year/HLT_$trigger/$what"
     
@@ -122,7 +31,6 @@ function measure_fr () {
     BCORE="${BCORE} -P $trees -P $trees_data"
     BCORE="${BCORE} $friends"
     BCORE="${BCORE} ttH-multilepton/functionsTTH.cc"
-    BCORE="${BCORE} --mcc ttH-multilepton/mcc-eleIdEmu2.txt"
     
     BG="-j 8"
     
@@ -198,37 +106,89 @@ function measure_fr () {
     
     # Selections
     EWKONE="-p ${QCD}_red,EWK,data"
+    EWKSPLIT="-p ${QCD}_red,WJets,DYJets,Top,data"
+    QCDEWKSPLIT="-p ${QCD}_[bclg]jets,WJets,DYJets,Top,data"
+    FITEWK=" $EWKSPLIT --flp WJets,DYJets,Top,${QCD}_red --peg-process DYJets WJets --peg-process Top WJets "
+    QCDNORM=" $QCDEWKSPLIT --sp WJets,DYJets,Top,${QCD}_.jets --scaleSigToData  "
+    QCDFITEWK=" $QCDEWKSPLIT --flp WJets,DYJets,${QCD}_.jets --peg-process DYJets WJets --peg-process ${QCD}_[clg]jets ${QCD}_bjets "
+    QCDFITQCD=" $QCDEWKSPLIT --flp WJets,DYJets,${QCD}_.jets --peg-process DYJets WJets --peg-process ${QCD}_[gl]jets WJets --peg-process ${QCD}_cjets ${QCD}_bjets "
+    QCDFITALL=" $QCDEWKSPLIT --flp WJets,DYJets,${QCD}_.jets --peg-process DYJets WJets --peg-process ${QCD}_gjets WJets --peg-process ${QCD}_cjets ${QCD}_bjets "
 
-    fitVar=${what/fakerates-/}
     
-    # Build the skeleton command
-    MCEFF="python ttH-multilepton/dataFakeRate.py" 
-    MCEFF="${MCEFF} -f  $BCORE" # Add basic core of the command
-    MCEFF="${MCEFF} $EWKONE --groupBy cut wz-run3/fr-measurement/plots-fr-ids.txt wz-run3/fr-measurement/plots-fr-xvars.txt  "
-    MCEFF="${MCEFF} --sp ${QCD}_red  "
-    MCEFF="${MCEFF} --sP ${NUM} --sP ${XVAR} --sP $fitVar $fitVar  --ytitle 'Fake rate' "
-    MCEFF="${MCEFF} --fixRatioRange --maxRatioRange 0.7 1.29 " # ratio for other plots
-    MCEFF="${MCEFF} $LEGEND $RANGES"
+    case $what in
+    nvtx)
+        echo -e "$RED ----- Compute prescale weights for FR. Trigger: $trigger ----- $NC" 
+        echo "python mcPlots.py -f $BG $BCORE --pdir $PBASE --sP nvtx $EWKONE " 
+        echo ""
+        echo "python ../tools/vertexWeightFriend.py _puw${trigger}_${YEAR} $PBASE/qcd1l_plots.root ";
+        echo -e " $GREEN ---- Now you should put the normalization and weight into frPuReweight.cc defining a puw${trigger}_${YEAR} ----- $NC' ";
+        ;;
+    nvtx-closure)
+        echo -e "$RED ----- Compute closure test for $trigger PU reweighting ----- $NC" 
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE --sP nvtx $EWKONE " 
+        ;;
+    coneptw)
+        echo -e "$RED ----- Compute conept weights to account for prescale ----- $NC" 
+        echo "python mcPlots.py -f $BG $BCORE --pdir $PBASE --sP ${CONEPTVAR}_nvtx $EWKONE " 
+        echo ""
+        echo "python ttH-multilepton/lepton-fr/frConePtWeights.py coneptw${trigger}_${YEAR} $PBASE/make_fake_rates_xvars.root ${CONEPTVAR}_nvtx  ";
+        echo -e " $GREEN ---- Now you should put the normalization and weight into frPuReweight.cc defining a coneptw${trigger}_${YEAR} ----- $NC ";
+        ;;
+    coneptw-closure)
+        echo -e "$RED ----- Compute closure test for $trigger conept reweighting ----- $NC" 
+        echo "python mcPlots.py -f $BG $BCORE $PUW ttH-multilepton/lepton-fr/make_fake_rates_xvars.txt --pdir $PBASE --sP ${CONEPTVAR}_nvtx,$CONEPTVAR,nvtx $EWKONE " 
+        ;;
+    fit-*)
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE -E $what $FITEWK --preFitData ${what/fit-/}  $PLOTOPTS " 
+        ;;
+    num-fit-*)
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE -E $what $FITEWK --preFitData ${what/num-fit-/}  $PLOTOPTS -E num" 
+        ;;
+    num-mcshapes)
+        echo -e "$RED ----- Compute numerator shape ----- $NC" 
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE ${EWKSPLIT/,data/} --sP met --plotmode=nostack"
+        echo -e "$RED ----------------------------------- $NC" 
+ 
+        ;;
+    qcdflav-norm)
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE -E $what $QCDNORM --showRatio $PLOTOPTS" 
+        ;;
+    qcdflav-fit)
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE -E $what $QCDFITEWK --preFitData ${what/flav-fit/}  $PLOTOPTS " 
+        ;;
+    flav-fit*)
+        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE -E $what $QCDFITQCD --preFitData ${what/flav-fit/}  $PLOTOPTS " 
+        ;;
+    fakerates-*)
+        fitVar=${what/fakerates-/}
+        
+        # Build the skeleton command
+        MCEFF="python ttH-multilepton/dataFakeRate.py" 
+        MCEFF="${MCEFF} -f  $BCORE" # Add basic core of the command
+        MCEFF="${MCEFF} $EWKONE --groupBy cut wz-run3/fr-measurement/plots-fr-ids.txt wz-run3/fr-measurement/plots-fr-xvars.txt  "
+        MCEFF="${MCEFF} --sp ${QCD}_red  "
+        MCEFF="${MCEFF} --sP ${NUM} --sP ${XVAR} --sP $fitVar $fitVar  --ytitle 'Fake rate' "
+        MCEFF="${MCEFF} --fixRatioRange --maxRatioRange 0.7 1.29 " # ratio for other plots
+        MCEFF="${MCEFF} $LEGEND $RANGES"
 
 
-    if [[ $step == 1 ]]; then
-        # -------------------------------------- Histogram generation --------------------------------------- #
-        # Here one generates the histograms that will be used for the fit later. This is done for a given     #
-        # trigger HLT path (thus, for a given bin of pT and eta).                                             #
-        # --------------------------------------------------------------------------------------------------- #
-        MCGOBARREL="$MCEFF -o $PBASE/fr_sub_eta_${BARREL}.root --bare -A 'entry point' eta 'abs(LepGood_eta)<$ETA' $BG"
-        MCGOENDCAP="$MCEFF -o $PBASE/fr_sub_eta_${ENDCAP}.root --bare -A 'entry point' eta 'abs(LepGood_eta)>$ETA' $BG"
+        if [[ $step == 1 ]]; then
+            # -------------------------------------- Histogram generation --------------------------------------- #
+            # Here one generates the histograms that will be used for the fit later. This is done for a given     #
+            # trigger HLT path (thus, for a given bin of pT and eta).                                             #
+            # --------------------------------------------------------------------------------------------------- #
+            MCGOBARREL="$MCEFF -o $PBASE/fr_sub_eta_${BARREL}.root --bare -A 'entry point' eta 'abs(LepGood_eta)<$ETA' $BG"
+            MCGOENDCAP="$MCEFF -o $PBASE/fr_sub_eta_${ENDCAP}.root --bare -A 'entry point' eta 'abs(LepGood_eta)>$ETA' $BG"
 
-        echo $MCGOBARREL
-        echo $MCGOENDCAP
-    fi
+            echo $MCGOBARREL
+            echo $MCGOENDCAP
+        fi
+    ;;
+    esac
 }
 
 
-if [[ $mode == *"optimise_wp"* ]]; then 
-    optimise_wp; 
-fi
 
-if [[ $mode == *"measure_fr"* ]]; then 
-    measure_fr 2022EE mu Mu8 fakerates-mtW1R $step; 
-fi
+
+measure_fr 2022EE mu Mu8 num-mcshapes
+#measure_fr 2022EE mu Mu8 fakerates-mtW1R $step; 

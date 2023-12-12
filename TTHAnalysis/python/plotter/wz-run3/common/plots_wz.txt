@@ -7,55 +7,52 @@
 # ---------- Yield plots ---------- #  
 tot_weight : 1 : 1,0,2 ; XTitle ="Yields"
 
-
-
-
 # ---------- LEPTON PLOTS ---------- #  
-nLepTight : 4*(abs(LepSel_pdgId[0])+abs(LepSel_pdgId[1])+abs(LepSel_pdgId[2])-33)/2 + (LepSel_isTight[0]) + (LepSel_isTight[1])+ (LepSel_isTight[2]) : 16,-0.5,15.5 ; XTitle="nMuon*4+nTight", IncludeOverflow=True,  
+#nLepTight : 4*(abs(LepSel_pdgId[0])+abs(LepSel_pdgId[1])+abs(LepSel_pdgId[2])-33)/2 + (LepSel_isTight[0]) + (LepSel_isTight[1])+ (LepSel_isTight[2]) : 16,-0.5,15.5 ; XTitle="nMuon*4+nTight", IncludeOverflow=True,  
 nOSSF : nOSSF_3l : 5,0,5 ; XTitle="nOSSF", IncludeOverflow=True, Logy
 
 
 # + Kinematics of the leading lepton coming from Z
-lepZ1_pt  : LepZ1_pt   : 20,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z1 lep.)"
-lepZ1_eta : LepZ1_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z1 lep.)"
-lepZ1_phi : LepZ1_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z1 lep.)"
+lepZ1_pt  : LepZ1_pt   : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z1 lep.)", Logy, MoreY=1.2
+lepZ1_eta : LepZ1_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z1 lep.)", Logy, MoreY=1.5
+lepZ1_phi : LepZ1_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z1 lep.)", Logy
 
 # + Kinematics of the subleading lepton coming from Z
-lepZ2_pt  : LepZ2_pt   : 20,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z2 lep.)"
-lepZ2_eta : LepZ2_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z2 lep.)"
-lepZ2_phi : LepZ2_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z2 lep.)"
+lepZ2_pt  : LepZ2_pt   : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z2 lep.)", Logy, MoreY=1.2
+lepZ2_eta : LepZ2_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z2 lep.)", Logy, MoreY=1.5
+lepZ2_phi : LepZ2_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z2 lep.)", Logy
 
 # + Kinematics of the lepton coming from W
-lepW_pt   : LepW_pt    : 20,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(W lep.)"
-lepW_phi  : LepW_phi   : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(W lep.)"
-lepW_eta  : LepW_eta   : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(W lep.)"
+lepW_pt   : LepW_pt    : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(W lep.)", Logy, MoreY=1.2
+lepW_phi  : LepW_phi   : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(W lep.)", Logy, MoreY=1.5
+lepW_eta  : LepW_eta   : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(W lep.)", Logy
 
 # + Kinematics of the leptons without tagging
-lep1_pt       : LepSel_pt[0] : 20,20,180  ; XTitle="p_{T}(l1) [GeV]", MoreY=1.5
-lep2_pt       : LepSel_pt[1] : 20,20,180  ; XTitle="p_{T}(l2) [GeV]", MoreY=1.5
-lep3_pt       : LepSel_pt[1] : 20,20,180  ; XTitle="p_{T}(l3) [GeV]", MoreY=1.5
+lep1_pt       : LepSel_pt[0] : 10,20,180  ; XTitle="p_{T}(l1) [GeV]", MoreY=1.5
+lep2_pt       : LepSel_pt[1] : 10,20,180  ; XTitle="p_{T}(l2) [GeV]", MoreY=1.5
+lep3_pt       : LepSel_pt[2] : 20,20,180  ; XTitle="p_{T}(l3) [GeV]", MoreY=1.5
 
 # + Kinematics of the three lepton system
-m3l        : m3L              : 10,0,500    ; XTitle="m_{3L} (GeV)" ,  Legend="TR"
-mll3l      : mll_3l           : 15,75,105    ; XTitle="M_{ll} (GeV)", Legend="TR"
-mtW3l      : mT_3l            : 20,0,200    ; XTitle="M_{T} (GeV)", Legend="TR"
-mll3lconv  : mll_3l           : 8,35,75    ; XTitle="M_{ll} (GeV)", Legend="TR"
-m3lmet_Meas : m3Lmet : 20,100,500 ; XTitle="m_{WZ} [GeV]", YTitle='Events/bin', IncludeOverflows=False,
+m3l         : m3L              : 10,0,500    ; XTitle="m_{3L} (GeV)" ,  Legend="TR", Logy, MoreY=1.2
+mll3l       : mll_3l           : 15,75,105    ; XTitle="M_{ll} (GeV)", Legend="TR", Logy, MoreY=1.2
+mtW3l       : mT_3l            : 20,0,200    ; XTitle="M_{T} (GeV)", Legend="TR", Logy, MoreY=1.2
+mll3lconv   : mll_3l           : 8,35,75    ; XTitle="M_{ll} (GeV)", Legend="TR"
+m3lmet_Meas : m3Lmet           : 10,100,200 ; XTitle="m_{WZ} [GeV]", YTitle='Events/bin', IncludeOverflows=False, MoreY=1.2
 
 # + Kinematics of the Z pair
-mllZ2  : mass_2(LepSel_pt[unused4(mll_i1[0], mll_i2[0], 1)],LepSel_eta[unused4(mll_i1[0], mll_i2[0], 1)], LepSel_phi[unused4(mll_i1[0], mll_i2[0], 1)],0, LepSel_pt[unused4(mll_i1[0], mll_i2[0], 2)], LepSel_eta[unused4(mll_i1[0], mll_i2[0], 2)], LepSel_phi[unused4(mll_i1[0], mll_i2[0], 2)],0): 100,0,200 ; XTitle="M_{Z2} (GeV)", Legend="TR"
+mllZ2  : mass_2(LepSel_pt[unused4(mll_i1[0], mll_i2[0], 1)],LepSel_eta[unused4(mll_i1[0], mll_i2[0], 1)], LepSel_phi[unused4(mll_i1[0], mll_i2[0], 1)],0, LepSel_pt[unused4(mll_i1[0], mll_i2[0], 2)], LepSel_eta[unused4(mll_i1[0], mll_i2[0], 2)], LepSel_phi[unused4(mll_i1[0], mll_i2[0], 2)],0): 20,75,105 ; XTitle="M_{Z2} (GeV)", Legend="TR"
 
 # ---------- HADRONIC-PARTICLES PLOTS ---------- #  
 # + MET
-met         : MET_pt_central    : 20,30,220   ; XTitle="p_{T}^{miss}  (GeV)", Legend="TR"
+met         : MET_pt_central    : 20,30,220   ; XTitle="p_{T}^{miss}  (GeV)", Legend="TR", Logy, MoreY=1.2
 
-nJet30      : nJet30_Mini       : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5] ; XTitle="N(jet\, p_{T} > 30)" 
+nJet30      : nJet30_Mini       : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5] ; XTitle="N(jet\, p_{T} > 30)", Logy 
 nBJet25     : nBJetTight25_Mini : 1,-1,1  ; XTitle="N(b-jet\, p_{T} > 25\, DCSVT)"
 nJet25      : nJet25_Mini       : [-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5]  ; XTitle="N(jet\, p_{T} > 25)" 
 
 # + Leading jet
-jet1_pt   : if3(nJetSel_Mini>0, Jet_pt[iJSel_Mini[0]], -99) : 40,0,400 ; XTitle="p_{T}(leading jet) [GeV]", YTitle="Jets"  
-jet1_eta  : if3(nJetSel_Mini>0, Jet_eta[iJSel_Mini[0]], -99) : 20,-5.0,5.0 ; XTitle="#eta(leading jet) [GeV]",   
+jet1_pt   : if3(nJetSel_Mini>0, Jet_pt[iJSel_Mini[0]], -99) : 40,0,400 ; XTitle="p_{T}(leading jet) [GeV]", YTitle="Jets", Logy  
+jet1_eta  : if3(nJetSel_Mini>0, Jet_eta[iJSel_Mini[0]], -99) : 20,-5.0,5.0 ; XTitle="#eta(leading jet) [GeV]", Logy   
 jet1_deepjet  : if3(nJetSel_Mini>0, Jet_btagDeepFlavB[iJSel_Mini[0]], -99) : 10,0,1 ; XTitle="DeepJet(leading jet)", YTitle="Jets"
 
 # + Subleading jet
@@ -69,9 +66,9 @@ jet_eta  : if3(nJetSel_Mini>0, Jet_eta[iJSel_Mini], -99) : 20,-5.0,5.0 ; XTitle=
 jet_phi  : if3(nJetSel_Mini>0, Jet_phi[iJSel_Mini], -99) : 20,-3.14,3.14 ; XTitle="#phi(jet)", YTitle="Jets"
 
 # + B tags
-wz_TightBclassifier: wz_TightBtag_clasifier(nJet25_Mini, nBJetTight25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
-wz_MediumBclassifier: wz_MediumBtag_clasifier(nJet25_Mini, nBJetMedium25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
-wz_LooseBclassifier: wz_LooseBtag_clasifier(nJet25_Mini, nBJetLoose25_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
+wz_TightBclassifier: wz_TightBtag_clasifier(nJet30_Mini, nBJetTight30_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
+wz_MediumBclassifier: wz_MediumBtag_clasifier(nJet30_Mini, nBJetMedium30_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
+wz_LooseBclassifier: wz_LooseBtag_clasifier(nJet30_Mini, nBJetLoose30_Mini): [0.5,1.5,2.5,3.5,4.5,5.5,6.5]; XTitle="nJet nBJet clasification", Logy,YMin=1 , YMax=20e3,  XNDdiv=505, IncludeOverflows=False, xBinLabels="0j0t\,1j0t\,>2j0t\,1j1t\,>2j1t\,2j2t"
 
 
 # ---------- FLAVOR COMPOSITION PLOTS ---------- #  
@@ -94,51 +91,34 @@ charge3l          : if3(LepSel_pdgId[0]>0,-1,1)+if3(LepSel_pdgId[1]>0,-1,1)+if3(
 mvatth_legacy   : LepGood_mvaTTH   : 20,-1,1; XTitle="mvaTTH score", Logy, Legend='TL', MoreY=1.5
 mvatth_df_iso   : LepGood_mvaTTH_run3_withDF_withISO   : 20,-1,1; XTitle="mvaTTH score", Logy, Legend='TL', MoreY=1.5
 mvatth_df_noiso : LepGood_mvaTTH_run3_withDF_withNoISO : 20,-1,1; XTitle="mvaTTH score", Logy, Legend='TL', MoreY=1.5
-mvatth_df_nomva : LepGood_mvaTTH_run3_noMVA            : 20,-1,1; XTitle="mvaTTH score", Logy, Legend='TL', MoreY=1.5
 
 
 # + Lepton MVA input variables
 # Leading lepton
-mva_lep1_pt                 : LepGood_pt[0]                                             : 20, 10, 180; XTitle="p_{T} (l1) [GeV]"
-mva_lep1_eta                : LepGood_eta[0]                                            : 20, -2.4, 2.4; XTitle="#eta(l1) [GeV]"
-mva_lep1_pfRelIso03_all     : LepGood_pfRelIso03_all[0]                                 : 20, 0, 0.04; XTitle="Relative PF ISO (l1)", Logy, MoreY=1.5
-mva_lep1_minireliso_chg     : LepGood_miniPFRelIso_chg[0]                               : 20, 0, 0.04; XTitle="Mini relative ISO of charged cands. (l1)", Logy, MoreY=1.5
-mva_lep1_minireliso_neutral : LepGood_miniPFRelIso_all[0] - LepGood_miniPFRelIso_chg[0] : 20, 0, 0.04; XTitle="Mini relative ISO of neutral cands. (l1)", Logy, MoreY=1.5
-mva_lep1_jetNDauCharged     : LepGood_jetNDauCharged[0]                                 : 20, 0.4, 1.0; XTitle="Number of close charged daughters (l1)", Logy, MoreY=2.5,Legend="TL"
-mva_lep1_relv2              : LepGood_jetPtRelv2[0]                                     : 20, 0, 40; XTitle="jet p_{T} relv2 (l1)"
-#mva_lep1_jetdf              : JetSel_btagDeepFlavB[LepGood_jetIdx[0]]                   : 20, 0, 1; XTitle="jet p_{T} DF (l1)"
-mva_lep1_logdxyabs          : abs_log(LepGood_dxy[0])                                   : 20, -12, -2; XTitle="|log(dxy)| (l1)"
-mva_lep1_logdzabs           : abs_log(LepGood_dz[0])                                    : 20, -12, -2; XTitle="|log(dxy)| (l1)"
-mva_lep1_sip3d              : LepGood_sip3d[0]                                          : 20, 0, 8; XTitle="sip3d (l1)"
-mva_lep1_mvaNoIso           : LepGood_mvaNoIso[0]                                       : 20, -1, 1; XTitle="mvaNoIso (l1)", Logy
-mva_lep1_mvaIso             : LepGood_mvaIso[0]                                         : 20, -1, 1; XTitle="mvaIso (l1)", Logy
+#mva_lep1_pt                 : LepSel_pt[0]                                             : 20, 10, 180; XTitle="p_{T} (l1) [GeV]"
+#mva_lep1_eta                : LepSel_eta[0]                                            : 20, -2.4, 2.4; XTitle="#eta(l1)"
+#mva_lep1_pfRelIso03_all     : LepSel_pfRelIso03_all[0]                                 : 20, 0, 0.04; XTitle="Relative PF ISO (l1)", Logy, MoreY=1.5
+#mva_lep1_minireliso_chg     : LepSel_miniPFRelIso_chg[0]                               : 20, 0, 0.04; XTitle="Mini relative ISO of charged cands. (l1)", Logy, MoreY=1.5
+#mva_lep1_minireliso_neutral : LepSel_miniPFRelIso_all[0] - LepSel_miniPFRelIso_chg[0] : 20, 0, 0.04; XTitle="Mini relative ISO of neutral cands. (l1)", Logy, MoreY=1.5
+#mva_lep1_jetNDauCharged     : LepSel_jetNDauCharged[0]                                 : 20, 0.4, 1.0; XTitle="Number of close charged daughters (l1)", Logy, MoreY=2.5,Legend="TL"
+#mva_lep1_relv2              : LepSel_jetPtRelv2[0]                                     : 20, 0, 40; XTitle="jet p_{T} relv2 (l1)"
+#mva_lep1_logdxyabs          : abs_log(LepSel_dxy[0])                                   : 20, -12, -2; XTitle="|log(dxy)| (l1)"
+#mva_lep1_logdzabs           : abs_log(LepSel_dz[0])                                    : 20, -12, -2; XTitle="|log(dxy)| (l1)"
+#mva_lep1_sip3d              : LepSel_sip3d[0]                                          : 20, 0, 8; XTitle="sip3d (l1)"
+#mva_lep1_mvaNoIso           : LepSel_mvaNoIso[0]                                       : 20, -1, 1; XTitle="mvaNoIso (l1)", Logy
+#mva_lep1_mvaIso             : LepSel_mvaIso[0]                                         : 20, -1, 1; XTitle="mvaIso (l1)", Logy
+#
+## SubLeading lepton
+#mva_lep2_pt                 : LepSel_pt[1]                                             : 20, 10, 180; XTitle="p_{T} (l2) [GeV]"
+#mva_lep2_eta                : LepSel_eta[1]                                            : 20, -2.4, 2.4; XTitle="#eta(l2)"
+#mva_lep2_pfRelIso03_all     : LepSel_pfRelIso03_all[1]                                 : 20, 0, 0.04; XTitle="Relative PF ISO (l2)", Logy, MoreY=1.5
+#mva_lep2_minireliso_chg     : LepSel_miniPFRelIso_chg[1]                               : 20, 0, 0.04; XTitle="Mini relative ISO of charged cands. (l2)", Logy, MoreY=1.5
+#mva_lep2_minireliso_neutral : LepSel_miniPFRelIso_all[1] - LepSel_miniPFRelIso_chg[1] : 20, 0, 0.04; XTitle="Mini relative ISO of neutral cands. (l2)", Logy, MoreY=1.5
+#mva_lep2_jetNDauCharged     : LepSel_jetNDauCharged[1]                                 : 20, 0.4, 1.0; XTitle="Number of close charged daughters (l2)", Logy, MoreY=2.5,Legend="TL"
+#mva_lep2_relv2              : LepSel_jetPtRelv2[1]                                     : 20, 0, 40; XTitle="jet p_{T} relv2 (l2)"
+#mva_lep2_logdxyabs          : abs_log(LepSel_dxy[1])                                   : 20, -12, -2; XTitle="|log(dxy)| (l2)"
+#mva_lep2_logdzabs           : abs_log(LepSel_dz[1])                                    : 20, -12, -2; XTitle="|log(dxy)| (l2)"
+#mva_lep2_sip3d              : LepSel_sip3d[1]                                          : 20, 0, 8; XTitle="sip3d (l2)"
+#mva_lep2_mvaNoIso           : LepSel_mvaNoIso[1]                                       : 20, -1, 1; XTitle="mvaNoIso (l2)", Logy
+#mva_lep2_mvaIso             : LepSel_mvaIso[1]                                         : 20, -1, 1; XTitle="mvaIso (l2)", Logy
 
-# SubLeading lepton
-mva_lep2_pt                 : LepGood_pt[1]                                             : 20, 10, 180; XTitle="p_{T} (l2) [GeV]"
-mva_lep2_eta                : LepGood_eta[1]                                            : 20, -2.4, 2.4; XTitle="#eta(l2) [GeV]"
-mva_lep2_pfRelIso03_all     : LepGood_pfRelIso03_all[1]                                 : 20, 0, 0.04; XTitle="Relative PF ISO (l2)", Logy, MoreY=1.5
-mva_lep2_minireliso_chg     : LepGood_miniPFRelIso_chg[1]                               : 20, 0, 0.04; XTitle="Mini relative ISO of charged cands. (l2)", Logy, MoreY=1.5
-mva_lep2_minireliso_neutral : LepGood_miniPFRelIso_all[1] - LepGood_miniPFRelIso_chg[1] : 20, 0, 0.04; XTitle="Mini relative ISO of neutral cands. (l2)", Logy, MoreY=1.5
-mva_lep2_jetNDauCharged     : LepGood_jetNDauCharged[1]                                 : 20, 0.4, 1.0; XTitle="Number of close charged daughters (l2)", Logy, MoreY=2.5,Legend="TL"
-mva_lep2_relv2              : LepGood_jetPtRelv2[1]                                     : 20, 0, 40; XTitle="jet p_{T} relv2 (l2)"
-#mva_lep2_jetdf              : JetSel_btagDeepFlavB[LepGood_jetIdx[1]]                   : 20, 0, 1; XTitle="jet p_{T} DF (l2)"
-mva_lep2_logdxyabs          : abs_log(LepGood_dxy[1])                                   : 20, -12, -2; XTitle="|log(dxy)| (l2)"
-mva_lep2_logdzabs           : abs_log(LepGood_dz[1])                                    : 20, -12, -2; XTitle="|log(dxy)| (l2)"
-mva_lep2_sip3d              : LepGood_sip3d[1]                                          : 20, 0, 8; XTitle="sip3d (l2)"
-mva_lep2_mvaNoIso           : LepGood_mvaNoIso[1]                                       : 20, -1, 1; XTitle="mvaNoIso (l2)", Logy
-mva_lep2_mvaIso             : LepGood_mvaIso[1]                                         : 20, -1, 1; XTitle="mvaIso (l2)", Logy
-
-# Third lepton
-mva_lep3_pt                 : LepGood_pt[2]                                             : 20, 10, 180; XTitle="p_{T} (l3) [GeV]"
-mva_lep3_eta                : LepGood_eta[2]                                            : 20, -2.4, 2.4; XTitle="#eta(l3) [GeV]"
-mva_lep3_pfRelIso03_all     : LepGood_pfRelIso03_all[2]                                 : 20, 0, 0.04; XTitle="Relative PF ISO (l3)", Logy, MoreY=1.5
-mva_lep3_minireliso_chg     : LepGood_miniPFRelIso_chg[2]                               : 20, 0, 0.04; XTitle="Mini relative ISO of charged cands. (l3)", Logy, MoreY=1.5
-mva_lep3_minireliso_neutral : LepGood_miniPFRelIso_all[2] - LepGood_miniPFRelIso_chg[2] : 20, 0, 0.04; XTitle="Mini relative ISO of neutral cands. (l3)", Logy, MoreY=1.5
-mva_lep3_jetNDauCharged     : LepGood_jetNDauCharged[2]                                 : 20, 0.4, 1.0; XTitle="Number of close charged daughters (l3)", Logy, MoreY=2.5,Legend="TL"
-mva_lep3_relv2              : LepGood_jetPtRelv2[2]                                     : 20, 0, 40; XTitle="jet p_{T} relv2 (l3)"
-#mva_lep3_jetdf              : JetSel_btagDeepFlavB[LepGood_jetIdx[2]]                   : 20, 0, 1; XTitle="jet p_{T} DF (l3)"
-mva_lep3_logdxyabs          : abs_log(LepGood_dxy[2])                                   : 20, -12, -2; XTitle="|log(dxy)| (l3)"
-mva_lep3_logdzabs           : abs_log(LepGood_dz[2])                                    : 20, -12, -2; XTitle="|log(dxy)| (l3)"
-mva_lep3_sip3d              : LepGood_sip3d[2]                                          : 20, 0, 8; XTitle="sip3d (l3)"
-mva_lep3_mvaNoIso           : LepGood_mvaNoIso[2]                                       : 20, -1, 1; XTitle="mvaNoIso (l3)", Logy
-mva_lep3_mvaIso             : LepGood_mvaIso[2]                                         : 20, -1, 1; XTitle="mvaIso (l3)", Logy

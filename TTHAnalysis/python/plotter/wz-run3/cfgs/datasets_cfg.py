@@ -3,7 +3,7 @@ from copy import deepcopy
 import ROOT 
 # Add some other functions useful for debugging
 sys.path.append( os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/python/plotter/wz-run3/"))
-from utils.datasets import dataset_mc, dataset_data, dataset_fr, mca
+from utils.datasets import dataset_mc, dataset_data, dataset_fr, dataset_fr_data, mca
 from cfgs.samples_dbspaths_cfg import dbs_mc, dbs_data
 from functions import color_msg
 
@@ -13,7 +13,7 @@ mcas = {
     "signal" : mca("signal", ["WZ"]),
     # ---- Backgrounds
     "prompts" : mca("prompts", ["ZZ", "ttX", "TZQ", "Others", "VVV"]),
-    "mcfakes" : mca("mcfakes", ["Fakes_TOP", "Fakes_EWK", "Wjets"]),
+    "mcfakes" : mca("mcfakes", ["Fakes_TT", "Fakes_ST", "Fakes_DY", "Fakes_VV", "Wjets"]),
     "convs" : mca("convs", ["convs"])
 }
 
@@ -89,18 +89,18 @@ mcas["prompts"].add_dataset( dataset_mc(dbs_mc["ZZZ"], "ROOT.kRed+1"), "VVV")
 
 # ---- MC fakes
 # + EWK fakes
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["ZZto2L2Q"], "ROOT.kGray+9"), "Fakes_EWK")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["ZZto2L2Nu"], "ROOT.kGray+9"), "Fakes_EWK")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["WWto2L2Nu"], "ROOT.kGray+9"), "Fakes_EWK")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["DYto2L_2Jets_MLL_50"], "ROOT.kGray+9"), "Fakes_EWK")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["DYto2L_2Jets_MLL_10to50"], "ROOT.kGray+9"), "Fakes_EWK")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["ZZto2L2Q"], "ROOT.kGray+1"), "Fakes_VV")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["ZZto2L2Nu"], "ROOT.kGray+1"), "Fakes_VV")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["WWto2L2Nu"], "ROOT.kGray+1"), "Fakes_VV")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["DYto2L_2Jets_MLL_50"], "ROOT.kGray+9"), "Fakes_DY")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["DYto2L_2Jets_MLL_10to50"], "ROOT.kGray+9"), "Fakes_DY")
 mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["WtoLNu_2Jets"], "ROOT.kViolet+7"), "Wjets")
 
 # + TOP fakes
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TTtoLNu2Q"], "ROOT.kGray+9 "), "Fakes_TOP")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TTto2L2Nu"], "ROOT.kGray+2 "), "Fakes_TOP")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TWminusto2L2Nu"], "ROOT.kGray+2 "), "Fakes_TOP")
-mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TbarWplusto2L2Nu"], "ROOT.kGray+2 "), "Fakes_TOP")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TTtoLNu2Q"], "ROOT.kGray+2 "), "Fakes_TT")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TTto2L2Nu"], "ROOT.kGray+2 "), "Fakes_TT")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TWminusto2L2Nu"], "ROOT.kGray+3 "), "Fakes_ST")
+mcas["mcfakes"].add_dataset( dataset_mc(dbs_mc["TbarWplusto2L2Nu"], "ROOT.kGray+3 "), "Fakes_ST")
 
 # ---- Convs
 mcas["convs"].add_dataset( dataset_mc(dbs_mc["WGtoLNuG_PTG_10to100"], "ROOT.kOrange-3"), "convs")
@@ -111,6 +111,10 @@ mcas["convs"].add_dataset( dataset_mc(dbs_mc["ZGto2LG"], "ROOT.kOrange-3"), "con
 
 
 # ======================== For the FR analysis ========================== #
+# Data
+mcas_fr["data"].add_dataset( dataset_fr_data(dbs_data["Muon_Run2022F"]), "data" )
+#mcas_fr["data"].add_dataset( dataset_fr_data(dbs_data["Muon_Run2022G"]), "data" )
+
 # EWK
 mcas_fr["ewk"].add_dataset( dataset_fr(dbs_mc["ZZto2L2Q"], "ROOT.kGray+9"), "ewk")
 mcas_fr["ewk"].add_dataset( dataset_fr(dbs_mc["ZZto2L2Nu"], "ROOT.kGray+9"), "ewk")
@@ -128,25 +132,25 @@ mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_30to50_EMEnriched'], "ROOT
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_50to80_EMEnriched'], "ROOT.kPink+1"), "qcd")
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_80to120_EMEnriched'], "ROOT.kPink+1"), "qcd")
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_120to170_EMEnriched'], "ROOT.kPink+1"), "qcd")
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-170to300_EMEnriched'], "ROOT.kPink+1"), "qcd")
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_300_EMEnriched'], "ROOT.kPink+1"), "qcd")
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-170to300_EMEnriched'], "ROOT.kPink+1"), "qcd")
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT_300_EMEnriched'], "ROOT.kPink+1"), "qcd")
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-15to20_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")     
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-20to30_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")     
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-30to50_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")     
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-50to80_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")     
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-80to120_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")    
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-120to170_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-170to300_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-300to470_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-470to600_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-600to800_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-800to1000_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")  
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-1000_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")       
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-170to300_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-300to470_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-470to600_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-600to800_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")   
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-800to1000_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")  
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc["QCD_PT-1000_MuEnrichedPt5"], "ROOT.kPink+1"), "qcd")       
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-20to30_bcToE'], "ROOT.kPink+1"), "qcd") 
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-30to80_bcToE'], "ROOT.kPink+1"), "qcd")
 mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-80to170_bcToE'], "ROOT.kPink+1"), "qcd")
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-170to250_bcToE'], "ROOT.kPink+1"), "qcd") 
-mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-250_bcToE'], "ROOT.kPink+1"), "qcd")
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-170to250_bcToE'], "ROOT.kPink+1"), "qcd") 
+#mcas_fr["qcd"].add_dataset( dataset_fr(dbs_mc['QCD_PT-250_bcToE'], "ROOT.kPink+1"), "qcd")
 
 if __name__ == "__main__":
     # Print out a summary

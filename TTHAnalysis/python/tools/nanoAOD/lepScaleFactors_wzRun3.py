@@ -110,7 +110,6 @@ class lepScaleFactors_wzrun3(Module):
     # -- Get the collection of leptons and analyze the topology (i.e. how many leptons are in the event)
     leps = [l for l in Collection(event, "LepGood")]    
     nleps = len(leps)
-    
     self.event = event
     if self.verbosity > 0:
       color_msg("   ---- Analyzing event %d"%(event.event), "green")
@@ -129,12 +128,12 @@ class lepScaleFactors_wzrun3(Module):
       lep_pt  = lep.pt
       lep_eta = lep.eta
       lep_pdg = abs(lep.pdgId)
-      
-      if lep_pdg == 13: # Muon
-        if self.verbosity > 0:
+      if self.verbosity > 0:
           color_msg("  >> Getting SF for lepton %d (pdgID = %d )"%(ilep, lep.pdgId), "green")
           color_msg("    + pT: %3.2f"%(lep.pt), "blue")
           color_msg("    + eta: %3.2f"%(lep.eta), "blue")
+      if lep_pdg == 13: # Muon
+
         sfs["muon"].append(self.getLepSF(lep_pt, lep_eta, "muon"))
         self.nmuons += 1
       elif lep_pdg == 11: # Electron
@@ -166,7 +165,6 @@ class lepScaleFactors_wzrun3(Module):
   
   def computeSF(self, sfs):
     """ Here just iterate over each leptons and compute the global event SF """
-    
     ret = {}
     if self.verbosity > 0:
       color_msg("  >> Computing SF for this event...", "green")
@@ -245,9 +243,9 @@ class lepScaleFactors_wzrun3(Module):
         # -- Consider Extrapolation to top-like from DY-like phase space 
         #    (CMS-AN-"2018"-210) ---> Only for muons!
 
-        if flav == "muon":
-          var_sf_up += 0.005
-          var_sf_dn += 0.005
+        #if flav == "muon":
+        #  var_sf_up += 0.005
+        #  var_sf_dn += 0.005
       
           
         sfret[source][uncsource] = {"up" : var_sf_up, "dn" : var_sf_dn}
@@ -269,12 +267,13 @@ class lepScaleFactors_wzrun3(Module):
             xbin = max(1, min(histo.GetNbinsX(), histo.GetXaxis().FindBin(pt)))
             ybin = max(1, min(histo.GetNbinsY(), histo.GetYaxis().FindBin(tmpeta)))
         else:
+
             xbin = max(1, min(histo.GetNbinsX(), histo.GetXaxis().FindBin(tmpeta)))
             ybin = max(1, min(histo.GetNbinsY(), histo.GetYaxis().FindBin(pt)))
 
         if err: return histo.GetBinError(xbin, ybin)
         else:   return histo.GetBinContent(xbin, ybin)
-        return
+        
 
   # ============ LOADING METHODS =============== #
   def load_histograms(self):

@@ -1,33 +1,19 @@
-## TTtoLNu2Q
-Fakes_TOP: TTtoLNu2Q_part2+TTtoLNu2Q_part1: 403.25  ;FillColor=ROOT.kGray+9 , Label="Fakes_TOP", genSumWeightName="genEventSumw"
+## TTbar
+fakes_TT : TTtoLNu2Q_part2+TTtoLNu2Q_part1: 403.25  ;FillColor=ROOT.kGray+2 , Label="Fakes TT", genSumWeightName="genEventSumw"
+fakes_TT : TTto2L2Nu_part6+TTto2L2Nu_part1+TTto2L2Nu_part7+TTto2L2Nu_part8+TTto2L2Nu_part3+TTto2L2Nu_part2+TTto2L2Nu_part9+TTto2L2Nu_part5+TTto2L2Nu_part4: 97.4488  ;FillColor=ROOT.kGray+2 , Label="Fakes_TT", genSumWeightName="genEventSumw"
 
-## TTto2L2Nu
-Fakes_TOP: TTto2L2Nu_part6+TTto2L2Nu_part1+TTto2L2Nu_part7+TTto2L2Nu_part8+TTto2L2Nu_part3+TTto2L2Nu_part2+TTto2L2Nu_part9+TTto2L2Nu_part5+TTto2L2Nu_part4: 97.4488  ;FillColor=ROOT.kGray+2 , Label="Fakes_TOP", genSumWeightName="genEventSumw"
+## Single T
+fakes_T : TWminusto2L2Nu_part1+TWminusto2L2Nu_part2: 23.8979  ;FillColor=ROOT.kGray+3 , Label="Fakes ST", genSumWeightName="genEventSumw"
+fakes_T : TbarWplusto2L2Nu_part1+TbarWplusto2L2Nu_part2: 23.8979  ;FillColor=ROOT.kGray+3 , Label="Fakes ST", genSumWeightName="genEventSumw"
 
-## TWminusto2L2Nu
-Fakes_TOP: TWminusto2L2Nu_part1+TWminusto2L2Nu_part2: 23.8979  ;FillColor=ROOT.kGray+2 , Label="Fakes_TOP", genSumWeightName="genEventSumw"
+## Drell Yan
+fakes_DY : DYto2L_2Jets_MLL_50_part11+DYto2L_2Jets_MLL_50_part8+DYto2L_2Jets_MLL_50_part9+DYto2L_2Jets_MLL_50_part1+DYto2L_2Jets_MLL_50_part10+DYto2L_2Jets_MLL_50_part4+DYto2L_2Jets_MLL_50_part6+DYto2L_2Jets_MLL_50_part2+DYto2L_2Jets_MLL_50_part3+DYto2L_2Jets_MLL_50_part5+DYto2L_2Jets_MLL_50_part7: 6345.99  ;FillColor=ROOT.kGray+9, Label="Fakes_DY", genSumWeightName="genEventSumw"
+fakes_DY : DYto2L_2Jets_MLL_10to50: 19982.5  ;FillColor=ROOT.kGray+9, Label="Fakes DY", genSumWeightName="genEventSumw"
 
-## TbarWplusto2L2Nu
-Fakes_TOP: TbarWplusto2L2Nu_part1+TbarWplusto2L2Nu_part2: 23.8979  ;FillColor=ROOT.kGray+2 , Label="Fakes_TOP", genSumWeightName="genEventSumw"
-
-
-
-## ZZto2L2Q
-Fakes_EWK: ZZto2L2Q_part1+ZZto2L2Q_part2: 8.08  ;FillColor=ROOT.kGray+9, Label="Fakes_EWK", genSumWeightName="genEventSumw"
-
-## ZZto2L2Nu
-Fakes_EWK: ZZto2L2Nu_part2+ZZto2L2Nu_part1+ZZto2L2Nu_part3: 1.19  ;FillColor=ROOT.kGray+9, Label="Fakes_EWK", genSumWeightName="genEventSumw"
-
-## WWto2L2Nu
-Fakes_EWK: WWto2L2Nu_part3+WWto2L2Nu_part2+WWto2L2Nu_part1: 12.98  ;FillColor=ROOT.kGray+9, Label="Fakes_EWK", genSumWeightName="genEventSumw"
-
-## DYto2L_2Jets_MLL_50
-Fakes_EWK: DYto2L_2Jets_MLL_50_part11+DYto2L_2Jets_MLL_50_part8+DYto2L_2Jets_MLL_50_part9+DYto2L_2Jets_MLL_50_part1+DYto2L_2Jets_MLL_50_part10+DYto2L_2Jets_MLL_50_part4+DYto2L_2Jets_MLL_50_part6+DYto2L_2Jets_MLL_50_part2+DYto2L_2Jets_MLL_50_part3+DYto2L_2Jets_MLL_50_part5+DYto2L_2Jets_MLL_50_part7: 6345.99  ;FillColor=ROOT.kGray+9, Label="Fakes_EWK", genSumWeightName="genEventSumw"
-
-## DYto2L_2Jets_MLL_10to50
-Fakes_EWK: DYto2L_2Jets_MLL_10to50: 19982.5  ;FillColor=ROOT.kGray+9, Label="Fakes_EWK", genSumWeightName="genEventSumw"
-
-
+## Diboson
+fakes_VV : ZZto2L2Q_part1+ZZto2L2Q_part2: 8.08  ;FillColor=ROOT.kGray+1, Label="Fakes VV", genSumWeightName="genEventSumw"
+fakes_VV : ZZto2L2Nu_part2+ZZto2L2Nu_part1+ZZto2L2Nu_part3: 1.19  ;FillColor=ROOT.kGray+1, Label="Fakes VV", genSumWeightName="genEventSumw"
+fakes_VV : WWto2L2Nu_part3+WWto2L2Nu_part2+WWto2L2Nu_part1: 12.98  ;FillColor=ROOT.kGray+1, Label="Fakes VV", genSumWeightName="genEventSumw"
 
 ## WtoLNu_2Jets
 Wjets: WtoLNu_2Jets: 64481.58  ;FillColor=ROOT.kViolet+7, Label="Wjets", genSumWeightName="genEventSumw"

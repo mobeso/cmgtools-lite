@@ -1,12 +1,12 @@
 # vim: syntax=sh
-data : Muon_Run2022F_part1+Muon_Run2022F_part3+Muon_Run2022F_part2 ; FillColor=ROOT.kBlack, Label="Data"
-data : Muon_Run2022G ; FillColor=ROOT.kBlack, Label="Data"
-
-data : EGamma_Run2022F_part1+EGamma_Run2022F_part2; FillColor=ROOT.kBlack, Label="Data"
-data : EGamma_Run2022G; FillColor=ROOT.kBlack, Label="Data"
-
-data : MuonEG_Run2022F; FillColor=ROOT.kBlack, Label="Data"
-data : MuonEG_Run2022G; FillColor=ROOT.kBlack, Label="Data"
+#data : Muon_Run2022F_part1+Muon_Run2022F_part3+Muon_Run2022F_part2 ; FillColor=ROOT.kBlack, Label="Data"
+#data : Muon_Run2022G ; FillColor=ROOT.kBlack, Label="Data"
+#
+#data : EGamma_Run2022F_part1+EGamma_Run2022F_part2; FillColor=ROOT.kBlack, Label="Data"
+#data : EGamma_Run2022G; FillColor=ROOT.kBlack, Label="Data"
+#
+#data : MuonEG_Run2022F; FillColor=ROOT.kBlack, Label="Data"
+#data : MuonEG_Run2022G; FillColor=ROOT.kBlack, Label="Data"
 
 
 incl_mc : + ; IncludeMca="wz-run3/fr-measurement/mca-qcd1l-mc.txt"

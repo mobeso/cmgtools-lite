@@ -57,11 +57,17 @@ friends = {
             "addmethod" : "simple",
             "outname" : "leptonBuilder"
             },
-#        5 : {
-#            "data" : None,
-#            "mc"   : "scalefactors",
-#            "addmethod" : "mc",
-#            "outname" : "scalefactors"
-#            }
+        5 : {
+            "data" : None,
+            "mc"   : "scalefactors_2022EE",
+            "addmethod" : "mc",
+            "outname" : "scalefactors"
+            },
+        6 : {
+            "data" : None,
+            "mc"   : "leptonGENBuilder",
+            "addmethod" : "mc",
+            "outname" : "leptonGENInfo"
+            }
     }
 }

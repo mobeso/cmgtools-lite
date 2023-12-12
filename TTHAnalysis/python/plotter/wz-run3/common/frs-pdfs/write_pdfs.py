@@ -5,7 +5,7 @@ template = "LHEPdfWeight[{idx}]"
 
 txt = """
 weight : Alt$(LHEPdfWeight[{idx}], 1)
-alt-norm : Alt$(LHEPdfSumw[{idx}]/LHEScaleSumw_[4], 1)
+#alt-norm : Alt$(LHEPdfSumw[{idx}]/LHEScaleSumw_[4], 1)
 """
 filename_template = "fr-pdf_{idx}.txt"
 for pdfindex in pdfs_indices:

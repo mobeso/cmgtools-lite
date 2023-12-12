@@ -24,8 +24,8 @@ def conept(lep):
 
     if not (isEl  or isMu): return lep.pt
 
-    passesTight_mu = (isMu and lep.mediumId > 0 and lep.mvaTTH_run3 > mu_mva_wp)
-    passesTight_el = (isEl and lep.mvaTTH_run3 > el_mva_wp)
+    passesTight_mu = (isMu and lep.mediumId > 0 and lep.mvaTTH_run3_withDF_withISO > mu_mva_wp)
+    passesTight_el = (isEl and lep.mvaTTH_run3_withDF_withISO > el_mva_wp)
 
     if passesTight_mu or passesTight_el:
         # This passes tight criteria, so just use reco pT
@@ -94,11 +94,11 @@ def _fO_muon(lep, btagWPM, btagWPL, jetlist):
     
     
     # + Check MVA score
-    passTight = (lep.mvaTTH_run3 > mu_mva_wp)
+    passTight = (lep.mvaTTH_run3_withDF_withISO > mu_mva_wp)
     if passTight:
         # This is a possible fake muon that passes tight criteria
         # Ask for tight requirements.
-        if (jetbTag > btagWPM): return False
+        #if (jetbTag > btagWPM): return False
         return True
     else:
         # This is a possible fake lepton that does not pass tight criteria.
@@ -117,8 +117,6 @@ def _fO_muon(lep, btagWPM, btagWPL, jetlist):
         # + Jet relative isolation (the less the more isolated)
         if (lep.jetRelIso > 0.5): return False 
         
-        
-    
     return True
 
 def _fO_electron(lep, btagWPM, jetlist):
@@ -147,7 +145,7 @@ def _fO_electron(lep, btagWPM, jetlist):
     if (jetbTag > btagWPM): return False
     
     # + Check MVA score
-    passTight = (lep.mvaTTH_run3 > el_mva_wp) 
+    passTight = (lep.mvaTTH_run3_withDF_withISO > el_mva_wp) 
     if passTight:
         # No additional requirements considered as of now (october 2023)
         # Possible Fake lepton that also passes Tight criteria
@@ -165,9 +163,11 @@ def _tight_electron(lep, btagWPM, jetlist):
     if not _fO_electron(lep, btagWPM, jetlist): return False
     
     # Tight electrons must pass mva requirements
-    passTight = (lep.mvaTTH_run3 > el_mva_wp)
+    passTight = (lep.mvaTTH_run3_withDF_withISO > el_mva_wp)
     if not passTight: return False
 
+    jetbTag = closest_b(lep, jetlist)
+    if (jetbTag > btagWPM): return False
     return True
 
 def _tight_muon(lep, btagWPM, btagWPL,jetlist):
@@ -175,7 +175,7 @@ def _tight_muon(lep, btagWPM, btagWPL,jetlist):
     if not _fO_muon(lep,btagWPM,btagWPL,jetlist): return False
     
     # Tight muons must pass mva requirements
-    passTight = (lep.mvaTTH_run3 > mu_mva_wp)
+    passTight = (lep.mvaTTH_run3_withDF_withISO > mu_mva_wp)
     if not passTight: return False 
     if not (lep.mediumId): return False
 

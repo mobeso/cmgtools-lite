@@ -1,2 +1,20 @@
+## Muon_Run2022F
+data: Muon_Run2022F_part1+Muon_Run2022F_part3+Muon_Run2022F_part2; Label="data"
+
+## EGamma_Run2022F
+data: EGamma_Run2022F_part1+EGamma_Run2022F_part2; Label="data"
+
+## MuonEG_Run2022F
+data: MuonEG_Run2022F; Label="data"
+
+## Muon_Run2022G
+data: Muon_Run2022G; Label="data"
+
+## EGamma_Run2022G
+data: EGamma_Run2022G; Label="data"
+
+## MuonEG_Run2022G
+data: MuonEG_Run2022G; Label="data"
+
 
 

@@ -281,9 +281,19 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import _tight_lepton
 
 from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import conept
 
-# --- b tagging working points from 2018
-looseDeepFlavB = 0.0614
-mediumDeepFlavB = 0.3196
+# --- b tagging working points from 2022EE
+btag_wps = {
+    "2022EE" : {
+        "btagDeepFlavB" : {
+            "L" : 0.0614,
+            "M" : 0.3196,
+            "T" : 0.73
+        }
+    }
+}
+
+looseDeepFlavB = btag_wps["2022EE"]["btagDeepFlavB"]["L"]
+mediumDeepFlavB = btag_wps["2022EE"]["btagDeepFlavB"]["M"]
 
 looselep = lambda lep          : _loose_lepton(lep, looseDeepFlavB, mediumDeepFlavB)
 cleanlep = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
@@ -327,8 +337,16 @@ recleaner_2022 = lambda : LeptonJetRecleanerWZSM(
 )
 
 leptonJetRecleaning = [recleaner_2022]
+
+# ------------------------------------------------------------------------------------------------------------------------------ #
+# ---------------------------------------------------- BTAGGING EFFICIENCIES --------------------------------------------------- # 
+# ------------------------------------------------------------------------------------------------------------------------------ #
+from CMGTools.TTHAnalysis.tools.nanoAOD.btagEffCount_wzRun3 import bTagEffCount
+btagEff_2022EE = [lambda : bTagEffCount()]
+
+
 # ---------------------------------------------------------------------------------------------------------------------------- #
-# ---------------------------------------------------- LEPTON BUILDER    ------------------------------------------------------- # 
+# ---------------------------------------------------- LEPTON BUILDER    ----------------------------------------------------- # 
 # ---------------------------------------------------------------------------------------------------------------------------- #
 from CMGTools.TTHAnalysis.tools.nanoAOD.leptonBuilderWZSM import leptonBuilderWZSM
 leptonBuilderWZSM_2022 = lambda : leptonBuilderWZSM(
@@ -339,28 +357,38 @@ leptonBuilderWZSM_2022 = lambda : leptonBuilderWZSM(
 )
 leptonBuilder = [leptonBuilderWZSM_2022]
 
+# ---------------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------- LEPTON MC MATCHER    -------------------------------------------------- # 
+# ---------------------------------------------------------------------------------------------------------------------------- #
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.leptonMatcher import leptonMatcher
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM import lepgenVarsWZSM
+leptonMCMatcher =  lambda: leptonMatcher("Mini")
+leptonMCBuilder = lambda : lepgenVarsWZSM("Mini")
+leptonGENBuilder = [leptonMCMatcher, leptonMCBuilder]
+
+
 # ------------------------------------------------------------------------------------------------------------------------------ #
 # ---------------------------------------------------- SCALE FACTORS ----------------------------------------------------------- # 
 # ------------------------------------------------------------------------------------------------------------------------------ #
-
 # Lepton Scale factors
 from CMGTools.TTHAnalysis.tools.nanoAOD.lepScaleFactors_wzRun3 import lepScaleFactors_wzrun3
-lepscalefactors = lambda: lepScaleFactors_wzrun3( 2022, keepOutput = 2, summary = False ) 
+lepscalefactors_2022EE = lambda: lepScaleFactors_wzrun3( "2022EE", keepOutput = 2, summary = False ) 
 
 # bTag scale factors
 from CMGTools.TTHAnalysis.tools.nanoAOD.btag_weighterRun3 import btag_weighterRun3
 btagpath = os.environ['CMSSW_BASE'] + "/src/CMGTools/TTHAnalysis/data/WZRun3/btagging"
-btagWeights_2022 = lambda : btag_weighterRun3(btagpath + "/" + "btagging.json.gz",
-                                            btagpath + "/" + "btagEffs_2023_06_06.root",
+btagWeights_2022EE = lambda : btag_weighterRun3(btagpath + "/" + "btagging.json.gz",
+                                            btagpath + "/btagEff_DeepJet_2022EE.root",
                                             'deepJet',
-                                            branchJet = "JetSel_Mini",
-                                            labelJet = "",
+                                            branchJet = "iJ",
+                                            labelJet = "Mini",
                                             jecvars   = [ "jes%s"%(jecgroup) for jecgroup in groups ],
                                             lepenvars = [],
                                             splitCorrelations = True,
-                                            year = "2022")
+                                            year = "2022EE")
 
-scalefactors = [lepscalefactors, btagWeights_2022]
+scalefactors_2022EE = [lepscalefactors_2022EE]#, btagWeights_2022EE]
 
 
 #from CMGTools.TTHAnalysis.tools.nanoAOD.mvasergio import LepMVAFriend 

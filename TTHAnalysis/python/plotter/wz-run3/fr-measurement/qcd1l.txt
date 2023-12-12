@@ -1,26 +1,19 @@
 # vim: syntax=sh
 
 # ---- cuts for fake rate measurement ---- #
-minimal: LepGood_awayJet_pt > 30 && LepGood_awayJet_jetId > 0
+AtLeastOnePair: FR_nPairs > 0
+minimal: LepGood_awayJet_pt > 30 && LepGood_awayJet_jetId > 0;Disable=True
 pvdof : PV_ndof > 100
+
 
 
 # ---- Muons ---- #
 mu : abs(LepGood_pdgId)==13; Disable=True
-trigMu   : ( HLT_Mu3_PFJet40 && LepGood_awayJet_pt > 45 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.85&&LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) < 32  ) || \
-           ( HLT_Mu8  && LepGood_pt >  8 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 15 ) || \
-           ( HLT_Mu17 && LepGood_pt > 17 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ) || \
-           ( HLT_Mu20 && LepGood_pt > 20 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ) || \
-           ( HLT_Mu27 && LepGood_pt > 27 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso)) > 45 ); Disable=True
 
 # ---- Electrons ---- #
-trigEl   : ( HLT_Ele8_CaloIdM_TrackIdM_PFJet30  && LepGood_pt >  8 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 15 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.80, 1.0, 0.9*(1+LepGood_jetRelIso)) < 45  ) || \
-           ( HLT_Ele17_CaloIdM_TrackIdM_PFJet30 && LepGood_pt > 17 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 25 ) || \
-           ( HLT_Ele23_CaloIdM_TrackIdM_PFJet30 && LepGood_pt > 23 && LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso)) > 32 ); Disable=True
-
 el : abs(LepGood_pdgId)==11 && LepGood_convVeto && LepGood_lostHits == 0 && LepGood_idEmu3; Disable=True
 nocv_el : abs(LepGood_pdgId)==11; Disable=True
-dfM : LepGood_jetBTagDeepFlav < deepFlavB_WPMedium(year)
+dfM : LepGood_jetBTagDeepFlav < deepFlavB_WPMedium(year); Disable=True
 
 
 

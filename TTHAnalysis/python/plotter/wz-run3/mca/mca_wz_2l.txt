@@ -1,5 +1,0 @@
-## data
-incl_data : + ; IncludeMca="wz-run3/mca/includes/mca-data.txt"
-
-## prompts
-incl_all : + ; IncludeMca="wz-run3/mca/includes/mca-2l.txt"

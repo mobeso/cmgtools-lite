@@ -56,15 +56,11 @@ class btag_weighterRun3(Module):
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL16postVFP
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL17
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation106XUL18
-        self.btagWPs   = {"DeepFlav_2022_L"   : 0.0490, #copied from 2018
-                          "DeepFlav_2022_M"   : 0.2783,
-                          "DeepFlav_2022_T"   : 0.7100,
-                          "DeepCSV_2022_L"    : 0.1208,
-                          "DeepCSV_2022_M"    : 0.4168,
-                          "DeepCSV_2022_T"    : 0.7665,
+        self.btagWPs   = {"DeepFlav_2022EE_L"   : 0.0614, #copied from 2018
+                          "DeepFlav_2022EE_M"   : 0.3196,
+                          "DeepFlav_2022EE_T"   : 0.73
                          }
-        self.xuandict = {"deepCSV" : "DeepCSV",
-                         "deepJet" : "DeepFlav"}
+        self.xuandict = {"deepJet" : "DeepFlav"}
 
         self.cutVal = self.btagWPs[ self.xuandict[self.algo] + "_" + self.year + "_" + self.wp ]
         self.ret = {}
@@ -73,9 +69,9 @@ class btag_weighterRun3(Module):
 
         #### Eficiencias ### FORZADAS A DEEPFLAVOUR
         f_eff        = r.TFile.Open(eff, "read")
-        self.h_eff_b = deepcopy(f_eff.Get("BtagSFB_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
-        self.h_eff_c = deepcopy(f_eff.Get("BtagSFC_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
-        self.h_eff_l = deepcopy(f_eff.Get("BtagSFL_{}{}_{}".format(self.xuandict[self.algo], self.wp, self.year)).Clone())
+        self.h_eff_b = deepcopy(f_eff.Get("btagEff_WZ_T_B_h2d").Clone())
+        self.h_eff_c = deepcopy(f_eff.Get("btagEff_WZ_T_C_h2d").Clone())
+        self.h_eff_l = deepcopy(f_eff.Get("btagEff_WZ_T_L_h2d").Clone())
         f_eff.Close()
 
         return
@@ -141,9 +137,9 @@ class btag_weighterRun3(Module):
             sysHFupStat   = 1.
             sysHFdnStat   = 1.
 
-            self.jets = [self.all_jets[getattr(event, 'i{branch}{v}{label}'.format(branch = self.branchJet, v = "%s"%jecVar if jecVar != "" else "", label = self.labelJet))[j]]
+            self.jets = [self.all_jets[getattr(event, 'iJSel_Mini{v}'.format(branch = self.branchJet, v = "%s"%jecVar if jecVar != "" else "", label = self.labelJet))[j]]
                          #for j in xrange(min([getattr(event, 'nJetSel30{v}_Recl'.format(v = jecVar)), 5]))] #### WARNING: this is only valid when ignoring events with nJet>5!!!!!!!!!!
-                         for j in range(getattr(event, 'n{branch}{v}{label}'.format(branch = self.branchJet, v = "%s"%jecVar if jecVar != "" else "", label = self.labelJet) ))] #### WARNING: this is only valid when ignoring events with nJet>5!!!!!!!!!!
+                         for j in range(getattr(event, 'nJet30_Mini{v}'.format(branch = self.branchJet, v = "%s"%jecVar if jecVar != "" else "", label = self.labelJet) ))] #### WARNING: this is only valid when ignoring events with nJet>5!!!!!!!!!!
 
             jetjecsysscaff = (jecVar if jecVar != "" else self.nominaljecscaff)
 
@@ -313,8 +309,8 @@ class btag_weighterRun3(Module):
                     dataTag   = 1.
                     dataNoTag = 1.
 
-                    self.jets    = [self.all_jets[getattr(event, 'iJetSel30{v}_Recl'.format(v = lepVar))[j]]
-                                for j in range(min([getattr(event, 'nJetSel30{v}_Recl'.format(v = lepVar)), 5]))]
+                    self.jets    = [self.all_jets[getattr(event, 'iJSel_Mini{v}'.format(v = lepVar))[j]]
+                                for j in range(min([getattr(event, 'nJet30_Mini{v}'.format(v = lepVar)), 5]))]
 
                     jetjecsysscaff = self.nominaljecscaff
 
@@ -377,8 +373,8 @@ class btag_weighterRun3(Module):
         if flavour != 0:
             measurementRegion = self.SFmeasReg
         else:
-            measurementRegion = "incl"
-
+            measurementRegion = "wp_values"
+        print(self.algo + "_" + measurementRegion)
         theReader  = self.btvjson[self.algo + "_" + measurementRegion]
 
         SF = theReader.evaluate("central", self.wp, flavour, eta_cutoff, pt_cutoff)

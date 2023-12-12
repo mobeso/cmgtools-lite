@@ -1,0 +1,34 @@
+# vim: syntax=sh
+TT_true+    :  TTtoLNu2Q* : 1 : (LepGood_genPartFlav == 1 || LepGood_genPartFlav == 15) ; FillColor=ROOT.kGreen+2, Label="prompt (tt)"
+TT_fromW+   :  TTtoLNu2Q* : 1 : (LepGood_genPartFlav == 1)                              ; FillColor=ROOT.kRed+1,   Label="W (tt)"
+TT_fromTau+ :  TTtoLNu2Q* : 1 : (LepGood_genPartFlav == 15)                             ; FillColor=ROOT.kBlue+1,  Label="\#tau (tt)"
+
+TT_red          : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15); FillColor=ROOT.kGray+2, Label="non-pr (tt)"
+TT_redCharmless : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_genPartFlav != 4;  FillColor=ROOT.kPink, Label="non-charm (tt)"
+TT_redNC        : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22); FillColor=ROOT.kGray+3, Label="non-pr (tt\, w/o \#gamma)"
+TT_bjets        : TTtoLNu2Q* : 1 : LepGood_genPartFlav == 5 ;  FillColor=ROOT.kBlue-2, Label="b-jets (tt)"
+TT_cjets        : TTtoLNu2Q* : 1 : LepGood_genPartFlav == 4 ;  FillColor=ROOT.kGray+2, Label="c-jets (tt)"
+TT_ljets        : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15  && LepGood_genPartFlav != 5 && LepGood_genPartFlav != 4) ; FillColor=ROOT.kTeal+2, Label="l-jets (tt)"
+TT_ljetsNC      : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15)  && LepGood_genPartFlav != 5 && LepGood_genPartFlav != 4 && LepGood_genPartFlav != 22 ; FillColor=ROOT.kAzure+2, Label="l-jets (tt\, no \#gamma)"
+TT_fake         : TTtoLNu2Q* : 1 : LepGood_genPartFlav == 0 ;  FillColor=ROOT.kGray+3, Label="fakes (tt)"
+TT_conv         : TTtoLNu2Q* : 1 : LepGood_genPartFlav == 22 ; FillColor=ROOT.kYellow+2, Label="\#gamma (tt)"
+
+TT_SS_red       : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ; FillColor=ROOT.kGreen+2, Label="tt ss"
+TT_SS_red_viol  : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) ; FillColor=ROOT.kMagenta+2, Label="tt ss"
+TT_SSbl_df_red  : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && nBJetDeepFlav25Medium <= 1; FillColor=ROOT.kAzure+1, Label="tt bl"
+TT_SSbt_df_red  : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && nBJetDeepFlav25Medium >= 2; FillColor=ROOT.kRed-3,   Label="tt bt"
+TT_SSbt_df_red  : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && nBJetDeepFlav25Medium >= 2; FillColor=ROOT.kRed-3,   Label="tt bt"
+
+TT_SSbt_black    : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && nBJetDeepFlav25Medium >= 2; FillColor=ROOT.kBlack, Label="tt b-tight"
+TT_SS_redNC      : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ; FillColor=ROOT.kGreen+2, Label="tt ss no\#gamma"
+TT_SS_redNC_pink : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) ; FillColor=ROOT.kPink+9, Label="tt ss no\#gamma"
+TT_SSbl_redNC    : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) && nBJetDeepFlav25Medium <= 1; FillColor=ROOT.kAzure+1, Label="tt ss bl no\#gamma"
+TT_SSbt_redNC    : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15 && LepGood_genPartFlav != 22) && nBJetDeepFlav25Medium >= 2; FillColor=ROOT.kRed-3, Label="tt ss bt no\#gamma"
+
+TT_pt8_red : TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_pt >  8; FillColor=ROOT.kBlue+2,  Label="tt p_{T} >  8"
+TT_pt17_red: TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_pt > 17; FillColor=ROOT.kAzure+1, Label="tt p_{T} > 17"
+TT_pt20_red: TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_pt > 20; FillColor=ROOT.kTeal+7,  Label="tt p_{T} > 23"
+TT_pt23_red: TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_pt > 23; FillColor=ROOT.kTeal+7,  Label="tt p_{T} > 23"
+TT_pt27_red: TTtoLNu2Q* : 1 : (LepGood_genPartFlav != 1 && LepGood_genPartFlav != 15) && LepGood_pt > 27; FillColor=ROOT.kTeal+7,  Label="tt p_{T} > 27"
+
+incl_QCD : + ; IncludeMca="wz-run3/fr-measurement/mca-qcd1l-mc.txt", Processes="QCD.*"

@@ -54,6 +54,7 @@ class card_producer(plot_producer):
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
                    doAsimov,
+                   '--categorize "(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2" "[-0.5,0.5,1.5,2.5,3.5]" "eee,eem,mme,mmm" '
                    "--unc %s"%uncfile,
                    "--od %s/"%self.outname,
                    "--autoMCStats",

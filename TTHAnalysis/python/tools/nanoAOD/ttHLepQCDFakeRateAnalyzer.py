@@ -44,8 +44,9 @@ class ttHLepQCDFakeRateAnalyzer( Module ):
 
     def analyze(self, event):
         leps = Collection(event, 'LepGood')
-        if self.maxLeptons > 0 and len(leps) > self.maxLeptons:
-            return False
+        
+        #if self.maxLeptons > 0 and len(leps) > self.maxLeptons:
+        #    return False
         
         jets = []
         for ij,j in enumerate(Collection(event, 'Jet')):

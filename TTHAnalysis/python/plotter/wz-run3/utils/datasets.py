@@ -99,7 +99,32 @@ class dataset_fr(dataset):
     def get_pure_nanoaod(self, year):
         raw_nano = os.path.join(paths["nanoaod_FR"]["mc"], year, self.datasetname)
         return super().get_pure_nanoaod(raw_nano)
+
+class dataset_fr_data(dataset):
+    def __init__(self, info, cut = ""):
+        super().__init__(info)
+        self.isData = True 
+        self.datasetname = self.dbsname.split("/")[1]
+        self.era = re.match(".*(Run2....).*", self.dbsname).groups()[0]
+        self.processname = "{}_{}".format(self.datasetname, self.era) # Thanks to Run3 dataset naming!
+        self.regex = self.era
+       
+        if self.era in ["Run2022E", "Run2022F", "Run2022G"]:
+            self.year = "2022EE"
+        elif self.era in ["Run2022C", "Run2022D"]:
+            self.year = "2022"
+        return
     
+    def get_pure_nanoaod(self, year):
+        """ Get the nanoAOD files for a given year """
+        raw_nano = os.path.join(paths["nanoaod_FR"]["data"], year, self.datasetname)
+        folder = [f for f in os.listdir(raw_nano) if self.era in f]
+        if folder != []:      
+            raw_nano = os.path.join(raw_nano, folder[0])
+            return super().get_pure_nanoaod(raw_nano)
+        else:
+            return [], raw_nano
+        
 class mca(object):
     """ Class that stores datasets """
     def __init__(self, name, groups):
