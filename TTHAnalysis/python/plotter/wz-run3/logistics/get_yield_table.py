@@ -1,55 +1,55 @@
-""" Small code to read an output file from CMGTools and write a .tex with a yield table """
-import os
-import sys
-import re 
-inpath = sys.argv[1]
 import re
+import math
+import sys
 from make_latex_table import dict_to_latex_table
 
-
 def process_line(line):
-    # Skip lines starting with # or -
-    if line.startswith("#") or line.startswith("-"):
-        return None, None
+    # Extract numerical values from the line
+    values = [float(match.group()) for match in re.finditer(r'\d+\.\d+', line)]
+    return values
 
-    # Extract relevant information using regular expressions
-    match = re.match(r'(\w+)\s+([\d.]+)\s+\+/-\s+([\d.]+)\s+\(stat\)\s+\+\/-\s+([\d.]+)\s+\(syst\)\s+=\s+\+/-\s+([\d.]+)\s+\(all\)', line)
-    if match:
-        process_name, value, stat, syst, total = match.groups()
-        return "$%3.2f \pm %3.2f$"%(float(value), float(total)), process_name
-        #{
-            #'entry': float(value),
-            #'Statistical': float(stat),
-            #'Systematic': float(syst),
-            #'Total': float(total)
-        #}, process_name
-    else:
-        return None, None
+def process_table(file_path):
+    data = {'Process': [], 'eee': [], 'eem': [], 'mme': [], 'mmm': [], 'Inclusive': []}
 
-def read_table(file_path):
-    processes = {
-        "Process" : [],
-        "Inclusive" : [],
-    }
     with open(file_path, 'r') as file:
-        for line in file:
-            data, process_name = process_line(line.strip())
-            if data:
-                processes["Process"].append(process_name)
-                processes["Inclusive"].append(data)
-    return processes
+        lines = file.readlines()
+        for line in lines[1:]:
+            if line[0] in ["-", "#"]: continue
+            if "DATA" in line: continue
+            process = line.split(" ")[0] if "Fakes" not in line else line.split(" ")[0]+" "+line.split(" ")[1]
+            remove_empty = line.replace(process, "").replace(" ", "").replace("\n", "")
+            separate_bins = remove_empty.split("(syst)")[:-1]
+            print(process, separate_bins)
+            data["Process"].append(process)
+            tot = 0
+            tot_unc = 0 
+            for ibin, col in zip(separate_bins, ["eee", "eem", "mme", "mmm"]):
+                value = float(ibin.split("+/-")[0])
+                stat = float(ibin.split("+/-")[1].replace("(stat)", ""))
+                syst = float(ibin.split("+/-")[2]) 
+                total = math.sqrt(stat*stat + syst*syst) 
+                
+                data[col].append("%3.2f +/- %3.2f"%(value, total)) 
+                tot += value
+                tot_unc += total*total
+
+            data["Inclusive"].append("%3.2f +/- %3.2f"%(tot, math.sqrt(tot_unc)))
+                #data['Process'].append(process_name)
+                #data['Column1'].append(values[0])
+                #data['Column2'].append(values[1])
+                #data['Column3'].append(values[2])
+                #data['Column4'].append(values[3])
+                #data['Sum'].append(sum(values))
+
+    return data
 
 if __name__ == "__main__":
-    process_data = read_table(inpath)
+    file_path = sys.argv[1] 
+    table_data = process_table(file_path)
+
+    # Print the processed data
     caption="""Expected (pre-fit) yields (by flavor channel) for the relevant processes in the signal 
     region of the analysis. All analysis uncertainties but the $(\mu_r, \mu_F)$ and PDFs are included."""
     
-    print(process_data)
-    table = dict_to_latex_table(process_data, caption, "yields_prefit2022PostEE")
+    table = dict_to_latex_table(table_data, caption, "yields_prefit2022PostEE")
     print(table)
-    
-    
-    
-    
-
-    

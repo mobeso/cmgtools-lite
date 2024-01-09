@@ -352,6 +352,14 @@ float wz_tauClasifier(float lep1_pdgid, float lep2_pdgid, float lep3_pdgid){
   return atLeastOneTau;
 }
 
+float smoothBFlav(float jetpt, float ptmin, float ptmax) {
+
+    float wploose = 0.0614;
+    float wpmedium = 0.3196;
+    
+    float x = std::min(std::max(0.f, jetpt - ptmin)/(ptmax-ptmin), 1.f); 
+    return x*wploose + (1-x)*wpmedium;
+}
 
 float abs_log(float quantity) {
   return abs( log(quantity) );

@@ -1,9 +1,0 @@
-# vim: syntax=sh
-
-## data
-incl_data : + ; IncludeMca="wz-run3/mca/includes/mca-data-jetmet.txt"
-
-## signal
-incl_signal : + ; IncludeMca="wz-run3/mca/includes/mca-signal.txt"
-
-

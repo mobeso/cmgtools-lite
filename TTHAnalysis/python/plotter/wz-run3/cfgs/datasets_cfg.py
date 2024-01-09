@@ -63,22 +63,23 @@ mcas["signal"].add_dataset( dataset_mc(dbs_mc["WZto3LNu"], "ROOT.kOrange"), "WZ"
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["ZZto4L"], "ROOT.kGreen+1"), "ZZ")
 
 # + TZQ
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TZQB_4FS_OnshellZ"], "ROOT.kCyan"), "TZQ")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TZQB_4FS_OnshellZ"], "ROOT.kCyan"), "TZQ")
 
 # + TTX
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTG_1Jets_PTG_10to100"], "ROOT.kViolet-3"), "ttX")
+mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTG_1Jets_PTG_100to200"], "ROOT.kViolet-3"), "ttX")
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTG_1Jets_PTG_200"], "ROOT.kViolet-3"), "ttX")
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTHtoNon2B_M_125"], "ROOT.kViolet-3"), "ttX")
+mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTHtoNon2B"], "ROOT.kViolet-3"), "ttX")
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTLNu_1Jets"], "ROOT.kViolet-3"), "ttX")
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTLL_MLL_50"], "ROOT.kViolet-3"), "ttX")
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTLL_MLL_4to50"], "ROOT.kViolet-3"), "ttX")
 
 # + Others
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWW"], "ROOT.kSpring+2 "), "Others")
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTTT"], "ROOT.kSpring+2 "), "Others")
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTHH"], "ROOT.kSpring+2 "), "Others")
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWZ"], "ROOT.kSpring+2 "), "Others")
-mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWH"], "ROOT.kSpring+2 "), "Others")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWW"], "ROOT.kSpring+2 "), "Others")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTTT"], "ROOT.kSpring+2 "), "Others")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTHH"], "ROOT.kSpring+2 "), "Others")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWZ"], "ROOT.kSpring+2 "), "Others")
+#mcas["prompts"].add_dataset( dataset_mc(dbs_mc["TTWH"], "ROOT.kSpring+2 "), "Others")
 
 # + Tribosons
 mcas["prompts"].add_dataset( dataset_mc(dbs_mc["WWW_4F"], "ROOT.kRed+1"), "VVV")

@@ -2,18 +2,18 @@
 
 # --- Basics
 alwaystrue   :  1
-filters : $DATA{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter} $MC{1}
+filters : $DATA{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter} $MC{Flag_eeBadScFilter && Flag_goodVertices && Flag_globalSuperTightHalo2016Filter && Flag_HBHENoiseFilter && Flag_HBHENoiseIsoFilter && Flag_EcalDeadCellTriggerPrimitiveFilter && Flag_BadPFMuonFilter}
 trigger : Trigger_3l
 
 # --- Three lepton selection
-3l         : nLepSel >= 3
+trilep     : nLepSel >= 3
 AllTight   : allTight(LepSel_isTight[0], LepSel_isTight[1], LepSel_isTight[2])
 lepPt      : LepZ1_pt >= 25 && LepZ2_pt >= 15 && LepW_pt >= 25
 BRevent    : abs(LepSel_pdgId[0]) < 15 && abs(LepSel_pdgId[1]) < 15 && abs(LepSel_pdgId[2]) < 15 && nOSSF_3l >= 1
 m3l        : m3L >= 100
 met        : MET_pt_central > 35
-exactly3L  : nLepGood == 3
-btag       : nBJetMedium30_Mini > 0
+exactly3L  : nLepGood < 4
+btag       : nBJetMedium25_Mini > 0
 zPeak      : abs(mll_3l - 91.16) < 15
 lowmass    : minMllSFOS_Mini > 4 || minMllSFOS_Mini == -1
 

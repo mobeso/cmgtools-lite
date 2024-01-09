@@ -29,8 +29,12 @@ class postprocessor_producer(producer):
   
     outname = os.path.join(outname, self.doData.lower(), year)
 
-    if self.analysis != "main":
+    if self.analysis == "fr":
       outname = outname.replace(self.doData.lower(), self.doData.lower()+"_fr")
+      self.extra += " --option analysis=%s"%self.analysis
+    
+    elif self.analysis == "fiducial":
+      outname = outname.replace(self.doData.lower(), self.doData.lower()+"_unskim")
       self.extra += " --option analysis=%s"%self.analysis
       
     if self.local_test:

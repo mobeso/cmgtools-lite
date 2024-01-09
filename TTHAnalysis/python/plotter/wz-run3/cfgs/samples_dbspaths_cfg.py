@@ -34,24 +34,23 @@ dbs_mc = {
     
     # Prompts
     'ZZto4L': {'dbs': '/ZZto4L_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 1.65}, 
-    'TTG_1Jets_PTG_100to200': {'dbs': '/TTG-1Jets_PTG-100to200_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 1}, 
-    'TTG_1Jets_PTG_200': {'dbs': '/TTG-1Jets_PTG-200_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 1},  
-    'TTG_1Jets_PTG_10to100': {'dbs': '/TTG-1Jets_PTG-10to100_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 1}, 
-    'TTHtoNon2B_M_125': {'dbs': '/TTHtoNon2B_M-125_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 1}, 
+    'TTG_1Jets_PTG_10to100': {'dbs': '/TTG-1Jets_PTG-10to100_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 4.216}, 
+    'TTG_1Jets_PTG_100to200': {'dbs': '/TTG-1Jets_PTG-100to200_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 0.411}, 
+    'TTG_1Jets_PTG_200': {'dbs': '/TTG-1Jets_PTG-200_TuneCP5_13p6TeV_amcatnloFXFXold-pythia8/', 'xsec': 0.128},  
+    'TTHtoNon2B': {'dbs': '/TTHtoNon2B_M-125_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 0.574}, 
     'TTLL_MLL_50': {'dbs': '/TTLL_MLL-50_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.08646}, 
     'TTLL_MLL_4to50': {'dbs': '/TTLL_MLL-4to50_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.03949}, 
-    'TTLNu_1Jets': {'dbs': '/TTLNu-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 1}, 
-    'TZQB_4FS_OnshellZ': {'dbs': '/TZQB-4FS_OnshellZ_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 1},  
+    'TTLNu_1Jets': {'dbs': '/TTLNu-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 0.25}, 
     'WZZ': {'dbs': '/WZZ_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.06206}, 
     'WWW_4F': {'dbs': '/WWW_4F_TuneCP5_13p6TeV_amcatnlo-madspin-pythia8/', 'xsec': 1}, 
     'WWZ_4F': {'dbs': '/WWZ_4F_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.18510}, 
     'ZZZ': {'dbs': '/ZZZ_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.01591}, 
-    'TTWW': {'dbs': '/TTWW_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
-    'TTWH': {'dbs': '/TTWH_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
-    'TTTT': {'dbs': '/TTTT_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 1}, 
-    'TTHH': {'dbs': '/TTHH_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
-    'TTWZ': {'dbs': '/TTWZ_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
-    'TTZZ': {'dbs': '/TTZZ_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
+    #'TTWW': {'dbs': '/TTWW_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
+    #'TTWH': {'dbs': '/TTWH_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
+    #'TTTT': {'dbs': '/TTTT_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 1}, 
+    #'TTHH': {'dbs': '/TTHH_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
+    #'TTWZ': {'dbs': '/TTWZ_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
+    #'TTZZ': {'dbs': '/TTZZ_TuneCP5_13p6TeV_madgraph-madspin-pythia8/', 'xsec': 1}, 
     
     # TOP Fakes
     'TTto2L2Nu': {'dbs': '/TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 97.4488},
@@ -59,7 +58,6 @@ dbs_mc = {
  
     'TbarWplusto2L2Nu': {'dbs': '/TbarWplusto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 23.8979}, 
     'TWminusto2L2Nu': {'dbs': '/TWminusto2L2Nu_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 23.8979}, 
-    'TTZ_ZtoQQ_1Jets': {'dbs': '/TTZ-ZtoQQ-1Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 1}, 
 
     # Ewk fakes
     'WZto2L2Q': {'dbs': '/WZto2L2Q_TuneCP5_13p6TeV_powheg-pythia8/', 'xsec': 1}, 
@@ -71,11 +69,11 @@ dbs_mc = {
     'WtoLNu_2Jets': {'dbs': '/WtoLNu-2Jets_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 64481.58}, 
 
     # Conversions
-    'WGtoLNuG_PTG_10to100': {'dbs': '/WGtoLNuG-1Jets_PTG-10to100_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 1}, 
+    'WGtoLNuG_PTG_10to100': {'dbs': '/WGtoLNuG-1Jets_PTG-10to100_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 662.2},
+    'WGtoLNuG_PTG_100to200': {'dbs': '/WGtoLNuG-1Jets_PTG-100to200_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 2.214}, 
+    'WGtoLNuG_PTG_200': {'dbs': '/WGtoLNuG-1Jets_PTG-200_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 0.319}, 
     'ZGto2LG': {'dbs': '/ZGto2LG_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 1}, 
-    'WZGtoLNuZG': {'dbs': '/WZGtoLNuZG_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 1}, 
-    'WGtoLNuG_PTG_100to200': {'dbs': '/WGtoLNuG-1Jets_PTG-100to200_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 1}, 
-    'WGtoLNuG_PTG_200': {'dbs': '/WGtoLNuG-1Jets_PTG-200_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/', 'xsec': 1}, 
+    'WZGtoLNuZG': {'dbs': '/WZGtoLNuZG_TuneCP5_13p6TeV_amcatnlo-pythia8/', 'xsec': 0.08425}, 
     
     # QCD no skim
     # EM enriched

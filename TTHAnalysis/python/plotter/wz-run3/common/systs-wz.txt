@@ -53,7 +53,8 @@ jesAbsolute            : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/com
 
 ## Lepton SFs 
 #elecidsf : $allProcs : .* : templateAsymm; AddWeights=["electronSF_Up/electronSF"\,"electronSF_Down/electronSF"]
-muonidsf_ID : $allProcs : .* : templateAsymm; AddWeights=["muonSF_IDTightUp/muonSF"\,"muonSF_IDTightDown/muonSF"]
+#muonidsf_ID : $allProcs : .* : templateAsymm; AddWeights=["muonSF_IDTightUp/muonSF"\,"muonSF_IDTightDown/muonSF"]
+#electronidsf_ID : $allProcs : .* : templateAsymm; AddWeights=["electronSF_IDTightUp/electronSF"\,"electronSF_IDTightDown/electronSF"]
 
 ## Pileup
 pileup : $allProcs : .* : templateAsymm; AddWeights=["puWeight_up/puWeight"\,"puWeight_dn/puWeight"]

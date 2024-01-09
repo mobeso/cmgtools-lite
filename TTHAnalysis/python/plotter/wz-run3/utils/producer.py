@@ -6,13 +6,11 @@ from cfgs.samplepaths import samplepaths as paths
 from functions import color_msg
 
 class producer(object):
-    #weights = ['puWeight*bTagWeight*electronSF*muonSF']
-    weights = ['puWeight*muonSF']
-    #weights = ['puWeight']
-    functions = ["wz-run3/functionsWZ.cc", "functions.cc"]
+    weights = ['puWeight*bTagWeight*electronSF*muonSF']
+    functions = ["wz-run3/functionsWZ.cc", "functions.cc", "wz-run3/functionsMCMatch.cc"]
 
     name = "producer"
-    cluster_comm = "sbatch -c {nc} -J {jn} -p batch -e {logpath}/logs/log.%j.%x.err -o {logpath}/logs/log.%j.%x.out --wrap '{comm}' "
+    cluster_comm = 'sbatch -c {nc} -J {jn} -p batch -e {logpath}/logs/log.%j.%x.err -o {logpath}/logs/log.%j.%x.out --wrap "{comm}" '
     jobname = "CMGjob"
     
     def __init__(self, parser):

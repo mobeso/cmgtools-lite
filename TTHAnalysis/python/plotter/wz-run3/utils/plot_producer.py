@@ -62,6 +62,8 @@ class plot_producer(producer):
     # --- Override main producer option for output path
     parser.add_option("--outname", dest = "outname", type="string", default = "plots/",
           help = "Output (folder) name")
+    parser.add_option("--unweight", dest = "unweight", action="store_true", default = False,
+      help = "Don't use corrections")
     return
 
   def add_friends(self, maxstep = -1):
@@ -111,7 +113,7 @@ class plot_producer(producer):
     mccfile   = self.mccfile
     apply_unc = self.unc
     lumi      = lumis[year]
-
+    unweight  = self.unweight
 
     # Other plotting stuff 
     plottingStuff =  "--obj Events "
@@ -127,6 +129,7 @@ class plot_producer(producer):
     plottingStuff += "--neg "
     plottingStuff += "--TotalUncRatioColor 922 922 "
     plottingStuff += "--TotalUncRatioStyle 3444 0 "
+    plottingStuff += "--plotgroup prompt_WZ+=prompt_WZ_nonfiducial"
 
     if self.normtodata: plottingStuff += self.norm_data()
     
@@ -138,6 +141,7 @@ class plot_producer(producer):
 
     self.mcpath = os.path.join(self.inpath, "mc", self.year)
     self.datapath = os.path.join(self.inpath, "data", self.year)
+    
     # List with all the options given to CMGTools
     self.commandConfs = ["%s"%self.mca, 
                    "%s"%self.cutfile,
@@ -148,7 +152,7 @@ class plot_producer(producer):
                    "-P {mcpath} -P {datapath}".format(mcpath = self.mcpath, datapath = self.datapath),
                    self.add_friends(),
                    "-L " + " -L ".join(self.functions),
-                   "-W '%s'"%("*".join(self.weights)) if len(self.weights) else "",
+                   "-W '%s'"%("*".join(self.weights)) if not unweight else "-W 'puWeight'", # Always keep PU weights
                    "%s"%plottingStuff,
                    "-j %s"%(self.ncores),
                    "--mcc %s"%mccfile if mccfile != None else "", 
