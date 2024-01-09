@@ -9,7 +9,6 @@ import ROOT
 from PhysicsTools.NanoAODTools.postprocessing.modules.common.collectionMerger import collectionMerger
 from CMGTools.TTHAnalysis.tools.nanoAOD.skimNRecoLeps import SkimRecoLeps
 from CMGTools.TTHAnalysis.tools.nanoAOD.DatasetTagger import datasetTagger
-from CMGTools.TTHAnalysis.tools.nanoAOD.lepMVAWZ_run3 import lepMVAWZ_run3
 from CMGTools.TTHAnalysis.tools.evtTagger import EvtTagger
 from CMGTools.TTHAnalysis.tools.nanoAOD.applyPuWeights import puWeighter 
 
@@ -44,12 +43,13 @@ muonSelection = lambda l : ((abs(l.eta) < max_mu_eta) and (l.pt > min_mu_pt)
 # + Electrons
 elecSelection = lambda l : (
     ( abs(l.eta) < max_el_eta) and (l.pt > min_el_pt)
+    and (abs(l.eta+l.deltaEtaSC) < 1.4442 or abs(l.eta+l.deltaEtaSC) > 1.566)
     and isoAndIPCuts(l) and l.lostHits < 2
 )
 # + Electrons: postEE+ leak
 elecSelection_EE = lambda l : (
-    elecSelection(l)
-    and not(l.eta > etaLeak and int(l.seediEtaOriX) < 45 and l.seediPhiOriY > 72)
+    elecSelection(l) 
+    and not( (l.eta+l.deltaEtaSC) > etaLeak and int(l.seediEtaOriX) < 45 and l.seediPhiOriY > 72)
 )
 
 lepMerge = collectionMerger(
@@ -66,21 +66,15 @@ lepMerge_EE = collectionMerger(
 
 # --- Electron Scale/Smearing corrections
 from CMGTools.TTHAnalysis.tools.nanoAOD.applyElectronSS import applyElectronSS 
-elecScaleRes2022_data = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/electronSS/", True, "SS.json")
-elecScaleRes2022_mc = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/electronSS/", False, "SS.json")
+elecScaleRes2022_data = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/EGM/2022/", isData = True, file = "electronSS.json.gz")
+elecScaleRes2022_mc = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/EGM/2022/", isData = False, file = "electronSS.json.gz")
+elecScaleRes2022EE_data = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/EGM/2022EE/", isData = True, file = "electronSS.json.gz")
+elecScaleRes2022EE_mc = lambda: applyElectronSS(os.environ["CMSSW_BASE"] + "/src/CMGTools/TTHAnalysis/data/WZRun3/EGM/2022EE/", isData = False, file = "electronSS.json.gz")
 
 
 # --- Skimming and label tagger --- #
 lepSkim = SkimRecoLeps() # Skim configuration: at least 2 leptons
 tagger  = lambda : datasetTagger()
-
-# --- PU weights --- #
-from PhysicsTools.NanoAODTools.postprocessing.modules.common.puWeightProducer import puWeightProducer
-pufile_data2022PostEE = "%s/src/CMGTools/TTHAnalysis/data/WZRun3/pileup/MyDataPileupHistogram_2022PostEE.root" % os.environ['CMSSW_BASE']
-puweighter = lambda : puWeightProducer("auto", pufile_data2022PostEE, "pu_mc", "pileup", verbose=False)
-
-
-
 
 # --- Trigger sequence --- #
 # Define different trigger strategies in this dictionary
@@ -94,7 +88,7 @@ triggerGroups = dict(
     triggers_ee    = { 2022 : lambda ev: ev.HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL},
     triggers_mm    = { 2022 : lambda ev: ev.HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8},
     triggers_em    = { 2022 : lambda ev: ev.HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ \
-                                        or ev.HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL},
+                                         or ev.HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL},
     # Tri-lepton triggers
     triggers_mmm = { 2022 : lambda ev: ev.HLT_TripleMu_12_10_5 or ev.HLT_TripleMu_10_5_5_DZ},
     triggers_eee = { 2022 : lambda ev: 0 }, # Only one is prescaled in some of the data
@@ -102,10 +96,10 @@ triggerGroups = dict(
     triggers_mee = { 2022: lambda ev : ev.HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ},
     
     # MET triggers
-    triggers_met = {2022 : lambda ev: ev.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight or ev.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight},
+    triggers_met = { 2022 : lambda ev: ev.HLT_PFMETNoMu120_PFMHTNoMu120_IDTight or ev.HLT_PFMETNoMu110_PFMHTNoMu110_IDTight},
 
     # Fake rate triggers
-    triggers_fr = {2022 : lambda ev: ev.HLT_Ele8_CaloIdM_TrackIdM_PFJet30 \
+    triggers_fr = { 2022 : lambda ev: ev.HLT_Ele8_CaloIdM_TrackIdM_PFJet30 \
                                 or ev.HLT_Ele17_CaloIdM_TrackIdM_PFJet30 \
                                 or ev.HLT_Ele23_CaloIdM_TrackIdM_PFJet30 \
                                 or ev.HLT_Mu3_PFJet40 \
@@ -115,8 +109,8 @@ triggerGroups = dict(
                                 or ev.HLT_Mu27},
     # Combinations
     triggers_2lss = { 2022 : lambda ev: ev.Trigger_se or ev.Trigger_sm or ev.Trigger_mm or ev.Trigger_ee or ev.Trigger_em },
-    triggers_3l = { 2022 : lambda ev: ev.Trigger_2lss or ev.Trigger_eee or ev.Trigger_mee or ev.Trigger_mme or ev.Trigger_mmm},
-    triggers_jme = { 2022: lambda ev: ev.Trigger_jetmet or ev.Trigger_met or ev.Trigger_jetht }
+    triggers_3l   = { 2022 : lambda ev: ev.Trigger_2lss or ev.Trigger_eee or ev.Trigger_mee or ev.Trigger_mme or ev.Trigger_mmm},
+    triggers_jme  = { 2022 : lambda ev: ev.Trigger_jetmet or ev.Trigger_met or ev.Trigger_jetht }
 )
 
 # Prompt triggers
@@ -131,17 +125,17 @@ Trigger_mme    = lambda : EvtTagger('Trigger_mme',  [lambda ev : triggerGroups['
 Trigger_mmm    = lambda : EvtTagger('Trigger_mmm',  [lambda ev : triggerGroups['triggers_mmm'][2022](ev)])
 Trigger_2lss   = lambda : EvtTagger('Trigger_2lss', [lambda ev : triggerGroups['triggers_2lss'][2022](ev)])
 Trigger_3l     = lambda : EvtTagger('Trigger_3l',   [lambda ev : triggerGroups['triggers_3l'][2022](ev)])
-
-# JetMET triggers
-Trigger_met        = lambda : EvtTagger('Trigger_met',     [lambda ev : triggerGroups['triggers_met'][2022](ev)])
+Trigger_met    = lambda : EvtTagger('Trigger_met',  [lambda ev : triggerGroups['triggers_met'][2022](ev)])
 
 triggerSequence = [Trigger_sm, Trigger_se, Trigger_mm, Trigger_ee, Trigger_em, Trigger_eee, Trigger_mee, Trigger_mme, Trigger_mmm, Trigger_2lss, Trigger_3l, Trigger_met]
 
-lepCollector         = [lepMerge, elecScaleRes2022_mc, lepSkim]  + [tagger, puweighter] + triggerSequence
-lepCollector_data    = [lepMerge, elecScaleRes2022_mc, lepSkim]  + [tagger] + triggerSequence
+# --- PU weights --- #
+from CMGTools.TTHAnalysis.tools.nanoAOD.puWeightProducer_run3 import puAutoWeight_2022PostEE
 
-lepCollector_EE      = [lepMerge_EE, elecScaleRes2022_mc, lepSkim] + [tagger, puweighter] + triggerSequence
-lepCollector_EE_data = [lepMerge_EE, elecScaleRes2022_mc, lepSkim] + [tagger] + triggerSequence
+lepCollector         = [lepMerge, elecScaleRes2022_mc, lepSkim]  + [tagger, puAutoWeight_2022PostEE] + triggerSequence
+lepCollector_data    = [lepMerge, elecScaleRes2022_data, lepSkim]  + [tagger] + triggerSequence
+lepCollector_EE      = [lepMerge_EE, elecScaleRes2022EE_mc, lepSkim] + [tagger, puAutoWeight_2022PostEE] + triggerSequence
+lepCollector_EE_data = [lepMerge_EE, elecScaleRes2022EE_data, lepSkim] + [tagger] + triggerSequence
 
 # --------------------------------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------------- JET CORRECTIONS ------------------------------------------------------ # 
@@ -204,17 +198,39 @@ jmeCorrections_data_EE   = [addJECs_2022EE_data]
 # ---------------------------------------------------- LEPTON MVA ----------------------------------------------------- # 
 # --------------------------------------------------------------------------------------------------------------------- #
 # --- lepton MVA identification --- #
-weightspath_2022   = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/lepMVA/2022")
-weightspath_2022EE = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/lepMVA/2022EE")
+weightspath_2022   = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/")
+weightspath_2022EE = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/")
 
 import CMGTools.TTHAnalysis.tools.nanoAOD.mvaTTH_vars_run3 as mvatth_cfg
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepMVAWZ_run3 import lepMVAWZ_run3
 
+lepmvas_2022 = [
+    lambda : lepMVAWZ_run3(
+        weightspath_2022, 
+        elxmlpath = "EGM/Electron-mvaTTH.2022EE.weights_mvaISO.xml", 
+        muxmlpath = "MUO/Muon-mvaTTH.2022EE.weights.xml", 
+        suffix = "_run3",
+        inputVars = {"muons":  mvatth_cfg.muon_df("2022"), "electrons" : mvatth_cfg.electron_df_wIso("2022")}
+    ),
+]
+
+lepmvas_2022EE = [
+    lambda : lepMVAWZ_run3(
+        weightspath_2022EE, 
+        elxmlpath = "EGM/Electron-mvaTTH.2022EE.weights_mvaISO.xml", 
+        muxmlpath = "MUO/Muon-mvaTTH.2022EE.weights.xml", 
+        suffix = "_run3",
+        inputVars = {"muons":  mvatth_cfg.muon_df("2022EE"), "electrons" : mvatth_cfg.electron_df_wIso("2022EE")}
+    ),
+]
+
+"""
 lepmvas_2022 = [
     lambda : lepMVAWZ_run3(
         weightspath_2022, 
         elxmlpath = "el_ttw_df_useIso_2022_BDTG.weights.xml", 
         muxmlpath = "mu_ttw_df_2022_BDTG.weights.xml", 
-        suffix = "_run3_withDF_withISO",
+        suffix = "_run3",
         inputVars = {"muons":  mvatth_cfg.muon_df("2022"), "electrons" : mvatth_cfg.electron_df_wIso("2022")}
     ),
     lambda : lepMVAWZ_run3(
@@ -238,7 +254,7 @@ lepmvas_2022EE = [
         weightspath_2022EE, 
         elxmlpath = "el_ttw_df_useIso_2022EE_BDTG.weights.xml", 
         muxmlpath = "mu_ttw_df_2022EE_BDTG.weights.xml", 
-        suffix = "_run3_withDF_withISO",
+        suffix = "_run3",
         inputVars = {"muons":  mvatth_cfg.muon_df("2022EE"), "electrons" : mvatth_cfg.electron_df_wIso("2022EE")}
     ),
     lambda : lepMVAWZ_run3(
@@ -256,6 +272,7 @@ lepmvas_2022EE = [
         inputVars = {"muons":  mvatth_cfg.muon_df("2022EE"), "electrons" : mvatth_cfg.electron_df("2022EE")}
     ),
 ]
+"""
 
 
 # --------------------------------------------------------------------------------------------------------------------------- #
@@ -283,11 +300,38 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.functions_wz import conept
 
 # --- b tagging working points from 2022EE
 btag_wps = {
+    "2022" : {
+        "btagDeepFlavB" : {
+            "L" : 0.0583,
+            "M" : 0.3086,
+            "T" : 0.7183
+        },
+        "btagRobustParTAK4B" : {
+            "L" : 0.0849,
+            "M" : 0.4319,
+            "T" : 0.8482
+        },
+        "btagPNetB" : {
+            "L" : 0.047,
+            "M" : 0.245,
+            "T" : 0.6734
+        }
+    },
     "2022EE" : {
         "btagDeepFlavB" : {
             "L" : 0.0614,
             "M" : 0.3196,
             "T" : 0.73
+        },
+        "btagRobustParTAK4B" : {
+            "L" : 0.0897,
+            "M" : 0.451,
+            "T" : 0.8604
+        },
+        "btagPNetB" : {
+            "L" : 0.0499,
+            "M" : 0.2605,
+            "T" : 0.6915
         }
     }
 }
@@ -333,7 +377,8 @@ recleaner_2022 = lambda : LeptonJetRecleanerWZSM(
     doVetoLMt = True,
     # ------------------------------------- #
     year  = "2022EE",
-    bAlgo = "DeepJet"
+    btag_wps = btag_wps,
+    bAlgo = "btagDeepFlavB"
 )
 
 leptonJetRecleaning = [recleaner_2022]
@@ -342,8 +387,9 @@ leptonJetRecleaning = [recleaner_2022]
 # ---------------------------------------------------- BTAGGING EFFICIENCIES --------------------------------------------------- # 
 # ------------------------------------------------------------------------------------------------------------------------------ #
 from CMGTools.TTHAnalysis.tools.nanoAOD.btagEffCount_wzRun3 import bTagEffCount
-btagEff_2022EE = [lambda : bTagEffCount()]
-
+btagEffDeepjet_2022EE                   = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
+btagEffrobustParticleTransformer_2022EE = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
+btagEffrobustParticleNet_2022EE         = [lambda : bTagEffCount( tagger = "btagPNetB",     year = "2022EE" )]
 
 # ---------------------------------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------------- LEPTON BUILDER    ----------------------------------------------------- # 
@@ -356,17 +402,6 @@ leptonBuilderWZSM_2022 = lambda : leptonBuilderWZSM(
     lepScaleSysts = leptongroups 
 )
 leptonBuilder = [leptonBuilderWZSM_2022]
-
-# ---------------------------------------------------------------------------------------------------------------------------- #
-# ---------------------------------------------------- LEPTON MC MATCHER    -------------------------------------------------- # 
-# ---------------------------------------------------------------------------------------------------------------------------- #
-
-from CMGTools.TTHAnalysis.tools.nanoAOD.leptonMatcher import leptonMatcher
-from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM import lepgenVarsWZSM
-leptonMCMatcher =  lambda: leptonMatcher("Mini")
-leptonMCBuilder = lambda : lepgenVarsWZSM("Mini")
-leptonGENBuilder = [leptonMCMatcher, leptonMCBuilder]
-
 
 # ------------------------------------------------------------------------------------------------------------------------------ #
 # ---------------------------------------------------- SCALE FACTORS ----------------------------------------------------------- # 
@@ -418,55 +453,48 @@ lepCollector_data_FR = [m for m in lepCollector_data if m != lepSkim]
 lepCollector_EE_FR = [m for m in lepCollector_EE if m != lepSkim]
 lepCollector_EE_data_FR = [m for m in lepCollector_EE_data if m != lepSkim]
 
-
 frUtils = [ lepJetBTagDeepFlav, lepFR, nBJetDeepFlav25NoRecl ]
+
 # ---------------------------------------------------------------------------------------------------------------------------- #
-### To be implemented
-if __name__ == "__main__":
-    """ Debug the module """
-    from sys import argv
-    from copy import deepcopy
-    from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import eventLoop
-    from PhysicsTools.NanoAODTools.postprocessing.framework.output import FriendOutput, FullOutput
-    from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import InputTree
-    
-    
-    
-    analysis = str(argv[1])
-    nentries = int(argv[2])
-    
-    modules = []
-    if analysis == "main":
-        mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/24october2023/MC/2022PostEE/WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/mcRun3_PostEE_oct2023_WZto3LNu_TuneCP5_13p6TeV_powheg-pythia8/231023_150004/0000/"
-        process = "tree_1"
-        modules = lepCollector_EE
-        
-    if analysis == "fr":
-        mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/27oct2023_noSkimForFR/MC/2022PostEE/QCD_PT-1000_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/mcRun3_PostEE_oct2023_frmeasurement_MU_QCD_PT-1000_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/231027_164619/0000/"
-        process = "tree_1"
-        modules = [lepMerge_EE] + lepmvas_2022EE
-    
-    
-    ### Open the main file
-    file_ = ROOT.TFile( os.path.join(mainpath, process+".root") )
-    tree = file_.Get("Events")
+# ---------------------------------------------------- LEPTON MC MATCHER    -------------------------------------------------- # 
+# ---------------------------------------------------------------------------------------------------------------------------- #
+from CMGTools.TTHAnalysis.tools.nanoAOD.leptonMatcher import leptonMatcher
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM import lepgenVarsWZSM
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM_nondressed_withtaus import lepgenVarsWZSM_nondressed_withtaus
+
+leptonMCMatcher =  lambda: leptonMatcher("Mini")
+leptonMCBuilder = lambda : lepgenVarsWZSM("Mini")
+leptonGENBuilder = [leptonMCMatcher, leptonMCBuilder]
+lepGENBuilder_withtaus = lambda : lepgenVarsWZSM_nondressed_withtaus("Mini")
+
+# ---- These are used for fiducial analysis
+lepMerge_fiducial = collectionMerger(
+    input = ["Electron", "Muon"], 
+    output = "LepGood",
+    selector = dict(Muon = lambda l: 1, Electron = lambda l: 1)
+)
+
+lepCollector_fiducial = [lepGENBuilder_withtaus]
 
 
-    for m in modules:
-        m.beginJob()
-    ### Replicate the eventLoop
-    tree = InputTree(tree)
-    outFile = ROOT.TFile.Open("test_%s.root"%process, "RECREATE")
-    #outTree = FriendOutput(file_, tree, outFile)
-    outTree = FullOutput(file_, tree, outFile, maxEntries = nentries)
+# --------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------- MODULES FOR TNP SFS -------------------------------------------- # 
+# --------------------------------------------------------------------------------------------------------------------- #
+from CMGTools.TTHAnalysis.tools.nanoAOD.addTnpTree import Electron_2022, Muon_2022
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepJetBTagAdder import lepJetBTagAdder
 
-    (nall, npass, timeLoop) = eventLoop(modules, file_, outFile, tree, outTree, maxEvents = nentries)
-    
-    print(('Processed %d preselected entries from %s (%s entries). Finally selected %d entries' % (nall, __file__.split("/")[-1].replace(".py", ""), nentries, npass)))
-    outTree.write()
-    file_.Close()
-    outFile.Close()
-    print("Test done")
-    for m in modules:
-        m.endJob()
+# Merge lepton collections without applying selections
+remove_ecalDeadZones = lambda l: not( (l.eta+l.deltaEtaSC) > etaLeak and int(l.seediEtaOriX) < 45 and l.seediPhiOriY > 72) and (abs(l.eta + l.deltaEtaSC) < 1.4442 or abs(l.eta + l.deltaEtaSC) > 1.566)
 
+lepMerge_forTnP = collectionMerger(
+    input = ["Electron", "Muon"], 
+    output = "LepGood",
+    selector = dict(Muon = lambda l: 1, Electron = remove_ecalDeadZones )
+)
+
+addBtag = lepJetBTagAdder("btagDeepFlavB", "jetBTagDeepFlav")
+
+leptonSFs_muon_2022EE     = [lepMerge_forTnP, puAutoWeight_2022PostEE, addBtag, lepmvas_2022EE[0], Muon_2022] 
+leptonSFs_electron_2022EE = [lepMerge_forTnP, puAutoWeight_2022PostEE, addBtag, lepmvas_2022EE[0], Electron_2022] 
+leptonSFs_muon_2022EE_data  = [lepMerge_forTnP, addBtag, lepmvas_2022EE[0], Muon_2022] 
+leptonSFs_electron_2022EE_data = [lepMerge_forTnP, addBtag, lepmvas_2022EE[0], Electron_2022]

@@ -689,7 +689,7 @@ if __name__ == '__main__':
     from PhysicsTools.NanoAODTools.postprocessing.framework.output import FriendOutput, FullOutput
     from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import InputTree
     
-    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv11/wz-run3/trees_v5/mc/2022EE/"
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
     process = "WZto3LNu"
 #    process = "TTTo2L2Nu_part17"
     

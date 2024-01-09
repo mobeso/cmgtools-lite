@@ -83,9 +83,7 @@ class lepMVAWZ_run3(Module):
                 setattr(lep, "mvaTTH%s"%self.suffix, mva)
             else:
                 ret["LepGood_mvaTTH%s"%self.suffix].append(-1)
-            
-            print(lep.pdgId, mva)
-        
+                    
         writeOutput(self, ret)
         return True
 
@@ -117,11 +115,16 @@ if __name__ == '__main__':
     from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepMerge_EE
     import CMGTools.TTHAnalysis.tools.nanoAOD.mvaTTH_vars_run3 as mvatth_cfg
 
-    module_test =  lepMVAWZ_run3(weightspath_2022EE, 
-                                 elxmlpath = "el_ttw_df_useNoIso_2022EE_BDTG.weights.xml", 
-                                 muxmlpath = "mu_ttw_df_2022EE_BDTG.weights.xml", 
-                                 suffix = "_run3_withDF",
-                                 inputVars = {"muons":  mvatth_cfg.muon_df("2022EE"), "electrons" : mvatth_cfg.electron_df_wNoIso("2022EE")})
+    weightspath_2022EE = os.path.join(os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/")
+
+    module_test = lepMVAWZ_run3(
+        weightspath_2022EE, 
+        elxmlpath = "EGM/Electron-mvaTTH.2022EE.weights_mvaISO.xml", 
+        muxmlpath = "MUO/Muon-mvaTTH.2022EE.weights.xml", 
+        suffix = "_run3",
+        inputVars = {"muons":  mvatth_cfg.muon_df("2022"), "electrons" : mvatth_cfg.electron_df_wIso("2022")}
+    )
+    
     module_test.beginJob()
     (nall, npass, timeLoop) = eventLoop([lepMerge_EE, module_test], file_, outFile, tree, outTree, maxEvents = nentries)
     print(('Processed %d preselected entries from %s (%s entries). Finally selected %d entries' % (nall, __file__.split("/")[-1].replace(".py", ""), nentries, npass)))

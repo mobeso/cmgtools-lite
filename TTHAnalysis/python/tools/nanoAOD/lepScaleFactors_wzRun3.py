@@ -125,22 +125,19 @@ class lepScaleFactors_wzrun3(Module):
     } 
     
     for ilep, lep in enumerate(leps):
-      lep_pt  = lep.pt
+      lep_pt  = getattr(lep, "conePt")
       lep_eta = lep.eta
       lep_pdg = abs(lep.pdgId)
       if self.verbosity > 0:
           color_msg("  >> Getting SF for lepton %d (pdgID = %d )"%(ilep, lep.pdgId), "green")
-          color_msg("    + pT: %3.2f"%(lep.pt), "blue")
-          color_msg("    + eta: %3.2f"%(lep.eta), "blue")
+          color_msg("    + pT: %3.2f"%(lep_pt), "blue")
+          color_msg("    + eta: %3.2f"%(lep_eta), "blue")
       if lep_pdg == 13: # Muon
-
         sfs["muon"].append(self.getLepSF(lep_pt, lep_eta, "muon"))
         self.nmuons += 1
       elif lep_pdg == 11: # Electron
-        
         sfs["electron"].append( self.getLepSF(lep_pt, lep_eta, "electron") )
-        #self.nelectrons += 1
-      
+        self.nelectrons += 1
       else: # who knows
         raise RuntimeError("[lepScaleFactors_wzRun3::analyze]: Wrong pdgId %d"%lep_pdg)
       
@@ -278,7 +275,7 @@ class lepScaleFactors_wzrun3(Module):
   # ============ LOADING METHODS =============== #
   def load_histograms(self):
     ''' Method to load histograms for muon and electron SFs'''
-    for flav in ["muon"]:#, "electron"]:
+    for flav in ["muon", "electron"]:
       for type_ in self.files[flav]:
         self.leptonSF[flav][type_] = self.load_histo(self.files[flav][type_])          
     return
