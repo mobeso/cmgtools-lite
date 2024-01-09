@@ -1,0 +1,2 @@
+weight:1
+cut-file: wz-run3/common/fakerate_isprompt.txt

@@ -15,7 +15,7 @@ def inclusiveFlavorFit(getDescription = False):
     config = {
         # ------- For card combination
         "cards" : {
-            "srwz" : os.path.join( mainpath, "cards/wz/srwz/" ),
+            "srwz" : os.path.join( mainpath, "cards/wz/srwz_withNorm/" ),
             #"crzz" : os.path.join( mainpath, "cards/wz/crzz/" ),
             #"crtt" : os.path.join( mainpath, "cards/wz/crtt/" )
         },
