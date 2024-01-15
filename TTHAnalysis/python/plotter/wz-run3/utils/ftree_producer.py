@@ -32,19 +32,16 @@ class ftree_producer(producer):
   def add_friends(self, modules, maxstep = -1):
       """ Method to add friends to command """
       friends = []
-        
-
-      for step, module in modules[self.year].items():
+      for step, module in enumerate(modules[self.year]):
           # Only add friends to a certain point if step is given
-          if maxstep != -1 and step >= maxstep:
-              continue
+          if step + 1 >= maxstep:
+            break
           modulename = module["outname"]
-          addmethod = module["addmethod"]
           if not self.isData: 
               friends.append( " --FMC Friends %s/%s/{cname}_Friend.root "%(self.inpath, modulename))
           else: 
               friends.append( " -F Friends %s/%s/{cname}_Friend.root "%(self.inpath, modulename))
-          
+
       return " ".join(friends)
         
   def run(self):
@@ -57,8 +54,8 @@ class ftree_producer(producer):
       from cfgs.friends_fr_cfg import friends as modules
       
       
-    module_name = modules[self.year][self.step][self.doData]
-    outfriend_folder = modules[self.year][self.step]["outname"]
+    module_name = modules[self.year][self.step - 1][self.doData]
+    outfriend_folder = modules[self.year][self.step - 1]["outname"]
       
     self.outname = os.path.join(self.inpath, outfriend_folder)
 

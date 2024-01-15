@@ -5,7 +5,6 @@ class postprocessor_producer(producer):
   name = "postprocesor_producer"
   basecommand = "nanopy_batch.py"
   wz_cfg = "run_WZpostproc_fromNanoAOD_cfg.py"
-  module = "wz_seq1" 
 
   def add_more_options(self, parser):
     self.parser = parser

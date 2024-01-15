@@ -70,12 +70,11 @@ class plot_producer(producer):
       """ Method to add friends to command """
       friends = []
       # Iterate over modules available in this year
-      for step, module in modules[self.year].items():
-          # Only add friends to a certain point if step is given
-          if maxstep != -1 and step >= maxstep:
-              continue
+      for step, module in enumerate(modules[self.year]):
           modulename = module["outname"]
-          addmethod = module["addmethod"]
+          addmethod = "simple"
+          if "addmethod" in module:
+            addmethod = module["addmethod"]
           if addmethod == "mc": 
               friends.append( " --FMCs {P}/%s "%(modulename))
           if addmethod == "data": 
