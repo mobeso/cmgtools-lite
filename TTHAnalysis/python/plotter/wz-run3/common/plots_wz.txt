@@ -13,17 +13,17 @@ nOSSF : nOSSF_3l : 5,0,5 ; XTitle="nOSSF", IncludeOverflow=True, Logy
 
 
 # + Kinematics of the leading lepton coming from Z
-lepZ1_pt  : LepZ1_pt   : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z1 lep.)", Logy, MoreY=1.2
+lepZ1_pt  : LepZ1_pt   : 10,20,200   ; YTitle="Events", XTitle="p_{T\,cone}(Z1 lep.)", Logy, MoreY=1.2
 lepZ1_eta : LepZ1_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z1 lep.)", Logy, MoreY=1.5
 lepZ1_phi : LepZ1_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z1 lep.)", Logy
 
 # + Kinematics of the subleading lepton coming from Z
-lepZ2_pt  : LepZ2_pt   : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(Z2 lep.)", Logy, MoreY=1.2
+lepZ2_pt  : LepZ2_pt   : 10,20,200   ; YTitle="Events", XTitle="p_{T\,cone}(Z2 lep.)", Logy, MoreY=1.2
 lepZ2_eta : LepZ2_eta  : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(Z2 lep.)", Logy, MoreY=1.5
 lepZ2_phi : LepZ2_phi  : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(Z2 lep.)", Logy
 
 # + Kinematics of the lepton coming from W
-lepW_pt   : LepW_pt    : 10,20,300   ; YTitle="Events", XTitle="p_{T\,cone}(W lep.)", Logy, MoreY=1.2
+lepW_pt   : LepW_pt    : 10,20,200   ; YTitle="Events", XTitle="p_{T\,cone}(W lep.)", Logy, MoreY=1.2
 lepW_phi  : LepW_phi   : 10,-3.15,3.15; YTitle="Events", XTitle="#phi(W lep.)", Logy, MoreY=1.5
 lepW_eta  : LepW_eta   : 10,-2.5,2.5 ; YTitle="Events", XTitle="#eta(W lep.)", Logy
 
