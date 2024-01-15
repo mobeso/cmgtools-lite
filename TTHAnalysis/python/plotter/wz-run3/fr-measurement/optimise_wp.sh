@@ -46,7 +46,7 @@ function optimise_wp () {
         
     # Cosmetics
     LEGEND=" --legend=TL --fontsize 0.05 --legendWidth 0.4"
-    RANGES=" --showRatio  --ratioRange 0.00 2.99 "
+    RANGES=" --yrange 0.0 0.5 "
     
     # ----------------- Figure out the details ----------------- #
 
@@ -55,7 +55,7 @@ function optimise_wp () {
     SelDen="" #"-A AtLeastOnePair den '$SIP8'" # I don't think this cut is needed.
     # + Jet contribution to DEN
     AwayJetPt=30
-    JetDen="-A AtLeastOnePair nlep 'nLepGood == 1' -A AtLeastOnePair jet 'LepGood_awayJet_pt >= $AwayJetPt'"
+    JetDen="-A AtLeastOnePair nlep 'nLepGood == 1' "
     
 
     SelDen="-E ^${lepton} ${SelDen} ${JetDen}"
@@ -67,11 +67,11 @@ function optimise_wp () {
             XVar="mu_mva${WPNUM/./}_Pt${jetptisoname}"
             
             # Below define your FO object (note that the base is the Loose selection)
-            MuRecoPt=15 # A bit higher than the loose pT
+            MuRecoPt=12 # A bit higher than the loose pT
             MuIdDen=0
 
             # Now for the b tagging part
-            SelDen="${SelDen} -A AtLeastOnePair mmuid 'LepGood_mediumId>=${MuIdDen}'" # ID
+            SelDen="${SelDen} -A AtLeastOnePair mmuid 'LepGood_mediumId>${MuIdDen}'" # ID
             SelDen="${SelDen} -A AtLeastOnePair mpt 'LepGood_pt > ${MuRecoPt}' "      # pT
             ETA="1.2"
             ;;
@@ -81,7 +81,7 @@ function optimise_wp () {
             XVar="ele_mva${WPNUM/./}"
 
             # Below define your FO object (note that the base is the Loose selection)
-            EleRecoPt=15 # A bit higher than the loose pT
+            EleRecoPt=12 # A bit higher than the loose pT
             EleTC=0
 
             SelDen="${SelDen} -A AtLeastOnePair elpt 'LepGood_pt > ${EleRecoPt}'"
@@ -145,7 +145,7 @@ if [[ $lepton == mu ]]; then
             optimise_wp 2022EE $lepton $jetptiso "TT_cjets,QCDMu_cjets" fromC $submit
             echo -e " $YELLOW ----------------------------------------- $NC"
             echo -e " $YELLOW Origin: Light jet $NC"
-            optimise_wp 2022EE $lepton $jetptiso "TT_ljets,QCDMu_ljets" fromL $submit
+            optimise_wp 2022EE $lepton $jetptiso "TT_ljetsNC,QCDMu_ljets" fromL $submit
             echo -e " $YELLOW ----------------------------------------- $NC"
             
         done

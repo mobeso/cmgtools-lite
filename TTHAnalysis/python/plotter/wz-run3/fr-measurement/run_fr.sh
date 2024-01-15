@@ -7,6 +7,7 @@ NC='\033[0m' # No Color
 
 mode=$1
 step=$2
+submit=$3
 
 function measure_fr () {
     # ----------------- Inputs ----------------- #
@@ -15,6 +16,7 @@ function measure_fr () {
     trigger=$3
     what=$4
     step=$5
+    submit=$6
 
     # ----------------- Define here some metadata ----------------- #
     # I/O
@@ -23,6 +25,8 @@ function measure_fr () {
     friends=" --Fs {P}/frUtils --Fs {P}/lepmva"
     PBASE="plots/WZRUN3/lepMVA/v1.0/fr-meas/qcd1l/$lepton/$year/HLT_$trigger/$what"
     
+    if [[ ! -d $PBASE ]]; then mkdir -p  $PBASE/logs; fi
+
     # Command
     BCORE="wz-run3/fr-measurement/mca-qcd1l-${year}.txt" # MCA
     BCORE="${BCORE} wz-run3/fr-measurement/qcd1l.txt" # CUT
@@ -32,7 +36,7 @@ function measure_fr () {
     BCORE="${BCORE} $friends"
     BCORE="${BCORE} ttH-multilepton/functionsTTH.cc"
     
-    BG="-j 8"
+    BG="32"
     
     plotfile_xvars=wz-run3/fr-measurement/plots-fr-xvars.txt
     functions=""
@@ -50,7 +54,7 @@ function measure_fr () {
             procs="--xf 'EGamma.*' "
             NUM="mu_num_mva_064"
             QCD="QCDMu"
-            conept="LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso))"
+            conept="LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.64, 1.0, 0.9*(1+LepGood_jetRelIso))"
             
             case $trigger in
                 Mu3_PFJet40)
@@ -83,7 +87,7 @@ function measure_fr () {
             procs="--xf 'Muon.*' "
             NUM="ele_num_mva_097"
             QCD="QCDEl"
-            conept="LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97 && LepGood_mediumId>0, 1.0, 0.9*(1+LepGood_jetRelIso))"
+            conept="LepGood_pt*if3(LepGood_mvaTTH_run3_withDF_withISO>0.97, 1.0, 0.9*(1+LepGood_jetRelIso))"
             
             case $trigger in
                 Ele8|Ele8_CaloIdM_TrackIdM_PFJet30)
@@ -146,7 +150,7 @@ function measure_fr () {
         ;;
     num-mcshapes)
         echo -e "$RED ----- Compute numerator shape ----- $NC" 
-        echo "python mcPlots.py -f $BG $BCORE $PUW --pdir $PBASE ${EWKSPLIT/,data/} --sP met --plotmode=nostack"
+        echo "sbatch -c $BG -J frnumMCshapes -e $PBASE/logs/logNumMCShapes.%j.%x.err -o $PBASE/logs/logNumMCShapes.%j.%x.out --wrap " '"'python3 mcPlots.py -f -j $BG $BCORE $PUW --pdir $PBASE ${EWKSPLIT/,data/} --sP met --sP mtW1R --sP ptW '"'   # --plotmode=nostack
         echo -e "$RED ----------------------------------- $NC" 
  
         ;;
@@ -177,11 +181,27 @@ function measure_fr () {
             # Here one generates the histograms that will be used for the fit later. This is done for a given     #
             # trigger HLT path (thus, for a given bin of pT and eta).                                             #
             # --------------------------------------------------------------------------------------------------- #
-            MCGOBARREL="$MCEFF -o $PBASE/fr_sub_eta_${BARREL}.root --bare -A 'entry point' eta 'abs(LepGood_eta)<$ETA' $BG"
-            MCGOENDCAP="$MCEFF -o $PBASE/fr_sub_eta_${ENDCAP}.root --bare -A 'entry point' eta 'abs(LepGood_eta)>$ETA' $BG"
+            MCGOBARREL="$MCEFF -o $PBASE/fr_sub_eta_${BARREL}.root --bare -A 'entry point' eta 'abs(LepGood_eta)<$ETA' -j $BG"
+            MCGOENDCAP="$MCEFF -o $PBASE/fr_sub_eta_${ENDCAP}.root --bare -A 'entry point' eta 'abs(LepGood_eta)>$ETA' -j $BG"
 
+            barrelwrap='"'${MCGOBARREL}'"'
+            endcapwrap='"'${MCGOENDCAP}'"'
+
+            MCGOBARREL="sbatch -c ${BG} -J fr_${lepton}_${trigger}_barrel -e ${PBASE}/logs/logBarrel.%j.%x.err -o ${PBASE}/logs/logBarrel.%j.%x.out --wrap $barrelwrap "
+            MCGOENDCAP="sbatch -c ${BG} -J fr_${lepton}_${trigger}_barrel -e ${PBASE}/logs/logEndcap.%j.%x.err -o ${PBASE}/logs/logEndcap.%j.%x.out --wrap $endcapwrap "
+
+            echo -e "  $RED  + Command for barrel $NC"
             echo $MCGOBARREL
+            echo ""
+            echo -e "  $RED  + Command for endcap $NC"
             echo $MCGOENDCAP
+
+            # Submit if requested
+            if [[ ! -z $submit ]]; then
+                if [[ ! -d $PBASE/logs ]]; then mkdir -p $PBASE/logs; fi
+                echo $MCGOBARREL | bash
+                echo $MCGOENDCAP | bash
+            fi
         fi
     ;;
     esac
@@ -190,5 +210,5 @@ function measure_fr () {
 
 
 
-measure_fr 2022EE mu Mu8 num-mcshapes
+measure_fr 2022EE mu Mu8 num-mcshapes $step $submit 
 #measure_fr 2022EE mu Mu8 fakerates-mtW1R $step; 

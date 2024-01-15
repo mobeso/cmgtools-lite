@@ -2,13 +2,13 @@
 
 # ---- cuts for fake rate measurement ---- #
 AtLeastOnePair: FR_nPairs > 0
-minimal: LepGood_awayJet_pt > 30 && LepGood_awayJet_jetId > 0;Disable=True
+minimal: LepGood_awayJet_pt > 30 && LepGood_awayJet_jetId > 0
 pvdof : PV_ndof > 100
 
 
 
 # ---- Muons ---- #
-mu : abs(LepGood_pdgId)==13; Disable=True
+mu : abs(LepGood_pdgId)==13 && LepGood_mediumId > 0; Disable=True
 
 # ---- Electrons ---- #
 el : abs(LepGood_pdgId)==11 && LepGood_convVeto && LepGood_lostHits == 0 && LepGood_idEmu3; Disable=True
