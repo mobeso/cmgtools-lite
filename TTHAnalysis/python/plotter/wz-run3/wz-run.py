@@ -29,7 +29,9 @@ def add_parsing_opts():
                                     description = "Main options for running WZ analysis") 
 
     # -- Input and outputs
-    parser.add_option("--inpath", dest = "inpath", default = paths["processed"],
+    parser.add_option("--mcpath", dest = "mcpath", default = paths["processed"]["mc"],
+                help = "This is the input folder from where to read the samples.")
+    parser.add_option("--datapath", dest = "datapath", default = paths["processed"]["data"],
                 help = "This is the input folder from where to read the samples.")
 
     # -- Batch control

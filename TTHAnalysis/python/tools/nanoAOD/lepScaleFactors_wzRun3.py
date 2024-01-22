@@ -28,26 +28,22 @@ class lepScaleFactors_wzrun3(Module):
   
   # ============ MAIN METHODS =============== #
   def __init__(self, year_, lepenvars = [], keepOutput = 1, summary = False, verbosity = 0):
-    
-    
     self.files =  {
-    # ----- MVATTH 2023
-    "muon"     : {
-      "IDTight"  : {
-        "file" : "Muons-mvaTTH-WP064_nanoAODv12",
-        "hist" : "EGamma_SF2D",
-        "unc"  : [("total", "EGamma_SF2D")]},
-      },
-    "electron" : {
-      "IDTight"  : {
-        "file" : "Electrons-mvaTTH-WP097_nanoAODv12", 
-        "hist" : "EGamma_SF2D",
-        "unc"  : [("total", "EGamma_SF2D")]}
-      },
+        # ----- MVATTH 2023
+        "muon"     : {
+          "IDTight"  : { "file" : "MUO/{year}/Muons-mvaTTH-WP064_nanoAODv12", "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]} 
+        },
+        
+        "electron" : { 
+          "IDTight"    : { "file" : "EGM/{year}/Electrons-mvaTTH-WP097_nanoAODv12",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
+          "recoLowPt"  : { "file" : "EGM/{year}/Electrons-recoSF-lowPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
+          "recoMidPt"  : { "file" : "EGM/{year}/Electrons-recoSF-mediumPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
+          "recoHighPt" : { "file" : "EGM/{year}/Electrons-recoSF-highPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]}
+        }
     }
     
        
-    self.lepsfpath  = os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/lepsfs/%s"%year_)
+    self.lepsfpath  = os.path.join( os.environ["CMSSW_BASE"], "src/CMGTools/TTHAnalysis/data/WZRun3/")
 
     self.keepOutput = keepOutput
     self.year = year_
@@ -136,7 +132,7 @@ class lepScaleFactors_wzrun3(Module):
         sfs["muon"].append(self.getLepSF(lep_pt, lep_eta, "muon"))
         self.nmuons += 1
       elif lep_pdg == 11: # Electron
-        sfs["electron"].append( self.getLepSF(lep_pt, lep_eta, "electron") )
+        sfs["electron"].append( self.getLepSF(lep_pt, (lep_eta + lep.deltaEtaSC), "electron") )
         self.nelectrons += 1
       else: # who knows
         raise RuntimeError("[lepScaleFactors_wzRun3::analyze]: Wrong pdgId %d"%lep_pdg)
@@ -166,21 +162,17 @@ class lepScaleFactors_wzrun3(Module):
     if self.verbosity > 0:
       color_msg("  >> Computing SF for this event...", "green")
     
-    
-    
     for flav, leps in sfs.items():
       
       if self.verbosity > 0:
         color_msg("    + %s"%flav, "blue")
       for ilep, lep in enumerate(leps):
-        
 
         if self.verbosity > 0:
           color_msg("      + Index: %d"%ilep)
         
         for lepsf_source, values in lep.items():
-      
-      
+ 
           if self.verbosity > 0:
             color_msg("        o Source: %s"%lepsf_source, "yellow")
           
@@ -225,7 +217,15 @@ class lepScaleFactors_wzrun3(Module):
       ## Nominal histogram
       h_nom = histograms["nominal"]      
       sf = self.getFromHisto(pt, abs(eta), h_nom)
-      
+
+      skipThese = []        
+
+      if flav == "electron" and (pt < 20): skipThese = ["recoMidPt", "recoHighPt"]
+      if flav == "electron" and (pt > 20 and pt < 75): skipThese = ["recoLowPt", "recoHighPt"]
+      if flav == "electron" and (pt > 75): skipThese = ["recoLowPt", "recoMidPt"]
+      if source in skipThese:
+          print("Skipping %s since %s pT is %3.2f"%(source, flav, pt))
+          continue
 
       sfret[source] = {"nominal" : sf}
       ## Now compute uncertainties
@@ -282,7 +282,7 @@ class lepScaleFactors_wzrun3(Module):
   
   def load_histo(self, info):
     ''' Method to load histograms '''
-    fil      = os.path.join( self.lepsfpath, info["file"] + ".root" )
+    fil      = os.path.join( self.lepsfpath, info["file"].format(year = self.year) + ".root" )
     histname = info["hist"]
     uncs     = info["unc"]
     ret = {}

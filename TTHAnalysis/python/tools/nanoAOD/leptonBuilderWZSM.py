@@ -85,15 +85,15 @@ class leptonBuilderWZSM(Module):
 
   def listBranches(self):
     branches = [("MET_pt_central","F"),
-        ("MET_pt_elScaleUp", "F"),
-        ("MET_pt_elScaleDown", "F"),
-        ("MET_pt_muScaleUp", "F"),
-        ("MET_pt_muScaleDown", "F"),
         ("MET_phi_central","F"),
-        ("MET_phi_elScaleUp", "F"),
-        ("MET_phi_elScaleDown", "F"),
-        ("MET_phi_muScaleUp", "F"),
-        ("MET_phi_muScaleDown", "F")]
+        ("MET_pt_ScaleUp", "F"),
+        ("MET_pt_ScaleDown", "F"),
+        ("MET_pt_SmearUp", "F"),
+        ("MET_pt_SmearDown", "F"),
+        ("MET_phi_ScaleUp", "F"),
+        ("MET_phi_ScaleDown", "F"),
+        ("MET_phi_SmearUp", "F"),
+        ("MET_phi_SmearDown", "F")]
 
     for tag in [""] + self.lepScaleSysts:
       var = "_%s"%tag if tag != "" else tag
@@ -172,13 +172,13 @@ class leptonBuilderWZSM(Module):
 
   def analyze(self, event):
     ''' Called from postprocessor '''
-    
     if self.verbosity > 0:
       color_msg("   ---- Analyzing event %d"%(event.event), "green")
     self.isData = (event.datatag != 0)
 
     if self.isData:
       self.systsJEC = []
+      self.lepScaleSysts = []
       
     self.totalret = {}
     
@@ -202,14 +202,13 @@ class leptonBuilderWZSM(Module):
         self.totalret["%s%s"%(branch, "_%s"%lepVar if lepVar != "" else "")] = self.ret[branch]
     toPop = []
     for key in self.totalret:
-      if "jes" in key and ("elScale" in key or "muScale" in key): toPop.append(key)
+      if "jes" in key and ("Scale" in key or "Smear" in key): toPop.append(key)
     for p in toPop: self.totalret.pop(p)
     
     self.totalret["MET_pt_central"]  = self.totalret["MET_pt"]
     self.totalret["MET_phi_central"] = self.totalret["MET_phi"]
     self.totalret.pop("MET_pt")
     self.totalret.pop("MET_phi")
-
     writeOutput(self, self.totalret)
     return True
 
@@ -536,8 +535,10 @@ class leptonBuilderWZSM(Module):
     for i in range(len(self.lepsFO)): self.lepsFO[i].idx = i
  
     correctedLepsFO = self.correctTheLeptons(event, self.lepsFO)
+
     correctedLepsT  = self.correctTheLeptons(event, self.lepsT)
     
+
     # -- Collect Generated leptons -- #
     self.genparts = []
     if not self.isData:
@@ -567,17 +568,18 @@ class leptonBuilderWZSM(Module):
       
 
     ### Recorrect MET based on lepton corrections
+
     for l in self.leps:
       oldlep = ROOT.TLorentzVector() 
       newlep = ROOT.TLorentzVector()
       oldmet = ROOT.TLorentzVector()
       newmet = ROOT.TLorentzVector()
-      oldlep.SetPtEtaPhiM(l.uncorrpt, l.eta,l.phi,l.mass)
+      oldlep.SetPtEtaPhiM(getattr(l, "uncorrpt"), l.eta,l.phi,l.mass)
       newlep.SetPtEtaPhiM(l.pt, l.eta, l.phi, l.mass)
       oldmet.SetPtEtaPhiM(self.met[""], 0, self.metphi[""], 0)
       newmet = oldmet + oldlep - newlep
-    self.met[""]    = newmet.Pt()
-    self.metphi[""] = newmet.Phi()
+      self.met[""]    = newmet.Pt()
+      self.metphi[""] = newmet.Phi()
     self.OS = []
     self.ret["MET_pt"]  = self.met[""]
     self.ret["MET_phi"] = self.metphi[""]
@@ -602,21 +604,8 @@ class leptonBuilderWZSM(Module):
     # WILL ONLY USE THE "PT"  BRANCH.
     correctedLeps = []
     for l in leps:
-      setattr(l, "uncorrpt", l.pt)
-      l.pt = l.pt
-      if self.lepVar == "elScaleUp"   and l.pdgId == 11:
-        l.pt = l.pt 
-      #  l.pt = l.correctedptUp
-      if self.lepVar == "elScaleDown" and l.pdgId == 11:
-        l.pt = l.pt 
-      #  l.pt = l.correctedptDown
-      if self.lepVar == "muScaleUp"   and l.pdgId == 13:
-        l.pt = l.pt 
-      #  l.pt = l.correctedptUp
-      if self.lepVar == "muScaleDown" and l.pdgId == 13:
-        l.pt = l.pt 
-      #  l.pt = l.correctedptDown 
-
+      setattr(l, "uncorrpt", l.correctedpt)
+      l.pt = getattr(l, "correctedpt" + self.lepVar) 
       correctedLeps.append(l) 
     return correctedLeps
 
@@ -689,11 +678,12 @@ if __name__ == '__main__':
     from PhysicsTools.NanoAODTools.postprocessing.framework.output import FriendOutput, FullOutput
     from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import InputTree
     
-    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/2022EE/"
     process = "WZto3LNu"
 #    process = "TTTo2L2Nu_part17"
     
     friends = [
+      "leptonEnergyCorrections",
       "jmeCorrections",
       "leptonJetRecleaning"
     ]
@@ -714,8 +704,8 @@ if __name__ == '__main__':
     module_test =  leptonBuilderWZSM("Mini", 
                         metbranch="PuppiMET",
                         systsJEC  = [],
-                        lepScaleSysts = [],
-                        verbosity = 2)
+                        lepScaleSysts = ["ScaleUp", "ScaleDown", "SmearUp", "SmearDown"],
+                        verbosity = -2)
     module_test.beginJob()
     (nall, npass, timeLoop) = eventLoop([module_test], file_, outFile, tree, outTree, maxEvents = nentries)
     print(('Processed %d preselected entries from %s (%s entries). Finally selected %d entries' % (nall, __file__.split("/")[-1].replace(".py", ""), nentries, npass)))

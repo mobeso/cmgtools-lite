@@ -101,36 +101,7 @@ moreVars = [
 #        ])
 
 
-#groups = {'Total': [
-#    'PileUpPtHF', 
-#    'RelativeJERHF', 
-#    'RelativePtHF', 
-#    'RelativeJEREC1', 
-#    'RelativePtEC1', 
-#    'RelativeStatEC',
-#    'FlavorQCD',
-#    'RelativeSample',
-#    'PileUpPtEC2',
-#    'RelativeStatHF',
-#    'RelativeBal',
-#    'AbsoluteStat', 
-#    'RelativeStatFSR', 
-#    'TimePtEta',
-#    'PileUpPtBB', 
-#    'PileUpPtEC1', 
-#    'RelativePtBB',
-#    'RelativeJEREC2', 
-#    'RelativePtEC2', 
-#    'AbsoluteMPFBias', 
-#    'AbsoluteScale', 
-#    'Fragmentation', 
-#    'PileUpDataMC',
-#    'PileUpPtRef', 
-#    'RelativeFSR', 
-#    'SinglePionECAL', 
-#    'SinglePionHCAL'
-#],
-#}
+
 
 groups = {'HF'                 : ['PileUpPtHF', 'RelativeJERHF', 'RelativePtHF'],
           'BBEC1_year'         : ['RelativeJEREC1', 'RelativePtEC1', 'RelativeStatEC'],

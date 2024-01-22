@@ -36,15 +36,15 @@ class card_producer(plot_producer):
     extra    = self.extra
     uncfile  = self.uncfile
     lumi     = lumis[year]
-    mcpath   = os.path.join(self.inpath, "mc", self.year)
-    datapath = os.path.join(self.inpath, "data", self.year)
+    mcpath   = os.path.join(self.mcpath, self.year)
+    datapath = os.path.join(self.datapath, self.year)
 
     doAsimov = "--xp data --asimov signal" if "srwz" in self.cutfile else "" # Always blind the fit for SR!!!
     # List with all the options given to CMGTools
     self.commandConfs = ["%s"%self.mca, 
                    "%s"%cutfile,
-                   '"%s"'%self.var,
-                   '"%s"'%self.binning,
+                   "'%s'"%self.var,
+                   "'%s'"%self.binning,
                    "--binname %s"%binname,
                    "--tree %s "%self.treename,
                    "-P {mcpath} -P {datapath}".format(mcpath = mcpath, datapath = datapath),
@@ -54,7 +54,7 @@ class card_producer(plot_producer):
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
                    doAsimov,
-                   '--categorize "(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2" "[-0.5,0.5,1.5,2.5,3.5]" "eee,eem,mme,mmm" '
+                   "--categorize '(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2' '[-0.5,0.5,1.5,2.5,3.5]' 'eee,eem,mme,mmm' "
                    "--unc %s"%uncfile,
                    "--od %s/"%self.outname,
                    "--autoMCStats",

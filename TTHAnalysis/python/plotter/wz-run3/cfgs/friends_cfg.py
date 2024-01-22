@@ -4,7 +4,7 @@ friends = {
         { "data" : "lepEnergyCorrection_2022_data", "mc" : "lepEnergyCorrection_2022",   "outname" : "leptonEnergyCorrections"},
         { "data" : "jmeCorrections_data",           "mc" : "jmeCorrections_mc",          "outname" : "jmeCorrections"},
         { "data" : "lepmvas_2022",                  "mc" : "lepmvas_2022",               "outname" : "lepmva" },
-        { "data" : "leptonJetRecleaning",           "mc" : "leptonJetRecleaning",        "outname" : "leptonJetRecleaning"},
+        { "data" : "leptonJetRecleaning",           "mc" : "leptonJetRecleaning_2022",   "outname" : "leptonJetRecleaning"},
         { "data" : "leptonBuilder",                 "mc" : "leptonBuilder",              "outname" : "leptonBuilder" },
         { "data" : None,                            "mc" : "scalefactors_2022",          "outname" : "scalefactors", "addmethod" : "mc" },       
         { "data" : None,                            "mc" : "leptonGENBuilder",           "outname" : "lepGEN", "addmethod" : "mc" },       
@@ -16,6 +16,7 @@ friends = {
         { "data" : "leptonJetRecleaning_2022EE",      "mc" : "leptonJetRecleaning_2022EE", "outname" : "leptonJetRecleaning"},
         { "data" : "leptonBuilder",                   "mc" : "leptonBuilder",              "outname" : "leptonBuilder" },
         { "data" : None,                              "mc" : "scalefactors_2022EE",        "outname" : "scalefactors", "addmethod" : "mc" },       
-        { "data" : None,                              "mc" : "leptonGENBuilder",           "outname" : "lepGEN", "addmethod" : "mc" },       
+        #{ "data" : None,                              "mc" : "leptonGENBuilder",           "outname" : "lepGEN", "addmethod" : "mc" },       
+        { "data" : None,                              "mc" : "leptonGENBuilder_nondressed_withTaus", "outname" : "lepGEN_nondressed_withTaus", "addmethod" : "mc" },       
     ],
 }

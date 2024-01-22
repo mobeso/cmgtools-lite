@@ -8,7 +8,7 @@ class postprocessor_producer(producer):
 
   def add_more_options(self, parser):
     self.parser = parser
-    parser.add_option("--outname", dest = "outname", type="string", default = paths["processed"],
+    parser.add_option("--outname", dest = "outname", type="string", default = paths["processed"]["mc"],
                       help = "Output (folder) name")
     parser.add_option("--analysis", dest = "analysis", type="string", default = "main",
                       help = "Output (folder) name")
@@ -20,13 +20,14 @@ class postprocessor_producer(producer):
   def run(self):
     self.doData = "DATA" if self.isData else "MC"
     outname   = "/".join([self.outname])
+    if self.isData: outname.replace("mc", "data")
       
     year     = self.year
     extra    = self.extra
     doData   = self.doData
   
   
-    outname = os.path.join(outname, self.doData.lower(), year)
+    outname = os.path.join(outname, year)
 
     if self.analysis == "fr":
       outname = outname.replace(self.doData.lower(), self.doData.lower()+"_fr")

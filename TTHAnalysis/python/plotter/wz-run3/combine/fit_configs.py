@@ -15,14 +15,14 @@ def inclusiveFlavorFit(getDescription = False):
     config = {
         # ------- For card combination
         "cards" : {
-            "srwz" : os.path.join( mainpath, "cards/wz/srwz_withNorm/" ),
-            #"crzz" : os.path.join( mainpath, "cards/wz/crzz/" ),
+            "srwz" : os.path.join( mainpath, "cards/wz/srwz/" ),
+            "crzz" : os.path.join( mainpath, "cards/wz/crzz/" ),
             #"crtt" : os.path.join( mainpath, "cards/wz/crtt/" )
         },
         "filtercards" : "*txt",
         # ------- For workspace creation
         "ws" : "workspace_wz_inclusiveFlavorFit.root",
-        "pois" : [(".*prompt_WZ", "r_wz")],
+        "pois" : [(".*prompt_WZ", "r_wz"), (".*prompt_ZZ", "r_zz")],
         "combineModel" : "HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel",
         "out" : "inclusiveFlavorFit",
 

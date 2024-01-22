@@ -91,11 +91,6 @@ class LeptonJetRecleanerWZSM(Module):
                # Jet selectors
                cleanJet, 
                selectJet,
-               # Tau selectors
-               cleanTau,
-               looseTau,
-               tightTau,
-               cleanJetsWithTaus,
                # extra stuff
                doVetoZ,
                doVetoLMf,
@@ -104,7 +99,6 @@ class LeptonJetRecleanerWZSM(Module):
                bJetPt,
                coneptdef,
                storeJetVariables=False,
-               cleanTausWithLoose=False, 
                systsJEC      = [],
                systsLepScale = [],
                year=2022, 
@@ -128,14 +122,12 @@ class LeptonJetRecleanerWZSM(Module):
     self.selectJet = selectJet
     self.cleanJet = cleanJet
 
-    # * Tau selections
-    self.cleanTau = cleanTau
-    self.looseTau = looseTau
-    self.tightTau = tightTau
-    
-    # * Booleans to control which leptons are to be cleaned from the jets. 
-    self.cleanJetsWithTaus = cleanJetsWithTaus
-    self.cleanTausWithLoose = cleanTausWithLoose
+    # * Tau selections (for ewkino, so far hardcoded)
+    self.cleanTau = lambda lep, tau, dr: True
+    self.looseTau = lambda tau: True
+    self.tightTau = lambda tau: True
+    self.cleanJetsWithTaus = False
+    self.cleanTausWithLoose = False
 
     # * Other vetos
     self.doVetoZ = doVetoZ
@@ -524,7 +516,7 @@ class LeptonJetRecleanerWZSM(Module):
        * If lepvar != None --> Create loose, FO and Tight collections (jets should be cleaned beforehand)
     '''
     if self.verbosity > 0:
-      color_msg(">> Creating the lepton classes", "blue")
+      color_msg(">> Creating the lepton classes (variation: %s)"%lepvar, "blue")
     # Use a copy of the nominal leptons
     leplabel = "_%s"%lepvar if lepvar else ""
     ret  = {}
@@ -534,20 +526,20 @@ class LeptonJetRecleanerWZSM(Module):
       color_msg("  * All leptons", "yellow")
       print("   - ", leps)
       print("   - ", [lep.pdgId for lep in leps], "PDGID")
+      print("   - ", [lep.pt for lep in leps], "pt")
 
     # -- Set the lepton scale variations, if needed
     for lep in leps:
-      #if lepvar == "elScaleUp"   and l.pdgId == 11: 
-      #  l.pt = l.correctedptUp
-      #if lepvar == "elScaleDown" and l.pdgId == 11: 
-      #  l.pt = l.correctedptDown
-      #if lepvar == "muScaleUp"   and l.pdgId == 13: 
-      #  l.pt = l.correctedptUp
-      #if lepvar == "muScaleDown" and l.pdgId == 13: 
-      #  l.pt = l.correctedptDown 
-        
+      lep.pt = getattr( lep, "correctedpt" + lepvar)
       ## Now set the cone-corrected pT for the leptons    
       lep.conept = self.coneptdef(lep)
+    if self.verbosity > 0:
+      color_msg("  * All leptons (after correcting pt)", "yellow")
+      print("   - ", leps)
+      print("   - ", [lep.pdgId for lep in leps], "PDGID")
+      print("   - ", [lep.pt for lep in leps], "pt")
+
+
         
     # -- Compute loose leptons
     lepsl = []; lepslv = []
@@ -565,10 +557,12 @@ class LeptonJetRecleanerWZSM(Module):
       ht            = -1, 
       extraTag      = leplabel
     )
+
     if self.verbosity > 0:
       color_msg("  * Loose leptons", "yellow")
       print("   - ", lepsl)
       print("   - ", [lep.pdgId for lep in lepsl], "PDGID")
+      print("   - ", [lep.pt for lep in lepsl], "Corrected pt (%s)"%lepvar)
 
     
     # -- Compute lepton pair masses
@@ -622,7 +616,7 @@ class LeptonJetRecleanerWZSM(Module):
       color_msg("  * Tight leptons", "yellow")
       print("   - ", lepst)
       print("   - ", [lep.pdgId for lep in lepst], "PDGID")
-      print("   - ", [lep.mvaTTH_run3 for lep in lepst], "PDGID")
+      print("   - ", [lep.mvaTTH_run3 for lep in lepst], "mvaTTH_run3")
 
     
 
@@ -641,6 +635,7 @@ class LeptonJetRecleanerWZSM(Module):
     isData = (event.datatag != 0) 
     if isData:
       self.systsJEC      = []
+      self.systsLepScale = []
             
     # -- Create lepton collections for nominal + each systVariation of the leptons
     iterations = [""] + self.systsLepScale 
@@ -664,8 +659,9 @@ class LeptonJetRecleanerWZSM(Module):
         print("         > ", k, v) 
       self.fullret["JetSel%s_%s"%(self.label, k)] = v
 
-    print("Loose: ", self.fullret["nBJetLoose"+self.strJetPt+"_Mini"])
-    print("Medium: ", self.fullret["nBJetMedium"+self.strJetPt+"_Mini"])
+    if self.verbosity > 0:
+      print("Loose: ", self.fullret["nBJetLoose"+self.strJetPt+"_Mini"])
+      print("Medium: ", self.fullret["nBJetMedium"+self.strJetPt+"_Mini"])
 
     ### Write the output
     writeOutput(self, self.fullret)
@@ -721,12 +717,13 @@ if __name__ == '__main__':
     tightlep = lambda lep, jetlist : _tight_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
 
 
-    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/2022EE/"
     process = "TTto2L2Nu_part1"
 #    process = "TTTo2L2Nu_part17"
     
     friends = [
       "jmeCorrections",
+      "leptonEnergyCorrections",
       "lepmva"
     ]
     nentries = int(argv[1])
@@ -742,73 +739,44 @@ if __name__ == '__main__':
     tree = InputTree(tree)
     outFile = ROOT.TFile.Open("test_%s.root"%process, "RECREATE")
     outTree = FriendOutput(file_, tree, outFile)
-    btag_wps = {
-    "2022" : {
-        "btagDeepFlavB" : {
-            "L" : 0.0583,
-            "M" : 0.3086,
-            "T" : 0.7183
-        },
-        "btagRobustParTAK4B" : {
-            "L" : 0.0849,
-            "M" : 0.4319,
-            "T" : 0.8482
-        },
-        "btagPNetB" : {
-            "L" : 0.047,
-            "M" : 0.245,
-            "T" : 0.6734
-        }
+    btag_wps = { 
+    "2022" : { 
+        "btagDeepFlavB"      : { "L" : 0.0583, "M" : 0.3086,  "T" : 0.7183 },
+        "btagRobustParTAK4B" : { "L" : 0.0849, "M" : 0.4319,  "T" : 0.8482 },
+        "btagPNetB"          : { "L" : 0.047,  "M" : 0.245,   "T" : 0.6734 }
     },
     "2022EE" : {
-        "btagDeepFlavB" : {
-            "L" : 0.0614,
-            "M" : 0.3196,
-            "T" : 0.73
-        },
-        "btagRobustParTAK4B" : {
-            "L" : 0.0897,
-            "M" : 0.451,
-            "T" : 0.8604
-        },
-        "btagPNetB" : {
-            "L" : 0.0499,
-            "M" : 0.2605,
-            "T" : 0.6915
-        }
+        "btagDeepFlavB"      : { "L" : 0.0614, "M" : 0.3196, "T" : 0.7300 },
+        "btagRobustParTAK4B" : { "L" : 0.0897, "M" : 0.451,  "T" : 0.8604 },
+        "btagPNetB"          : { "L" : 0.0499, "M" : 0.2605, "T" : 0.6915 }
     }
     }
     module_test =  LeptonJetRecleanerWZSM(
-    "Mini",
-    # Lepton selectors
-    looseLeptonSel    = looselep, # Loose selection 
-    cleaningLeptonSel = cleanlep, # Clean on FO
-    FOLeptonSel       = folep,    # FO selection
-    tightLeptonSel    = tightlep, # Tight selection
-    coneptdef = lambda lep: conept(lep),
-    # Lepton jet cleaner functions
-    jetPt = 30,
-    bJetPt = 25,
-    cleanJet  = lambda lep, jet, dr : dr < 0.4,
-    selectJet = lambda jet: abs(jet.eta) < 4.7 and (jet.jetId & 2), 
-    # For taus (used in EWKino)
-    cleanTau  = lambda lep, tau, dr: True, 
-    looseTau  = lambda tau: True, # Used in cleaning
-    tightTau  = lambda tau: True, # On top of loose
-    cleanJetsWithTaus = False,
-    cleanTausWithLoose = False,
-    # For systematics
-    systsJEC = [],
-    systsLepScale = [],
-    # These are used for EWKino as well
-    doVetoZ   = False,
-    doVetoLMf = False,
-    doVetoLMt = True,
-    # ------------------------------------- #
-    year  = "2022EE",
-    btag_wps = btag_wps,
-    bAlgo = "btagDeepFlavB",
-    verbosity = 1
+      "Mini",
+      # Lepton selectors
+      looseLeptonSel    = looselep, # Loose selection 
+      cleaningLeptonSel = cleanlep, # Clean on FO
+      FOLeptonSel       = folep,    # FO selection
+      tightLeptonSel    = tightlep, # Tight selection
+      coneptdef = lambda lep: conept(lep),
+      # Lepton jet cleaner functions
+      jetPt = 30,
+      bJetPt = 25,
+      cleanJet  = lambda lep, jet, dr : dr < 0.4,
+      selectJet = lambda jet: abs(jet.eta) < 4.7 and (jet.jetId & 2), 
+      # For systematics
+      systsJEC = [],
+      systsLepScale = ["ScaleUp", "ScaleDown", "SmearUp", "SmearDown"]
+,
+      # These are used for EWKino as well
+      doVetoZ   = False,
+      doVetoLMf = False,
+      doVetoLMt = True,
+      # ------------------------------------- #
+      year  = "2022EE",
+      btag_wps = btag_wps,
+      bAlgo = "btagDeepFlavB",
+      verbosity = 1
     )
     module_test.beginJob()
     (nall, npass, timeLoop) = eventLoop([module_test], file_, outFile, tree, outTree, maxEvents = nentries)

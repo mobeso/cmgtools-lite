@@ -74,7 +74,7 @@ def workspace(config):
     for p in config["pois"]:
         maps.append( " 'map=.*/%s:%s[1, 0, 6]'"%(p[0], p[1])) # Float between 0 and 6 -- hardcoded
 
-    cmd = maincmd.format( out = config["ws"], combineModel = config["combineModel"], maps = "--PO".join(maps))
+    cmd = maincmd.format( out = config["ws"], combineModel = config["combineModel"], maps = " --PO".join(maps))
     return [cmd]
 
 def impacts(config):
@@ -84,12 +84,12 @@ def impacts(config):
     # Build the mappings
     blindtext = ""
     if config["blind"]:
-        blindtext = "-t -1 --setParameters "
-        pois_fixed=[]
-        for poi in config["pois"]:
-            pois_fixed.append("%s=1"%poi[1])
+        blindtext = "-t -1 --setParameters %s=1"%config["signalPOI"]
+        #pois_fixed=[]
+        #for poi in config["pois"]:
+        #    pois_fixed.append("%s=1"%poi[1])
         
-        blindtext += ",".join(pois_fixed)
+        #blindtext += ",".join(pois_fixed)
 
     initialFit = maincmd.format( ws = config["ws"], signalPOI = config["signalPOI"], blind = blindtext, additional = " ".join(config["additional"]))
 #    doFits = initialFit.replace("doInitialFit", "doFits --parallel 12 --job-mode slurm --sub-opts='-p batch' ")
@@ -107,12 +107,12 @@ def scan(config):
     # Build the mappings
     blindtext = ""
     if config["blind"]:
-        blindtext = "-t -1 --setParameters "
-        pois_fixed=[]
-        for poi in config["pois"]:
-            pois_fixed.append("%s=1"%poi[1])
+        blindtext = "-t -1 --setParameters %s=1"%config["signalPOI"]
+        #pois_fixed=[]
+        #for poi in config["pois"]:
+        #    pois_fixed.append("%s=1"%poi[1])
         
-        blindtext += ",".join(pois_fixed)
+        #blindtext += ",".join(pois_fixed)
 
     initialScan = maincmd.format( points = points, ws = config["ws"], signalPOI = config["signalPOI"], blind = blindtext, additional = " ".join(config["additional"]))
     snapshot = initialScan.replace("grid --points %d"%points, "none ").replace("nominal", "bestfit")
@@ -126,7 +126,7 @@ def scan(config):
 
 def fitDiagnostics(config):
     """ Function to run fitDiagnostics tool """
-    maincmd = "sbatch --wrap 'combine -M FitDiagnostics {ws} -m 125 --plots --saveShapes --saveWithUncertainties  --numToysForShapes 100 --skipBOnlyFit {additional} -v 3'"
+    maincmd = "sbatch --wrap 'combine -M FitDiagnostics {ws} -m 125 --plots --saveShapes -t -1 --setParameters %s=1 --saveWithUncertainties  --numToysForShapes 100 --skipBOnlyFit {additional} -v 3'"%config["signalPOI"]
     cmd = maincmd.format(ws = config["ws"], additional = " ".join(config["additional"]))
     return [cmd]
 

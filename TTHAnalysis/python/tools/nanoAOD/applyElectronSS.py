@@ -5,18 +5,20 @@ import os
 import numpy as np
 
 class applyElectronSS( Module ):
-    def __init__(self, basepath, isData, file = 'SS.json'):
-        self.basepath     = basepath
+    def __init__(self, basepath, isData, file, eras):
+        self.basepath = basepath 
         self.file = file
         self.isData = isData
-        self.evaluatorScaleName = "Prompt2022FG_ScaleJSON"
-        self.evaluatorSmearingName = "Prompt2022FG_SmearingJSON"
+        self.evaluatorScaleName = "{eras}_ScaleJSON".format(eras=eras)
+        self.evaluatorSmearingName = "{eras}_SmearingJSON".format(eras=eras)
         if self.file == '':
             self.nominalValues = True
+            print("Loaded nominal values")
         else:
             self.nominalValues = False
             self.evaluatorScale = core.CorrectionSet.from_file(self.basepath + file)[self.evaluatorScaleName]
             self.evaluatorSmearing = core.CorrectionSet.from_file(self.basepath + file)[self.evaluatorSmearingName]
+            print("Loaded scale and smearing from file: " + self.basepath + file)
 
     def beginJob(self):
         pass

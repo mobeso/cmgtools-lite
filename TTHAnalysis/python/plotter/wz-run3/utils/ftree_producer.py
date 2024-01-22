@@ -47,10 +47,17 @@ class ftree_producer(producer):
   def run(self):
     if self.analysis == "main":
       from cfgs.friends_cfg import friends as modules
-      self.inpath  = os.path.join(self.inpath, self.doData, self.year)
+      if self.isData:
+        self.inpath  = os.path.join(self.datapath, self.year)
+      else:
+        self.inpath  = os.path.join(self.mcpath, self.year)
 
     elif self.analysis == "fr":
-      self.inpath  = os.path.join(self.inpath, self.doData+"_fr", self.year)
+      if self.isData:
+        self.inpath  = os.path.join(self.datapath.replace("mc", "mc_fr"), self.year)
+      else:
+        self.inpath  = os.path.join(self.mcpath.replace("data", "data_fr"), self.year)
+
       from cfgs.friends_fr_cfg import friends as modules
       
       

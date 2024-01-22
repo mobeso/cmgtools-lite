@@ -51,10 +51,10 @@ def get_pais_fail(path, files, num, den, name):
     return hPass, hFail
 
 if __name__ == "__main__":
-    datapath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/data/2022EE/"
-    mcpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
+    datapath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/data/2022EE/"
+    mcpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/2022EE/"
     mcfiles = ["WZto3LNu"]
-    datafiles = ["JetMET_Run2022F", "JetMET_Run2022G"]    
+    datafiles = ["JetMET_Run2022F", "JetMET_Run2022G", "JetMET_Run2022E"]    
     # --------- Make a TTree::Draw with numerator and denominator selection
     
     if mode == "inclusive":
@@ -134,15 +134,15 @@ if __name__ == "__main__":
     eff_mc_bias = r.TEfficiency(pass_mc_bias, fail_mc_bias)
 
     pass_pr_s = pass_mc.GetBinContent(1)
-    pass_pr_and_hlt_s = pass_mc.GetBinContent(1)
+    pass_pr_and_hlt_s = fail_mc.GetBinContent(1)
     eff_s, errUp_s, errDn_s = eff_mc.GetEfficiency(1), eff_mc.GetEfficiencyErrorUp(1), eff_mc.GetEfficiencyErrorLow(1)
 
     pass_pr_d = pass_data.GetBinContent(1)
-    pass_pr_and_hlt_d = pass_data.GetBinContent(1)
+    pass_pr_and_hlt_d = fail_data.GetBinContent(1)
     eff_d, errUp_d, errDn_d = eff_data.GetEfficiency(1), eff_data.GetEfficiencyErrorUp(1), eff_data.GetEfficiencyErrorLow(1)
 
     pass_pr_s_bias = pass_mc_bias.GetBinContent(1)
-    pass_pr_and_hlt_s_bias = pass_mc_bias.GetBinContent(1)
+    pass_pr_and_hlt_s_bias = fail_mc_bias.GetBinContent(1)
     eff_s_bias, errUp_s_bias, errDn_s_bias = eff_mc_bias.GetEfficiency(1), eff_mc_bias.GetEfficiencyErrorUp(1), eff_mc_bias.GetEfficiencyErrorLow(1)
 
     print(" >> Table for mode: %s"%mode)

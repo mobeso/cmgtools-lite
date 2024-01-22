@@ -2,7 +2,6 @@ from .producer import producer
 from utils.ftree_producer import ftree_producer
 from cfgs.lumi import lumis
 import os
-import numpy as np
 from cfgs.friends_cfg import friends as modules
 from cfgs.datasets_cfg import mcas
 
@@ -64,6 +63,9 @@ class plot_producer(producer):
           help = "Output (folder) name")
     parser.add_option("--unweight", dest = "unweight", action="store_true", default = False,
       help = "Don't use corrections")
+    parser.add_option("--unfriend", dest = "unfriend", action="store_true", default = False,
+      help = "Don't add friend trees")
+
     return
 
   def add_friends(self, maxstep = -1):
@@ -138,8 +140,9 @@ class plot_producer(producer):
     elif "sP" not in extra:
        self.raiseWarning(" This command will submit everything under %s"%self.plotfile)
 
-    self.mcpath = os.path.join(self.inpath, "mc", self.year)
-    self.datapath = os.path.join(self.inpath, "data", self.year)
+    mcpath = os.path.join(self.mcpath, self.year)
+    datapath = os.path.join(self.datapath, self.year)
+   
     
     # List with all the options given to CMGTools
     self.commandConfs = ["%s"%self.mca, 
@@ -148,10 +151,10 @@ class plot_producer(producer):
                    "-l %s"%lumi,
                    "-f --pdir %s"%outname,
                    "--tree %s "%self.treename,
-                   "-P {mcpath} -P {datapath}".format(mcpath = self.mcpath, datapath = self.datapath),
-                   self.add_friends(),
+                   "-P {mcpath} -P {datapath}".format(mcpath = mcpath, datapath = datapath),
+                   self.add_friends() if not self.unfriend else "",
                    "-L " + " -L ".join(self.functions),
-                   "-W '%s'"%("*".join(self.weights)) if not unweight else "-W 'puWeight'", # Always keep PU weights
+                   "-W '%s'"%("*".join(self.weights)) if not unweight else "", # Always keep PU weights
                    "%s"%plottingStuff,
                    "-j %s"%(self.ncores),
                    "--mcc %s"%mccfile if mccfile != None else "", 
