@@ -33,9 +33,8 @@ lumi_2022_early  : $allProcs  : .*  : normSymm  :1.022
 normZZ    : $ZZ      : .* : normSymm : 1.06
 normVVV   : $VVV     : .* : normSymm : 1.50
 normConvs : $convs   : .* : normSymm : 1.12
-normfakes : $mcfakes : .* : normSymm : 1.30
+normfakes : $mcfakes : .* : normSymm : 1.50
 normttx   : $ttx     : .* : normSymm : 1.15
-
 
 ## JECs 
 jesHF                  : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesHFUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesHFDown.txt'] 
@@ -50,6 +49,10 @@ jesBBEC1               : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/com
 jesEC2_year            : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesEC2_yearUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesEC2_yearDown.txt'] 
 jesAbsolute            : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-jec/fr-standard-jesAbsoluteUp.txt'\,'wz-run3/common/frs-jec/fr-standard-jesAbsoluteDown.txt']
 
+## Electron scales and smearings
+elec_scale : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-lepScales/fakerate_standard_ScaleUp.txt'\,'wz-run3/common/frs-lepScales/fakerate_standard_ScaleDown.txt'] 
+elec_smear : $allProcs : .* : templateAsymm; FakeRates=['wz-run3/common/frs-lepScales/fakerate_standard_SmearUp.txt'\,'wz-run3/common/frs-lepScales/fakerate_standard_SmearDown.txt'] 
+
 ## Lepton SFs 
 elecidsf : $allProcs : .* : templateAsymm;    AddWeights=["electronSF_Up/electronSF"\,"electronSF_Down/electronSF"]
 muonidsf_ID : $allProcs : .* : templateAsymm; AddWeights=["muonSF_Up/muonSF"\,"muonSF_Down/muonSF"]
@@ -62,5 +65,5 @@ btag_LF : $allProcs : .* : templateAsymm; AddWeights=['bTagWeight_mistag_Up/bTag
 btag_HF : $allProcs : .* : templateAsymm; AddWeights=['bTagWeight_btag_Up/bTagWeight'\,'bTagWeight_btag_Dn/bTagWeight']
 
 ## Signal uncertainties
-ISR  : $WZ : .* : templateAsymm; FakeRates=['wz-run3/frs-ps/fr-isrUp.txt'\,'wz-run3/frs-ps/fr-isrDown.txt']
-FSR  : $WZ : .* : templateAsymm; FakeRates=['wz-run3/frs-ps/fr-fsrUp.txt'\,'tw-run3/frs-ps/fr-fsrDown.txt']
+ISR  : $WZ : .* : templateAsymm; FakeRates=['wz-run3/common/frs-ps/fr-isrUp.txt'\,'wz-run3/common/frs-ps/fr-isrDown.txt']
+FSR  : $WZ : .* : templateAsymm; FakeRates=['wz-run3/common/frs-ps/fr-fsrUp.txt'\,'wz-run3/common/frs-ps/fr-fsrDown.txt']

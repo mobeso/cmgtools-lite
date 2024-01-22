@@ -1,0 +1,18 @@
+change: nLepSel\b: nLepSel_ScaleUp
+change: LepSel_pdgId\b: LepSel_pdgId_ScaleUp
+change: nOSSF_3l\b: nOSSF_3l_ScaleUp
+change: minMllSFOS_Mini\b: minMllSFOS_ScaleUp_Mini
+change: LepSel_isTight\b: LepSel_isTight_ScaleUp
+change: m3L\b: m3L_ScaleUp
+change: m3Lmet\b: m3Lmet_ScaleUp
+change: MET_pt_central\b: MET_pt_ScaleUp 
+change: mll_3l\b: mll_3l_ScaleUp
+
+change: \w*(?<!gen)LepZ1_conePt\b: LepZ1_conePt_ScaleUp
+change: \w*(?<!gen)LepZ2_conePt\b: LepZ2_conePt_ScaleUp
+change: \w*(?<!gen)LepW_conePt\b:  LepW_conePt_ScaleUp
+
+change: \w*(?<!gen)LepZ1_pt\b: LepZ1_pt_ScaleUp
+change: \w*(?<!gen)LepZ2_pt\b: LepZ2_pt_ScaleUp
+change: \w*(?<!gen)LepW_pt\b:  LepW_pt_ScaleUp
+weight:1
