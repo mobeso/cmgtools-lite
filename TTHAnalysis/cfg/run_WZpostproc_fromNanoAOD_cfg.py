@@ -28,7 +28,6 @@ def byCompName(components, regexps):
 # -- Unpack submission configurations  -- #
 year              = getHeppyOption("year", "2022")
 analysis          = getHeppyOption("analysis", "main")    
-analysis          = getHeppyOption("analysis", "main") 
 selectComponents  = getHeppyOption('selectComponents')
 justSummary       = getHeppyOption("justSummary")
 test              = getHeppyOption("test")
@@ -49,8 +48,10 @@ if year == "2022":
   elif analysis == "fr":
     from CMGTools.RootTools.samples.samples_13p6TeV_mc_FR_2022_nanoAODv12_fromLocal   import mcSamples_toImport   as mcSamples_
     allData = []
-#  from CMGTools.RootTools.samples.samples_13p6TeV_data2022_nanoAODv11_fromLocal import dataSamples_toImport as allData
-
+  elif analysis == "fiducial":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mc2022_nanoAODv12_fromLocal_unskimWZ  import mcSamples_toImport  as mcSamples_
+    allData = []
+   
 # -- From 20.06 fb-1 (March 2023 -- FG -- postEE)
 elif year == "2022EE":
   if analysis == "main":
@@ -59,7 +60,10 @@ elif year == "2022EE":
   elif analysis == "fr":
     from CMGTools.RootTools.samples.samples_13p6TeV_mcFR2022EE_nanoAODv12_fromLocal  import mcSamples_toImport  as mcSamples_
     from CMGTools.RootTools.samples.samples_13p6TeV_dataFR2022EE_nanoAODv12_fromLocal  import dataSamples_toImport  as allData
-    
+  elif analysis == "fiducial":
+    from CMGTools.RootTools.samples.samples_13p6TeV_mc2022EE_nanoAODv12_fromLocal_unskimWZ  import mcSamples_toImport  as mcSamples_
+    allData = []
+        
 autoAAA(mcSamples_ + allData, 
         quiet         = quiet, 
         redirectorAAA = "xrootd-cms.infn.it",
@@ -158,6 +162,8 @@ else:
       "WtoLNu_2Jets",
       # ----------------- Drell Yan
       "DYto2L_2Jets_MLL_50",
+      "DYto2L_2Jets_MLL_50_NLO",
+      "DYto2L_4Jets_MLL_50_LO",
       "DYto2L_2Jets_MLL_10to50",
       # ----------------- ttbar
       "TTto2L2Nu",
@@ -166,12 +172,11 @@ else:
       "TbarWplusto2L2Nu",
       "TWminusto2L2Nu",
       # ----------------- conversions
-      #"TTGJets",
-      #"TTGJets_ext", 
-      #"TGJets_lep",
-      #"WGToLNuG_01J",
-      #"WGToLNuG", 
-      #"ZGTo2LG",
+      "WZGtoLNuZG",
+      "WGtoLNuG_1Jets_PTG_200",
+      "WGtoLNuG_1Jets_PTG_100to200",
+      "WGtoLNuG_1Jets_PTG_10to100", 
+      "ZGTo2LG",
       # ----------------- ttV
       #"TTWToLNu_fxfx", 
       #"TTZToLLNuNu", 
@@ -187,6 +192,11 @@ else:
       # ----------------- Top + V rare processes
       "TTLL_MLL_50",
       "TTLL_MLL_4to50",
+      "TTLNu_1Jets",
+      "TTHtoNon2B_M_125",
+      "TTG_1Jets_PTG_200",
+      "TTG_1Jets_PTG_10to100",
+      "TTG_1Jets_PTG_100to200",
       #"TZQToLL",
       #"tWll",
       # "TTWW","TTWW_LO",
@@ -194,6 +204,8 @@ else:
       #'tZq_ll_1','tZq_ll_2',
       # ----------------- Diboson
       "WZto3LNu",
+      "WZto3LNu_pow",
+      "WZto3LNu_amc",
       "ZZto4L",
       "ZZto2L2Nu",
       "ZZto2L2Q",
@@ -250,24 +262,33 @@ if not doData:
 selectedComponents, _ = mergeExtensions(selectedComponents)
 
 
-if analysis == "main" and not doData:
-    cropToLumi(byCompName(selectedComponents, ["^(?!.*(TTH|TTW|TTZ)).*"]),1000.)
-    cropToLumi(byCompName(selectedComponents, ["T_","TBar_"]),100.)
-    cropToLumi(byCompName(selectedComponents, ["DYJetsToLL"]),2.)
 
 
-# print summary of components to process
-if justSummary: 
-    printSummary(selectedComponents)
-    sys.exit(0)
+# Load modules
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_data
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_EE
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_EE_data
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_FR
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_data_FR
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_EE_FR
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_EE_data_FR
+
+from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector_fiducial
 
 
-from CMGTools.TTHAnalysis.tools.nanoAOD.wzsm_modules import lepCollector,lepCollector_EE,lepCollector_data, lepCollector_EE_data, lepCollector_FR,lepCollector_EE_FR,lepCollector_data_FR, lepCollector_EE_data_FR
 from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import PostProcessor
 
 # in the cut string, keep only the main cuts to have it simpler
 modules = []
+
+# ----------------------------- For 2022 preEE ANALYSIS -------------------------- #
 if yearstr == "2022":
+  
+  # ------------- Main analysis -------------- #
   if analysis == "main":
     if doData:
       print(" >> Using lepCollector for data")
@@ -275,6 +296,8 @@ if yearstr == "2022":
     else:
       print(" >> Using lepCollector")
       modules = lepCollector
+  
+  # ------------- FR analysis -------------- #
   elif analysis == "fr":
     if doData:
       print(" >> Using lepCollector_FR for data")
@@ -282,8 +305,19 @@ if yearstr == "2022":
     else:
       print(" >> Using lepCollector_FR")
       modules = lepCollector_FR
-    
+      
+  # ------------- Fiducial analysis -------------- #
+  elif analysis == "fiducial":
+    if doData:
+      print(" ERROR! Fiducial analysis can't run on data :)")
+      sys.exit()
+    else:
+      print(" >> Using lepCollector_FR")
+      modules = lepCollector_fiducial
+
+# ----------------------------- For 2022 postEE ANALYSIS -------------------------- #    
 elif yearstr == "2022EE":
+  # ------------- Main analysis -------------- #
   if analysis == "main":
     if doData:
       print(" >> Using lepCollector_EE for data")
@@ -291,6 +325,8 @@ elif yearstr == "2022EE":
     else:
       print(" >> Using lepCollector_EE")
       modules = lepCollector_EE
+      
+  # ------------- FR analysis -------------- #
   elif analysis == "fr":
     if doData:
       print(" >> Using lepCollector_EE_FR for data")
@@ -298,11 +334,25 @@ elif yearstr == "2022EE":
     else:
       print(" >> Using lepCollector_EE_FR")
       modules = lepCollector_EE_FR
-
+      
+  # ------------- Fiducial analysis -------------- #
+  elif analysis == "fiducial":
+    if doData:
+      print(" ERROR! Fiducial analysis can't run on data :)")
+      sys.exit()
+    else:
+      print(" >> Using lepCollector_FR")
+      modules = lepCollector_fiducial
+  
+         
 if (doData):
   from CMGTools.TTHAnalysis.tools.nanoAOD.remove_overlap import OverlapRemover
   modules.extend( [lambda : OverlapRemover()] ) 
-
+# print summary of components to process
+if justSummary: 
+    printSummary(selectedComponents)
+    sys.exit(0)
+    
 cut = "1" 
 compression = "ZLIB:3" #"LZ4:4" #"LZMA:9"
 branchsel_out = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/python/tools/nanoAOD/OutputSlim_wz.txt"
