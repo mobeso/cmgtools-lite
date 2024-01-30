@@ -354,13 +354,7 @@ recleaner_2022EE = lambda : LeptonJetRecleanerWZSM(
 leptonJetRecleaning_2022 = [recleaner_2022]
 leptonJetRecleaning_2022EE = [recleaner_2022EE]
 
-# ------------------------------------------------------------------------------------------------------------------------------ #
-# ---------------------------------------------------- BTAGGING EFFICIENCIES --------------------------------------------------- # 
-# ------------------------------------------------------------------------------------------------------------------------------ #
-from CMGTools.TTHAnalysis.tools.nanoAOD.btagEffCount_wzRun3 import bTagEffCount
-btagEffDeepjet_2022EE                   = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
-btagEffrobustParticleTransformer_2022EE = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
-btagEffrobustParticleNet_2022EE         = [lambda : bTagEffCount( tagger = "btagPNetB",     year = "2022EE" )]
+
 
 # ---------------------------------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------------- LEPTON BUILDER    ----------------------------------------------------- # 
@@ -379,6 +373,7 @@ leptonBuilder = [leptonBuilderWZSM_2022]
 # ------------------------------------------------------------------------------------------------------------------------------ #
 # Lepton Scale factors
 from CMGTools.TTHAnalysis.tools.nanoAOD.lepScaleFactors_wzRun3 import lepScaleFactors_wzrun3
+lepscalefactors_2022 = lambda: lepScaleFactors_wzrun3( "2022", keepOutput = 2, summary = False ) 
 lepscalefactors_2022EE = lambda: lepScaleFactors_wzrun3( "2022EE", keepOutput = 2, summary = False ) 
 
 from CMGTools.TTHAnalysis.tools.nanoAOD.btag_weighterRun3 import btag_weighterRun3
@@ -386,7 +381,7 @@ from CMGTools.TTHAnalysis.tools.nanoAOD.btag_weighterRun3 import btag_weighterRu
 
 btagWeights_2022 = lambda : btag_weighterRun3(
     json = btagpath + "/2022/" + "btagging.json",
-    eff = btagpath + "/2022/" + "btagEff_DeepJet_TT_2023_12_10.root",
+    eff = btagpath + "/2022/" + "btagEff_DeepJet_TT.root",
     json_ptrel = btagpath + "/2022/" + "btagging_methods_v0.json",
     algo = 'deepJet',
     wp = "T",
@@ -399,7 +394,7 @@ btagWeights_2022 = lambda : btag_weighterRun3(
 
 btagWeights_2022PostEE = lambda : btag_weighterRun3(
     json = btagpath + "/2022EE/" + "btagging.json",
-    eff  = btagpath + "/2022EE/" + "btagEff_DeepJet_TT_2023_12_10.root",
+    eff  = btagpath + "/2022EE/" + "btagEff_DeepJet_TT.root",
     json_ptrel = btagpath + "/2022EE/" + "btagging_methods_v0.json",
     algo = 'deepJet',
     wp = "T",
@@ -413,13 +408,26 @@ btagWeights_2022PostEE = lambda : btag_weighterRun3(
 )
 
 
-scalefactors_2022   = [btagWeights_2022]
+scalefactors_2022   = [lepscalefactors_2022, btagWeights_2022]
 scalefactors_2022EE = [lepscalefactors_2022EE, btagWeights_2022PostEE]
 
 
 #from CMGTools.TTHAnalysis.tools.nanoAOD.mvasergio import LepMVAFriend 
 #mvasergio = [lambda : LepMVAFriend(18, separateCollections = 1)]
 
+# ---------------------------------------------------------------------------------------------------------------------------- #
+# ---------------------------------------------------- LEPTON MC MATCHER    -------------------------------------------------- # 
+# ---------------------------------------------------------------------------------------------------------------------------- #
+from CMGTools.TTHAnalysis.tools.nanoAOD.leptonMatcher import leptonMatcher
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM import lepgenVarsWZSM
+from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM_nondressed_withtaus import lepgenVarsWZSM_nondressed_withtaus
+
+leptonMCMatcher =  lambda: leptonMatcher("Mini")
+leptonMCBuilder = lambda : lepgenVarsWZSM("Mini")
+leptonGENBuilder = [leptonMCMatcher, leptonMCBuilder]
+lepGENBuilder_withtaus = lambda : lepgenVarsWZSM_nondressed_withtaus("Mini")
+
+leptonGENBuilder_nondressed_withTaus = [leptonMCMatcher, lepGENBuilder_withtaus]
 
 # -------------------------------------------------------------------------------------------------------------------------- #
 # ---------------------------------------------------- MODULES FOR FR ------------------------------------------------------ # 
@@ -446,26 +454,14 @@ lepCollector_EE_data_FR = [m for m in lepCollector_EE_data if m != lepSkim]
 
 frUtils = [ lepJetBTagDeepFlav, lepFR, nBJetDeepFlav25NoRecl ]
 
-# ---------------------------------------------------------------------------------------------------------------------------- #
-# ---------------------------------------------------- LEPTON MC MATCHER    -------------------------------------------------- # 
-# ---------------------------------------------------------------------------------------------------------------------------- #
-from CMGTools.TTHAnalysis.tools.nanoAOD.leptonMatcher import leptonMatcher
-from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM import lepgenVarsWZSM
-from CMGTools.TTHAnalysis.tools.nanoAOD.lepgenVarsWZSM_nondressed_withtaus import lepgenVarsWZSM_nondressed_withtaus
+# ------------------------------------------------------------------------------------------------------------------------------ #
+# ---------------------------------------------------- BTAGGING EFFICIENCIES --------------------------------------------------- # 
+# ------------------------------------------------------------------------------------------------------------------------------ #
+from CMGTools.TTHAnalysis.tools.nanoAOD.btagEffCount_wzRun3 import bTagEffCount
+btagEffDeepjet_2022                   = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022" )]
+btagEffrobustParticleTransformer_2022 = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022" )]
+btagEffrobustParticleNet_2022         = [lambda : bTagEffCount( tagger = "btagPNetB",     year = "2022" )]
 
-leptonMCMatcher =  lambda: leptonMatcher("Mini")
-leptonMCBuilder = lambda : lepgenVarsWZSM("Mini")
-leptonGENBuilder = [leptonMCMatcher, leptonMCBuilder]
-lepGENBuilder_withtaus = lambda : lepgenVarsWZSM_nondressed_withtaus("Mini")
-
-leptonGENBuilder_nondressed_withTaus = [leptonMCMatcher, lepGENBuilder_withtaus]
-# ---- These are used for fiducial analysis
-lepMerge_fiducial = collectionMerger(
-    input = ["Electron", "Muon"], 
-    output = "LepGood",
-    selector = dict(Muon = lambda l: 1, Electron = lambda l: 1)
-)
-
-lepCollector_fiducial = [lepGENBuilder_withtaus]
-
-
+btagEffDeepjet_2022EE                   = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
+btagEffrobustParticleTransformer_2022EE = [lambda : bTagEffCount( tagger = "btagDeepFlavB", year = "2022EE" )]
+btagEffrobustParticleNet_2022EE         = [lambda : bTagEffCount( tagger = "btagPNetB",     year = "2022EE" )]
