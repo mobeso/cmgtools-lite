@@ -54,7 +54,7 @@ if __name__ == "__main__":
     datapath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/data/2022EE/"
     mcpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/2022EE/"
     mcfiles = ["WZto3LNu"]
-    datafiles = ["JetMET_Run2022F", "JetMET_Run2022G", "JetMET_Run2022E"]    
+    datafiles = ["JetMET_Run2022F", "JetMET_Run2022G"]    
     # --------- Make a TTree::Draw with numerator and denominator selection
     
     if mode == "inclusive":

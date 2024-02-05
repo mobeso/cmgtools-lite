@@ -15,7 +15,7 @@ $alias : promptMC     : $ZZ|$VVV|$ttx
 $alias : DY     : .*fakes_DY.*
 $alias : VV     : .*fakes_VV.*
 $alias : TT     : .*fakes_TT.*
-$alias : ST     : .*fakes_T.*
+$alias : ST     : .*fakes_T
 $alias : Wjets  : .*Wjets.*
 $alias : NonpromptMC  : $DY|$VV|$TT|$ST|$Wjets
 
@@ -33,7 +33,7 @@ lumi_2022_early  : $allProcs  : .*  : normSymm  :1.022
 normZZ    : $ZZ      : .* : normSymm : 1.06
 normVVV   : $VVV     : .* : normSymm : 1.50
 normConvs : $convs   : .* : normSymm : 1.12
-normfakes : $mcfakes : .* : normSymm : 1.50
+normfakes : $NonpromptMC : .* : normSymm : 1.50
 normttx   : $ttx     : .* : normSymm : 1.15
 
 ## JECs 

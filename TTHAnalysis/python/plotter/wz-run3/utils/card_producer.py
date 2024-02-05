@@ -2,7 +2,7 @@ from .producer import producer
 from utils.ftree_producer import ftree_producer
 from utils.plot_producer import plot_producer
 from cfgs.lumi import lumis
-from cfgs.friends_cfg import friends as modules
+from cfgs.friends_cfg import friends_mc, friends_data
 import os
 
 class card_producer(plot_producer):

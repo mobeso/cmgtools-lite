@@ -1,6 +1,9 @@
 import os
 import ROOT as r
 import array
+import sys
+r.gROOT.SetBatch(1)
+
 def color_msg(msg, color = "none"):
     """ Prints a message with ANSI coding so it can be printout with colors """
     codes = {
@@ -14,7 +17,8 @@ def color_msg(msg, color = "none"):
     print("\033[%s%s \033[0m"%(codes[color], msg))
     return
 
-treespath="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees/mc/2022EE/"
+year=sys.argv[1]
+treespath="/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/%s/"%year
 # Define groups to measure btagging efficiencies
 # Just put regexpresions that match only the samples you want in the given group
 groups = {
@@ -34,7 +38,7 @@ passVar = "JetPassWP{wp}FL{fl}_{var}"
 failVar = "JetFailWP{wp}FL{fl}_{var}"
 outdir = "./btagEffs/"
 
-for algo in ["Deepjet", "robustParticleTransformer", "robustParticleNet"]:
+for algo in ["Deepjet", "robustParticleTransformer", "ParticleNet"]:
     for groupname, procs in groups.items():
         out = os.path.join(outdir, algo, groupname)
         if not os.path.exists( out ):
@@ -47,7 +51,7 @@ for algo in ["Deepjet", "robustParticleTransformer", "robustParticleNet"]:
         
         # Not very efficient but who cares
         files_toAdd = []
-        files = os.listdir( os.path.join(treespath, "btagEff{algo}".format(algo = algo)))
+        files = os.listdir( os.path.join(treespath, "btagEffs_{algo}".format(algo = algo)))
 
         for file_ in files:
             for proc in procs:
@@ -56,11 +60,11 @@ for algo in ["Deepjet", "robustParticleTransformer", "robustParticleNet"]:
         color_msg(" >> Considering the following processes:")
         print(files_toAdd)
         for rf in files_toAdd:
-            tChain.Add( os.path.join(treespath, "btagEff{algo}".format(algo = algo), rf + "/Friends"))
+            tChain.Add( os.path.join(treespath, "btagEffs_{algo}".format(algo = algo), rf + "/Friends"))
     
     
         # Prepare output
-        outfile = os.path.join( out, "btagEff_{}_{}_2022EE.root".format(algo, groupname))
+        outfile = os.path.join( out, "btagEff_{}_{}_{}.root".format(algo, groupname, year))
         theAlgFile = r.TFile(outfile, "RECREATE")
 
 
@@ -69,7 +73,7 @@ for algo in ["Deepjet", "robustParticleTransformer", "robustParticleNet"]:
             for f in flavors.keys():
                 color_msg("     From %s"%f)
                 
-                subs_pt = {"wp" : wp, "fl": f, "var" : "pt", "algo" : algo }
+                subs_pt = {"wp" : wp, "fl": f, "var" : "pt_nom", "algo" : algo }
                 subs_eta = {"wp" : wp, "fl": f, "var" : "eta", "algo" : algo }
                 
                 # Evaluate the 2D histos
@@ -145,6 +149,6 @@ for algo in ["Deepjet", "robustParticleTransformer", "robustParticleNet"]:
                 r.gStyle.SetPaintTextFormat("4.3f")
                 #hTemp.Sumw2(False)
                 hTemp.Draw("colz text E")
-                c.SaveAs("%s/%s_2022EE.pdf"%(out, name))
-                c.SaveAs("%s/%s_2022EE.png"%(out, name))
-                c.SaveAs("%s/%s_2022EE.root"%(out, name))
+                c.SaveAs("%s/%s_%s.pdf"%(out, name, year))
+                c.SaveAs("%s/%s_%s.png"%(out, name, year))
+                c.SaveAs("%s/%s_%s.root"%(out, name, year))
