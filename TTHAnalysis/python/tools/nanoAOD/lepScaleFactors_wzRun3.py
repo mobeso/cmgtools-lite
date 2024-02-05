@@ -223,9 +223,9 @@ class lepScaleFactors_wzrun3(Module):
       if flav == "electron" and (pt < 20): skipThese = ["recoMidPt", "recoHighPt"]
       if flav == "electron" and (pt > 20 and pt < 75): skipThese = ["recoLowPt", "recoHighPt"]
       if flav == "electron" and (pt > 75): skipThese = ["recoLowPt", "recoMidPt"]
-      if source in skipThese:
-          print("Skipping %s since %s pT is %3.2f"%(source, flav, pt))
-          continue
+      #if source in skipThese:
+      #    print("Skipping %s since %s pT is %3.2f"%(source, flav, pt))
+      #    continue
 
       sfret[source] = {"nominal" : sf}
       ## Now compute uncertainties

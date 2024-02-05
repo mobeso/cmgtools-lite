@@ -716,9 +716,12 @@ if __name__ == '__main__':
     folep    = lambda lep, jetlist :    _fO_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
     tightlep = lambda lep, jetlist : _tight_lepton(lep, looseDeepFlavB, mediumDeepFlavB, jetlist)
 
+    jetsel   = lambda jet: abs(jet.eta) < 4.7 and (jet.jetId & 2)
+    cleanjet = lambda lep, jet, dr : dr < 0.4
 
-    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/mc/2022EE/"
-    process = "TTto2L2Nu_part1"
+
+    mainpath = "/lustrefs/hdd_pool_dir/nanoAODv12/wz-run3/trees_v2/data/2022/"
+    process = "EGamma_Run2022C"
 #    process = "TTTo2L2Nu_part17"
     
     friends = [
@@ -740,43 +743,42 @@ if __name__ == '__main__':
     outFile = ROOT.TFile.Open("test_%s.root"%process, "RECREATE")
     outTree = FriendOutput(file_, tree, outFile)
     btag_wps = { 
-    "2022" : { 
-        "btagDeepFlavB"      : { "L" : 0.0583, "M" : 0.3086,  "T" : 0.7183 },
-        "btagRobustParTAK4B" : { "L" : 0.0849, "M" : 0.4319,  "T" : 0.8482 },
-        "btagPNetB"          : { "L" : 0.047,  "M" : 0.245,   "T" : 0.6734 }
-    },
-    "2022EE" : {
-        "btagDeepFlavB"      : { "L" : 0.0614, "M" : 0.3196, "T" : 0.7300 },
-        "btagRobustParTAK4B" : { "L" : 0.0897, "M" : 0.451,  "T" : 0.8604 },
-        "btagPNetB"          : { "L" : 0.0499, "M" : 0.2605, "T" : 0.6915 }
-    }
+        "2022" : { 
+            "btagDeepFlavB"      : { "L" : 0.0583, "M" : 0.3086,  "T" : 0.7183 },
+            "btagRobustParTAK4B" : { "L" : 0.0849, "M" : 0.4319,  "T" : 0.8482 },
+            "btagPNetB"          : { "L" : 0.047,  "M" : 0.245,   "T" : 0.6734 }
+        },
+        "2022EE" : {
+            "btagDeepFlavB"      : { "L" : 0.0614, "M" : 0.3196, "T" : 0.7300 },
+            "btagRobustParTAK4B" : { "L" : 0.0897, "M" : 0.451,  "T" : 0.8604 },
+            "btagPNetB"          : { "L" : 0.0499, "M" : 0.2605, "T" : 0.6915 }
+        }
     }
     module_test =  LeptonJetRecleanerWZSM(
-      "Mini",
-      # Lepton selectors
-      looseLeptonSel    = looselep, # Loose selection 
-      cleaningLeptonSel = cleanlep, # Clean on FO
-      FOLeptonSel       = folep,    # FO selection
-      tightLeptonSel    = tightlep, # Tight selection
-      coneptdef = lambda lep: conept(lep),
-      # Lepton jet cleaner functions
-      jetPt = 30,
-      bJetPt = 25,
-      cleanJet  = lambda lep, jet, dr : dr < 0.4,
-      selectJet = lambda jet: abs(jet.eta) < 4.7 and (jet.jetId & 2), 
-      # For systematics
-      systsJEC = [],
-      systsLepScale = ["ScaleUp", "ScaleDown", "SmearUp", "SmearDown"]
-,
-      # These are used for EWKino as well
-      doVetoZ   = False,
-      doVetoLMf = False,
-      doVetoLMt = True,
-      # ------------------------------------- #
-      year  = "2022EE",
-      btag_wps = btag_wps,
-      bAlgo = "btagDeepFlavB",
-      verbosity = 1
+        "Mini",
+        # Lepton selectors
+        looseLeptonSel    = lambda lep: _loose_lepton(lep, btag_wps["2022"]["btagDeepFlavB"]["L"], btag_wps["2022"]["btagDeepFlavB"]["M"]),
+        cleaningLeptonSel = lambda lep, jetlist:    _fO_lepton(lep, btag_wps["2022"]["btagDeepFlavB"]["L"], btag_wps["2022"]["btagDeepFlavB"]["M"], jetlist),
+        FOLeptonSel       = lambda lep, jetlist:    _fO_lepton(lep, btag_wps["2022"]["btagDeepFlavB"]["L"], btag_wps["2022"]["btagDeepFlavB"]["M"], jetlist),
+        tightLeptonSel    = lambda lep, jetlist: _tight_lepton(lep, btag_wps["2022"]["btagDeepFlavB"]["L"], btag_wps["2022"]["btagDeepFlavB"]["M"], jetlist),
+        coneptdef         = lambda lep: conept(lep),
+        # Lepton jet cleaner functions
+        jetPt     = 30,
+        bJetPt    = 25,
+        cleanJet  = cleanjet,
+        selectJet = jetsel, 
+        # For systematics
+        systsJEC  = [],
+        systsLepScale = [],
+        # These are used for EWKino as well
+        doVetoZ   = False,
+        doVetoLMf = False,
+        doVetoLMt = True,
+        # ------------------------------------- #
+        year  = "2022",
+        btag_wps = btag_wps,
+        bAlgo = "btagDeepFlavB",
+        verbosity = 1
     )
     module_test.beginJob()
     (nall, npass, timeLoop) = eventLoop([module_test], file_, outFile, tree, outTree, maxEvents = nentries)
