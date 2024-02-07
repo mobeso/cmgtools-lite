@@ -7,9 +7,11 @@ NC='\033[0m' # No Color
 
 
 measure=$1
-extra=$2
 ## For the year: 2022, 2022EE or all
-year=all
+year=$2
+extra=$3
+
+
 
 echo -e "$CYAN WARNING!! Remember that you are using the $year dataset!! :D"
 
