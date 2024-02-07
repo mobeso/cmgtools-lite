@@ -6,9 +6,8 @@ CYAN='\033[1;36m'
 NC='\033[0m' # No Color
 
 
-measure=$1
-## For the year: 2022, 2022EE or all
-year=$2
+measure=$1 ## eff , acc_pow or acc_amc
+year=$2 ## For the year: 2022, 2022EE or all
 extra=$3
 
 
