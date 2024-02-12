@@ -158,10 +158,16 @@ triggerSequence = [Trigger_sm, Trigger_se, Trigger_mm, Trigger_ee, Trigger_em, T
 # --- PU weights --- #
 from CMGTools.TTHAnalysis.tools.nanoAOD.puWeightProducer_run3 import puAutoWeight_2022, puAutoWeight_2022PostEE
 
-lepCollector         = [lepMerge, lepSkim] + [tagger, puAutoWeight_2022] + triggerSequence
-lepCollector_data    = [lepMerge,  lepSkim] + [tagger] + triggerSequence
-lepCollector_EE      = [lepMerge_EE, lepSkim] + [tagger, puAutoWeight_2022PostEE] + triggerSequence
-lepCollector_EE_data = [lepMerge_EE , lepSkim] + [tagger] + triggerSequence
+lepCollector            = [lepMerge, lepSkim] + [tagger, puAutoWeight_2022] + triggerSequence
+lepCollector_data       = [lepMerge,  lepSkim] + [tagger] + triggerSequence
+lepCollector_EE         = [lepMerge_EE, lepSkim] + [tagger, puAutoWeight_2022PostEE] + triggerSequence
+lepCollector_EE_data    = [lepMerge_EE , lepSkim] + [tagger] + triggerSequence
+
+
+#No skim postEE samples
+lepCollector_EE_nS      = [lepMerge_EE] + [tagger, puAutoWeight_2022PostEE] + triggerSequence
+lepCollector_nS         = [lepMerge] + [tagger, puAutoWeight_2022] + triggerSequence
+
 
 # ---------------------------------------------------------------------------------------------------------------------------- #
 # -----------------  REDO SCALE CORRECTIONS (TEMPORAL, WILL MOVE TO POSTPROCESSING STEP)    ---------------------------------- # 
