@@ -117,6 +117,7 @@ function measure_acceptance() {
 
     basecmd="python3 wz-run3/wz-run.py plot"
     basecmd="$basecmd --ncores 32" # Add cores
+    basecmd="$basecmd --mca $mca"
     basecmd="$basecmd --uncfile wz-run3/inclusive_xsec/systs-acc.txt --unc  "
     basecmd="$basecmd --cutfile $cuts" # add cuts
     basecmd="$basecmd --unweight " # Unweight everything since this is fiducial level
