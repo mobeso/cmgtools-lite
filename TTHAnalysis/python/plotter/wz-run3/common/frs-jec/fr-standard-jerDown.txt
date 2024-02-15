@@ -1,0 +1,17 @@
+
+change: m3Lmet\b: m3Lmet_jerDown
+change: MET_pt_central\b: PuppiMET_T1_pt_jerDown
+### --- Please review if that is the branch we have to change.... Rember issue with MET_pt_central and PuppiMet and all that
+change: nBJetTight25_Mini\b: nBJetTight25_Mini_jerDown
+change: nBJetTight25\b: nBJetTight25_Mini_jerDown
+change: nBJetMedium25_Mini\b: nBJetMedium25_Mini_jerDown
+change: nBJetMedium25\b: nBJetMedium25_Mini_jerDown
+change: nBJetLoose25_Mini\b: nBJetLoose25_Mini_jerDown
+change: nBJetLoose25\b: nBJetLoose25_Mini_jerDown
+
+change: bTagWeight\b: bTagWeight_jerDown
+change: bTagWeight\b: bTagWeight_jerDown
+change: bTagWeight\b: bTagWeight_jerDown
+
+change: JetClean25_pt\b: JetClean25_pt_jerDown
+weight:1

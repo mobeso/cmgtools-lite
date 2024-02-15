@@ -17,7 +17,7 @@ change: JetClean25_pt\\b: JetClean25_pt_{nuis}{var}
 weight:1
 '''
 
-nuisances = "jesTotal jesHF jesBBEC1_year jesFlavorQCD jesRelativeSample_year jesEC2 jesHF_year jesRelativeBal jesAbsolute_year jesBBEC1 jesEC2_year jesAbsolute"
+nuisances = "jesTotal jesHF jesBBEC1_year jesFlavorQCD jesRelativeSample_year jesEC2 jesHF_year jesRelativeBal jesAbsolute_year jesBBEC1 jesEC2_year jesAbsolute jer"
 nuisances = nuisances.split(" ")
 
 for var in ["Up", "Down"]:

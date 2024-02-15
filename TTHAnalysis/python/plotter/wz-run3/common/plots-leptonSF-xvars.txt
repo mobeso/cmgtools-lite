@@ -1,9 +1,0 @@
-# vim: syntax=sh
-lep1pt : LepZ1_pt : [15,25,30,35,40,45,55,70,100,200]; XTitle="Cone p_{T} (Z1)"
-lep2pt : LepZ2_pt : [15,25,30,35,40,45,55,70,100,200]; XTitle="Cone p_{T} (Z2)"
-lep3pt : LepW_pt  : [15,25,30,35,40,45,55,70,100,200]; XTitle="Cone p_{T} (W)"
-
-
-lep1eta : LepZ1_eta : [0,0.5,1.0,1.444,1.566,2.0,2.5]; XTitle="#eta (Z1)"
-lep2eta : LepZ2_eta : [0,0.5,1.0,1.444,1.566,2.0,2.5]; XTitle="#eta (Z2)"
-lep3eta : LepW_eta  : [0,0.5,1.0,1.444,1.566,2.0,2.5]; XTitle="#eta (W)"
