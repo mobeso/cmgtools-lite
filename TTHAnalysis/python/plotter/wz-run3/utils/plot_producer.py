@@ -77,7 +77,7 @@ class plot_producer(producer):
 
     # Other plotting stuff 
     plottingStuff =  "--obj Events "
-    plottingStuff += "--maxRatioRange 0.5 1.5 "
+    plottingStuff += "--maxRatioRange 0.7 1.3 "
     plottingStuff += "--fixRatioRange "
     plottingStuff += "--print C,pdf,png,txt "
     plottingStuff += "--legendWidth 0.23 "

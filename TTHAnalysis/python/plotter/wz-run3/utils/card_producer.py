@@ -36,8 +36,16 @@ class card_producer(plot_producer):
     extra    = self.extra
     uncfile  = self.uncfile
     lumi     = lumis[year]
-    mcpath   = os.path.join(self.mcpath, self.year)
-    datapath = os.path.join(self.datapath, self.year)
+
+    if self.year != "all":
+        lumi      = lumis[year]
+        mcpath = os.path.join(self.mcpath, self.year)
+        datapath = os.path.join(self.datapath, self.year)
+    else:
+        year = ",".join(["%s"%y for y in lumis])
+        lumi = ",".join(["%s"%lumis[y] for y in lumis])
+        mcpath = self.mcpath
+        datapath = self.datapath
 
     doAsimov = "--xp data --asimov signal" if "srwz" in self.cutfile else "" # Always blind the fit for SR!!!
     # List with all the options given to CMGTools
@@ -53,6 +61,7 @@ class card_producer(plot_producer):
                    "-W '%s'"%("*".join(self.weights)) if len(self.weights) else "",
                    "-j %s"%(self.ncores),
                    "-l %s"%lumi,
+                   "--year %s"%year,
                    doAsimov,
                    "--categorize '(abs(LepZ1_pdgId)+abs(LepZ2_pdgId)+abs(LepW_pdgId)-33)/2' '[-0.5,0.5,1.5,2.5,3.5]' 'eee,eem,mme,mmm' "
                    "--unc %s"%uncfile,
