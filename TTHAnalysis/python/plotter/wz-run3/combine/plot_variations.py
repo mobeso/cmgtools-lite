@@ -37,7 +37,7 @@ def retrieve_histograms(file_name, process):
     for key in key_list:
         hist_name = key.GetName()
         if "nonfid" in hist_name:continue
-        if "smear" not in hist_name: continue
+        if "elec" not in hist_name: continue
         if hist_name.startswith("{}_".format(process)) and ("Up" in hist_name or "Down" in hist_name):
             variated_hist = root_file.Get(hist_name).Clone()
             variated_hist.Divide(nominal_hist)
@@ -72,7 +72,7 @@ def plot_histograms(nominal_hist, ratio_histograms, process):
     first_hist = ratio_histograms[0]
     first_hist.SetTitle("")
     first_hist.SetMarkerSize(0)
-    first_hist.GetYaxis().SetRangeUser(0.9, 1.15)
+    first_hist.GetYaxis().SetRangeUser(0.1, 2)
     first_hist.SetLineColor(ROOT.kBlack)
     first_hist.SetTitle("")
     first_hist.GetYaxis().SetTitle("Ratio")

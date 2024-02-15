@@ -1,9 +1,9 @@
-import fit_configs as fitcfg
 from optparse import OptionParser
 import os 
 import re
 import sys
 
+mainpath = os.path.join( os.environ["HOME"], "WorkSpace/wz-run3/CMSSW_12_4_12/src/CMGTools/TTHAnalysis/python/plotter/") 
 def color_msg(msg, color = "none", indentlevel=0):
     """ Prints a message with ANSI coding so it can be printout with colors """
     codes = {
@@ -31,12 +31,12 @@ def add_parsing_opts():
     
     parser.add_option("--mode", dest = "mode", default = "combinecards",
                 help = "Mode to run")
-    parser.add_option("--configname", dest = "configname", default = "inclusiveFlavorFit",
-                help = "Config to use")
+    parser.add_option("--add-filter", "-a", dest = "filters", action = "append", default = [],
+                help = "All inputs will form a unique regular expression for filtering cards. ORDER MATTERS.")
+    parser.add_option("--output", "-o", dest = "output_folder", default = "inclusiveFlavorFit",
+                help = "Output folder")
     parser.add_option("--submit", dest = "submit", default = False, action="store_true",
                 help = "Submit job.")
-    parser.add_option("--helpConfigs", dest = "helpConfigs", default = False, action="store_true",
-                help = "Shows a summary of what can be done with this.")
     return parser
 
 def create_outpath(out):
@@ -44,6 +44,44 @@ def create_outpath(out):
     if not os.path.exists( out ):
         os.system("mkdir -p %s"%out)
     return
+
+def fit_configs(filters = [], out = "fitResult"):
+    """ 
+       Configure basic stuff for fits 
+    """
+    filtertext = "*".join( filters + [".txt"]) 
+    config = {
+        # ------- For card combination
+        "cards" : {
+            "srwz" : os.path.join( mainpath, "cards/wz/srwz/" ),
+            "crzz" : os.path.join( mainpath, "cards/wz/crzz/" ),
+            #"crtt" : os.path.join( mainpath, "cards/wz/crtt/" )
+        },
+        "filtercards" : "*{filters}".format( filters = filtertext ),
+        # ------- For workspace creation
+        "ws" : "workspace_wz.root",
+        "pois" : [
+            (".*prompt_WZ", "r_wz"), 
+            (".*prompt_ZZ", "r_zz")
+        ],
+        "combineModel" : "HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel",
+        "out" : "{out}".format( out = out ),
+
+        # ------- For fits
+        "signalPOI" : "r_wz",
+        "blind" : True,
+        "additional" : [
+            # Add convergence options
+            "--X-rtd MINIMIZER_MaxCalls=99999999999",
+            " --maxFailedSteps 500", 
+            "--X-rtd MINIMIZER_analytic",
+            " --setRobustFitTolerance 0.05", 
+            "--cminPreScan", 
+            "--cminDefaultMinimizerStrategy 0"
+        ]
+    }
+
+    return config
 
 def combine_cards(config):
     """ Function to combine cards using fancy naming so they can be tracked in the impacts """
@@ -142,25 +180,17 @@ if __name__ == "__main__":
     opts, args = add_parsing_opts().parse_args()
 
     mode = opts.mode
-    configname = opts.configname
-    helpConfigs = opts.helpConfigs
-
-    if helpConfigs:
-        color_msg("Available configurations:", "green")
-        configs = fitcfg.configs
-        for configname, config in configs.items():
-            color_msg(configname, "blue", 1)
-            print( config(True) )
-        
-        
-        sys.exit(0)
+    filters = opts.filters
+    output_folder = opts.output_folder
 
     cmds = None
     
     # Get the proper configuration
-    config_to_use = fitcfg.configs[ configname ]() 
+    config_to_use = fit_configs(filters = filters, out = output_folder) 
+
     # make sure the output exists
-    create_outpath(config_to_use["out"])
+    if opts.submit:
+        create_outpath(config_to_use["out"])
     if mode == "combinecards": 
         cmds = combine_cards( config_to_use )
     elif mode == "workspace":
@@ -168,11 +198,11 @@ if __name__ == "__main__":
     elif mode == "impacts":
         cmds = impacts( config_to_use )
     elif mode == "scan":
-        cmds = scan(config_to_use)
+        cmds = scan( config_to_use )
     elif mode == "fitDiagnostics":
-        cmds = fitDiagnostics(config_to_use)
+        cmds = fitDiagnostics( config_to_use )
     elif mode == "multigof":
-        cmds = multigof(config_to_use)
+        cmds = multigof( config_to_use )
  
     for icmd, cmd in enumerate(cmds):
         color_msg("Command %d:"%icmd, "green")
