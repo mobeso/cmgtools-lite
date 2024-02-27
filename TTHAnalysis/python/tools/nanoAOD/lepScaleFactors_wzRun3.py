@@ -35,10 +35,10 @@ class lepScaleFactors_wzrun3(Module):
         },
         
         "electron" : { 
-          "IDTight"    : { "file" : "EGM/{year}/Electrons-mvaTTH-WP097_nanoAODv12",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
-          "recoLowPt"  : { "file" : "EGM/{year}/Electrons-recoSF-lowPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
-          "recoMidPt"  : { "file" : "EGM/{year}/Electrons-recoSF-mediumPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")] },
-          "recoHighPt" : { "file" : "EGM/{year}/Electrons-recoSF-highPt",  "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]}
+          "IDTight"    : { "file" : "EGM/{year}/Electrons-mvaTTH-WP097_nanoAODv12", "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]},
+          "recoLowPt"  : { "file" : "EGM/{year}/Electrons-recoSF-lowPt",            "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]},
+          "recoMidPt"  : { "file" : "EGM/{year}/Electrons-recoSF-mediumPt",         "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]},
+          "recoHighPt" : { "file" : "EGM/{year}/Electrons-recoSF-highPt",           "hist" : "EGamma_SF2D", "unc"  : [("total", "EGamma_SF2D")]}
         }
     }
     
@@ -223,9 +223,9 @@ class lepScaleFactors_wzrun3(Module):
       if flav == "electron" and (pt < 20): skipThese = ["recoMidPt", "recoHighPt"]
       if flav == "electron" and (pt > 20 and pt < 75): skipThese = ["recoLowPt", "recoHighPt"]
       if flav == "electron" and (pt > 75): skipThese = ["recoLowPt", "recoMidPt"]
-      #if source in skipThese:
+      if source in skipThese:
       #    print("Skipping %s since %s pT is %3.2f"%(source, flav, pt))
-      #    continue
+          continue
 
       sfret[source] = {"nominal" : sf}
       ## Now compute uncertainties
